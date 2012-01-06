@@ -1,0 +1,5 @@
+:scn conflicts
+    :serial,0
+        :parallel
+            conflicts.moveUpdateFr
+            basic()

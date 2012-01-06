@@ -1,0 +1,22 @@
+:scn,nofail start
+    :serial
+        common.start
+
+:scn stop
+    :serial
+        common.stopIgnoreErr
+
+:scn restart
+    :serial
+        stop()
+        start()
+
+:scn destroy
+    :serial
+        stop()
+        common.destroy
+
+:scn,nofail reset
+    :serial
+        destroy()
+        common.create
