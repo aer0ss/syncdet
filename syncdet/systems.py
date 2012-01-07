@@ -6,7 +6,7 @@
 # can be defined and be retreived by case modules through case.getSystem() or 
 # getLocalSystem()
 #
-# rsh:         the command to remotely login the system. we will use the 
+# rsh:         the command to remotely login to the system. we will use the 
 #              following format to invoke commands on the remote system:
 #                  rsh login@address <command_line>
 #              Hence, user must ensure that the system can be logged on without

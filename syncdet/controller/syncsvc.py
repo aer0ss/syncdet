@@ -1,6 +1,6 @@
 # the synchronization service
 #
-# we choose to use TCP as opposed to UPD because the testing network
+# we choose to use TCP as opposed to UDP because the testing network
 # might be using WAN simulation
 #
 #
@@ -9,7 +9,7 @@
 #  "len S module.sig.syncId sysId vote timeout sysId1,sysId2...sysIdN"
 #
 #    len:      message length, NOT including itself
-#    S:        the charactor 'S'
+#    S:        the character 'S'
 #    module:   case module name 
 #    sig:      instance signature
 #    syncId:   the synchronizer Id within the test case.

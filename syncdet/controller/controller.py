@@ -28,18 +28,18 @@ def analyze(module, dir):
             raise Exception
         
         n = lib.getSysCount()
-        prefered = 0
+        preferred = 0
         if 'entries' in spec.keys():
-            prefered += len(spec['entries'])
+            preferred += len(spec['entries'])
             # number of systems must meet the minimum req.
-            if (n < prefered):
+            if (n < preferred):
                  errorAnalysis(module + " requires at least %d systems but " \
-                                      "we only have %d." % (prefered, n))
+                                      "we only have %d." % (preferred, n))
 
         if 'max_add' in spec.keys():
-            prefered += spec['max_add']
+            preferred += spec['max_add']
         elif 'default' in spec.keys():
-            prefered = -1
+            preferred = -1
         
         if 'timeout' in spec.keys():
             timeout = spec['timeout']
@@ -48,13 +48,13 @@ def analyze(module, dir):
     except Exception: 
         errorAnalysis(module + " has an invalid '" + SPEC_NAME + "' structure.")
 
-    if prefered == -1:
+    if preferred == -1:
         return n, timeout
     else:
-        if not prefered: 
+        if not preferred: 
             print "warning: '%s' specifies zero systems to run, please check "\
             "its '%s' data structure." % (module, SPEC_NAME)
-        return min(n, prefered), timeout
+        return min(n, preferred), timeout
     
 # return the pid of the local proxy process. cmd is a string
 #

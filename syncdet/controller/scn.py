@@ -170,7 +170,7 @@ def executeUnitSafe(scn, unit, verify, show, verbose, ind):
     except RuntimeError:
         print 'error: recursive referencing exists in the scenario file.'
     
-# scenario: if not scenario then the global scenario will be executed
+# scenario: if no scenario then the global scenario will be executed
 #
 def execute(glob, scenario, verify, verbose):
     
