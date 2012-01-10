@@ -17,7 +17,7 @@
 #
 # address:     the address or the host name of the system
 #
-# detRoot:     the directory will det should be copied over
+# detRoot:     the directory where det should be copied over
 # 
 # copyFrom:    the command to copy a file %src on a remote host %host to a 
 #              local path %dst. Must support directory copy and follow
@@ -27,20 +27,19 @@
 #              %host. Must support directory copy and follow
 #              symbol links if any.
 #
+import getpass
 
 defaults = {
            'rsh':     'ssh',
-           'login':   'root',
+           'login':   'markj',
            'detRoot': '/s/syncdet',
-           'copyFrom': 'scp -r root@%host:%src %dst',
-           'copyTo':   'scp -r %src root@%host:%dst',
+           'copyFrom': 'scp -r markj@%host:%src %dst',
+           'copyTo':   'scp -r %src markj@%host:%dst',
            }
 
 # the definition of the systems
 systems = [
-           { 'address': '192.168.195.130' },
-           { 'address': '192.168.195.132' },
-           { 'address': '192.168.195.133' },
+           { 'address': '192.168.98.129' },
            ]
            
 # fill in the defaults

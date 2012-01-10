@@ -1,6 +1,7 @@
 #
 # the SyncDET configuration file
 #
+import getpass
 
 # the address or the host name of the controller
 CONTROLLER_ADDR = "dev"
@@ -44,7 +45,7 @@ DIRECTORY_SHARING = True
 
 # the local command to make the file or directory %s remotely writable, if the
 # directory is shared to remote systems.
-MAKE_SHARED_DIRECTORY_WRITABLE = 'chown weihan %s'
+MAKE_SHARED_DIRECTORY_WRITABLE = 'chown ' + getpass.getuser() + ' %s'
 
 # the delay in sec between launches of consecutive parallel items
 # this is used to to limit system loads on actors
