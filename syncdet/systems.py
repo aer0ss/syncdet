@@ -32,14 +32,14 @@ import getpass
 defaults = {
            'rsh':     'ssh',
            'login':   'markj',
-           'detRoot': '/s/syncdet',
+           'detRoot': '~/repos/aerofs.testframework/syncdet',
            'copyFrom': 'scp -r markj@%host:%src %dst',
            'copyTo':   'scp -r %src markj@%host:%dst',
            }
 
 # the definition of the systems
 systems = [
-           { 'address': '192.168.98.129' },
+           { 'address': '192.168.98.130' },
            ]
            
 # fill in the defaults
