@@ -41,7 +41,7 @@ LOG_DIR = 'log'
 REPORT_DIR = 'reports'
 
 # if the SyncDET directory is shared to the remote systems or not
-DIRECTORY_SHARING = True
+DIRECTORY_SHARING = False
 
 # the local command to make the file or directory %s remotely writable, if the
 # directory is shared to remote systems.

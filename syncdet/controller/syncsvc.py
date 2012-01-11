@@ -45,7 +45,7 @@
 
 import socket, select, string, threading
 
-import config, systems
+import config 
 from synchronizer import *
 
 def startService(verbose):

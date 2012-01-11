@@ -1,6 +1,6 @@
 import string, time
 
-import config, systems
+import config
 
 # NOTE: we need to store the socket per request but not per system because 
 #       a system may fire multiple requests by multiple concurrent test cases

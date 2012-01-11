@@ -5,7 +5,7 @@ import string, sys
 sys.path.insert(1, sys.path[0] + '/..')
 
 from syncdet_case_lib import *
-import config, systems
+import config
 
 # add the module's parent directory. argv[6] is the directory name relative
 # to SyncDET's path.
@@ -20,7 +20,15 @@ class Output:
     newline = 1
     
     def __init__(self, logPath):
-        if config.CASE_LOG_OUTPUT: self.file = open(logPath, 'a')
+        if config.CASE_LOG_OUTPUT: 
+            try:
+                self.file = open(logPath, 'a')
+            except IOError:
+                s_logDir = os.path.dirname(logPath)
+                print 'Could not open file %s. Making dir %s.' % (logPath,
+                        s_logDir)
+                os.makedirs(s_logDir)
+                self.file = open(logPath, 'a')
         
     def write(self, data):
         end = -1

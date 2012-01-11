@@ -1,7 +1,7 @@
 import sys, socket, string
 
 from syncdet_case_lib import *
-import config, systems
+import config 
 
 # id:      the sync id, can be either numerical or textual, identifying the 
 #          synchronizer within the scope of the instance

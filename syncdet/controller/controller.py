@@ -59,17 +59,9 @@ def analyze(module, dir):
 # return the pid of the local proxy process. cmd is a string
 #
 def executeRemoteCmd(sysId, cmd, verbose):
-    system = systems.systems[sysId]
-    args = [
-           system['rsh'],
-           system['login'] + '@' + system['address'],
-           cmd
-           ]
-    if verbose:
-        print 'cmd[%d]' % sysId,
-        for arg in args: print arg,
-        print 
-    return os.spawnvp(os.P_NOWAIT, args[0], args)
+    system = systems.getSystem(sysId)
+    return system.executeRemoteCmd(os.P_NOWAIT, cmd, verbose)
+
 
 # return the number of systems and a list of systems that didn't finish on time
 #
@@ -78,9 +70,9 @@ def launchCase(module, dir, instId, verbose):
         
     pids = {}    # { pid: sysId }
     for i in range(n):
-        system = systems.systems[i]
+        system = systems.getSystem(i)
         # the command
-        cmd =  'python %s/case/%s ' % (system['detRoot'], WRAPPER_NAME)
+        cmd =  'python %s/case/%s ' % (system.detRoot, WRAPPER_NAME)
         # the arguments:
         # module sysId scenarioId instId sysCount dir(relative to SyncDET root) controllerRoot
         cmd += '%s %d %s %s %d %s %s' % (module, i, 

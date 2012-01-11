@@ -1,6 +1,6 @@
 import sys, string, datetime, threading, scn
 
-import config, systems, controller, log, lib
+import config, controller, log, lib
 
 RES_OK      = 0
 RES_NOSTART = 1

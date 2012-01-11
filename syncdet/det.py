@@ -6,6 +6,7 @@ import controller.scn
 import controller.syncsvc
 import controller.report
 import controller.lib
+import controller.deploy
 import controller
 import config
 
@@ -83,8 +84,11 @@ else:
 controller.syncsvc.startService(options.verbose)
 
 if config.DIRECTORY_SHARING != True:
-    print 'error: the current version only support DIRECTORY_SHARING=True'
-    sys.exit()
+    print 'warning: there previously existed support for ' \
+          'DIRECTORY_SHARING=True (ie a shared NFS drive), ' \
+          'but now we assume this not to be the case.'
+    controller.deploy.deployCaseSrc()
+    #sys.exit()
 
 # launch the scenarios
 for scenario in scenarios:

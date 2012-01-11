@@ -1,6 +1,6 @@
-import sys, os, os.path
+import sys, os.path
 
-import systems, config
+import config, systems
 
 OK        = 0
 FAIL      = 1
@@ -35,31 +35,9 @@ def getScenarioId():
 
 def getControllerRoot():
     return sys.argv[7]
-    
-def getSystem(sysId):
-    return systems.systems[sysId]
-
-def getSystemAddress(sysId):
-    return getSystem(sysId)['address']
 
 def getLocalSystem():
-    return systems.systems[getSysId()]
-
-def copyFrom(sysId, src, dst):
-    str = getSystem(sysId)['copyFrom']
-    str = str.replace('%host', getSystemAddress(sysId))
-    str = str.replace('%src', src)
-    str = str.replace('%dst', dst)
-    print str
-    os.system(str)
-
-def copyTo(src, sysId, dst):
-    str = getSystem(sysId)['copyTo']
-    str = str.replace('%host', getSystemAddress(sysId))
-    str = str.replace('%src', src)
-    str = str.replace('%dst', dst)
-    print str
-    os.system(str)
+    return systems.getSystem(getSysId())
 
 def getLocalRoot(): return getLocalSystem()['detRoot']
 

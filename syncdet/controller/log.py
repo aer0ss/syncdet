@@ -1,6 +1,6 @@
 import sys, os
 
-import config, systems, scn, lib
+import config, scn, lib
 
 # static initialization
 #
