@@ -15,6 +15,7 @@ ACTOR_PY_FILES =     ( 'systems.py', 'config.py', 'systemsdef.py',
                        'case/syncdet_actor_wrapper.py', 
                        'case/syncdet_case_lib.py',
                        'case/syncdet_case_sync.py',
+                       'case/__init__.py',
                       )
 
 # Deploys the "case/actor" package source code files
