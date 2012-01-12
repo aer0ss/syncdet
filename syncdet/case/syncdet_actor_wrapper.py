@@ -23,6 +23,7 @@ class Output:
     
     def __init__(self, logPath):
         if config.CASE_LOG_OUTPUT: 
+            logPath = os.path.normpath(os.path.expanduser(logPath))
             try:
                 self.file = open(logPath, 'a')
             except IOError:
