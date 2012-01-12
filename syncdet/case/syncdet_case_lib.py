@@ -39,7 +39,7 @@ def getControllerRoot():
 def getLocalSystem():
     return systems.getSystem(getSysId())
 
-def getLocalRoot(): return getLocalSystem()['detRoot']
+def getLocalRoot(): return getLocalSystem().detRoot
 
 def getLogDir():
     return '%s/%s/%s' % (getLocalRoot(),

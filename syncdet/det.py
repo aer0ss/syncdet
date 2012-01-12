@@ -87,7 +87,7 @@ if config.DIRECTORY_SHARING != True:
     print 'warning: there previously existed support for ' \
           'DIRECTORY_SHARING=True (ie a shared NFS drive), ' \
           'but now we assume this not to be the case.'
-    controller.deploy.deployCaseSrc()
+    controller.deploy.deployActorSrc(options.verbose)
     #sys.exit()
 
 # launch the scenarios

@@ -17,24 +17,49 @@ ACTOR_PY_FILES =     ( 'systems.py', 'config.py', 'systemsdef.py',
                        'case/syncdet_case_sync.py',
                       )
 
-# Deploys the source files in s_filePaths to all
-# Systems in the list ls_systems
+# Deploys the "case/actor" package source code files
+# to all known Systems
 # - assumes all files in ACTOR_PY_FILES exist locally
-def deployCaseSrc():
-    s_srcRoot = lib.getLocalRoot()
+def deployActorSrc(verbose):
+    if not config.DIRECTORY_SHARING:
+        s_locRoot = lib.getLocalRoot()
+    
+        # Iterate over the number of systems
+        for system in systems.systems:
+            assert isinstance(system, systems.System)
+            s_dstRoot = system.detRoot
+            
+            # Ensure the destination DET root and case directories
+            # are present on the remote machine.
+            cmd_mkdir = 'mkdir -p %s/case' % (s_dstRoot)
+            system.executeRemoteCmd(os.P_WAIT, cmd_mkdir, verbose)
+    
+            for f in ACTOR_PY_FILES:
+                s_locPath = os.path.join(s_locRoot, f)
+                assert os.path.exists(s_locPath)
+                s_dstPath = os.path.join(s_dstRoot, f)
+                system.copyTo(s_locPath, s_dstPath)
 
-    # Iterate over the number of systems
-    for system in systems.systems:
-        assert isinstance(system, systems.System)
-        s_dstRoot = system.detRoot
-        
-        # Ensure the destination DET root and case directories
-        # are present on the remote machine.
-        cmd_mkdir = 'mkdir -p %s/case' % (s_dstRoot)
-        system.executeRemoteCmd(os.P_WAIT, cmd_mkdir, True)
 
-        for f in ACTOR_PY_FILES:
-            s_srcPath = os.path.join(s_srcRoot, f)
-            assert os.path.exists(s_srcPath)
-            s_dstPath = os.path.join(s_dstRoot, f)
-            system.copyTo(s_srcPath, s_dstPath)
+# Deploys the test case directory of source files to the specified system
+# - relTestDir is relative to SyncDET root directory
+def deployCaseSrc(s_relTestDir, system, verbose):
+    print lib.getLocalRoot()
+    print system.detRoot
+    print s_relTestDir
+    print os.path.normpath(os.path.join(lib.getLocalRoot(), s_relTestDir))
+    print os.path.normpath(os.path.join(system.detRoot, s_relTestDir))
+    if not config.DIRECTORY_SHARING:
+        s_locDir, s_dstDir = (
+                        os.path.normpath(os.path.join(root, s_relTestDir))
+                        for root in (lib.getLocalRoot(), system.detRoot)
+                              )
+        assert os.path.exists(s_locDir)
+    
+        # Ensure the destination test directory's parent is present
+        cmd_mkdir = 'mkdir -p %s' % (s_dstDir)
+        system.executeRemoteCmd(os.P_WAIT, cmd_mkdir, verbose)
+    
+        # Copy the entire test directory to the remote machine
+        #   -copy the local directory to the parent of the destination
+        system.copyTo(s_locDir, os.path.dirname(s_dstDir))

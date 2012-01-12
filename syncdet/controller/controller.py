@@ -1,6 +1,6 @@
 import os, string, time, datetime, signal, sys, threading, os.path
 
-import config, systems, report, lib, scn
+import config, systems, report, lib, scn, deploy
 
 WRAPPER_NAME = 'syncdet_actor_wrapper.py'
 
@@ -79,6 +79,7 @@ def launchCase(module, dir, instId, verbose):
                                       scn.getScenarioInstanceId(), 
                                       instId, n, dir, lib.getLocalRoot())
 
+        deploy.deployCaseSrc(dir, system, verbose)
         pids[executeRemoteCmd(i, cmd, verbose)] = i
 
     start = time.time()
