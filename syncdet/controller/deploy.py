@@ -44,11 +44,6 @@ def deployActorSrc(verbose):
 # Deploys the test case directory of source files to the specified system
 # - relTestDir is relative to SyncDET root directory
 def deployCaseSrc(s_relTestDir, system, verbose):
-    print lib.getLocalRoot()
-    print system.detRoot
-    print s_relTestDir
-    print os.path.normpath(os.path.join(lib.getLocalRoot(), s_relTestDir))
-    print os.path.normpath(os.path.join(system.detRoot, s_relTestDir))
     if not config.DIRECTORY_SHARING:
         s_locDir, s_dstDir = (
                         os.path.normpath(os.path.join(root, s_relTestDir))

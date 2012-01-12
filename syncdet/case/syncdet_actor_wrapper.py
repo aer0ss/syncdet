@@ -1,8 +1,9 @@
-import string, sys
+import string, sys, os.path
 
 # unlike other scripts, we're invoked from the current directory. 
 # we should include the DET root path to let all imports work.
-sys.path.insert(1, sys.path[0] + '/..')
+sys.path.insert(1, 
+    os.path.normpath(os.path.join(sys.path[0] , '../')))
 
 from syncdet_case_lib import *
 import config
@@ -10,7 +11,8 @@ import config
 # add the module's parent directory. argv[6] is the directory name relative
 # to SyncDET's path.
 #
-sys.path.insert(1, sys.path[0] + '/../' + sys.argv[6])
+sys.path.insert(1,
+    os.path.normpath(os.path.join(sys.path[0] , '../', sys.argv[6])))
 
 # import the case module
 exec 'import ' + getCaseModuleName()
