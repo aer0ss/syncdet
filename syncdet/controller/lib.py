@@ -2,7 +2,7 @@ import sys, os.path
 
 import systems
 
-s_realRoot = os.path.realpath(sys.path[0])
+s_realRoot = os.path.realpath(os.path.expanduser(sys.path[0]))
 
 def getLocalRoot(): return s_realRoot
 

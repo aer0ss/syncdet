@@ -6,7 +6,7 @@
 #############################################################################
 import os.path
 
-import lib, controller
+import lib, log
 import config, systems
 
 # Tuple of src files which must be deployed for actors to run cases
@@ -59,3 +59,22 @@ def deployCaseSrc(s_relTestDir, system, verbose):
         # Copy the entire test directory to the remote machine
         #   -copy the local directory to the parent of the destination
         system.copyTo(s_locDir, os.path.dirname(s_dstDir))
+
+def gatherLog(sysId, module, instId):
+    if not config.DIRECTORY_SHARING:
+
+        system = systems.getSystem(sysId)
+
+        # Determine where the logfile should be stored locally
+        s_locLogPath = log.getLocalLogPath(sysId, module, instId)
+
+        # The remote file name should be the same, needing only account for
+        # a different SyncDET root
+        s_remLogPath = s_locLogPath.replace(
+                            lib.getLocalRoot(),
+                            system.detRoot)
+
+        # TODO: - handle remote does not have file
+        #       - handle local can not store file
+        system.copyFrom(s_remLogPath, s_locLogPath)
+        

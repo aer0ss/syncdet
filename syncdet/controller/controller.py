@@ -79,6 +79,8 @@ def launchCase(module, dir, instId, verbose):
                                       scn.getScenarioInstanceId(), 
                                       instId, n, dir, lib.getLocalRoot())
 
+        # First deploy the necessary test case source code to the remote system
+        # then execute the remote command
         deploy.deployCaseSrc(dir, system, verbose)
         pids[executeRemoteCmd(i, cmd, verbose)] = i
 
@@ -121,6 +123,8 @@ def makeCaseInstanceId():
 def executeCase(module, dir, verbose):
     instId = makeCaseInstanceId()
     n, unfinished = launchCase(module, dir, instId, verbose)
+    for i in range(n):
+        deploy.gatherLog(i, module, instId)
     return report.reportCase(module, instId, n, unfinished)
 
 KILL_CMD = "for i in `ps -eo pid,cmd | grep '%s' | grep -v grep | " \

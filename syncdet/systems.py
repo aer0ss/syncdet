@@ -60,8 +60,13 @@ class System:
         cmd = cmd.replace('%src', src)
         cmd = cmd.replace('%dst', dst)
         print cmd
-        os.system(cmd)
-
+        exit = os.system(cmd)
+        if not (exit == 0):
+            s_warning = ('<System._copy> system command {} ' 
+                         'returned exit code {}. ' 
+                         'See http://support.attachmate.com/techdocs/2116.html'
+                        ).format(cmd, exit)
+            print s_warning
 
 # Static initialization from systemsdef.py
 for d_system in systemsdef.d_systems:

@@ -19,8 +19,14 @@ except OSError:
 if config.DIRECTORY_SHARING and config.MAKE_SHARED_DIRECTORY_WRITABLE:
     os.system(config.MAKE_SHARED_DIRECTORY_WRITABLE % s_localLogDir)
 
+# Return the log file path, relative to the log directory
+#
+def getRelativeLogPath(sysId, module, instId):
+    return '%s.%s.%s' % (module, instId, sysId)
+
 # make the log path for the controller system
 #
 def getLocalLogPath(sysId, module, instId):
     global s_localLogDir
-    return '%s/%s.%s.%s' % (s_localLogDir, module, instId, sysId)
+    return os.path.realpath(os.path.join(
+                s_localLogDir, getRelativeLogPath(sysId, module, instId)))
