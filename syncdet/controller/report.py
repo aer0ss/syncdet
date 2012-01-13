@@ -1,4 +1,4 @@
-import sys, string, datetime, threading, scn
+import sys, string, datetime, threading, scn, os.path, os
 
 import config, controller, log, lib
 
@@ -16,6 +16,8 @@ def isReportEnabled():
 if isReportEnabled():
     s_reportPath = '%s/%s/report.%s' % (lib.getLocalRoot(), config.REPORT_DIR, 
                                         scn.getScenarioInstanceId())
+    d = os.path.dirname(s_reportPath)
+    if not os.path.exists(d): os.mkdir(d)
     s_reportFile = None    # open the file only when generating the report
     s_lock       = threading.Lock()
 
@@ -106,7 +108,7 @@ def reportCase(module, caseInstId, n, unfinished):
                 s_reportFile.write('timed out.')
             
             s_reportFile.write(' ' + results[i][1] + '\n')
-        
+
     # to let the user read the error report ASAP
     s_reportFile.flush()
         

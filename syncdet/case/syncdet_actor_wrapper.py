@@ -18,20 +18,24 @@ sys.path.insert(1,
 exec 'import ' + getCaseModuleName()
 
 class Output:
-    file
+    fout = None
     newline = 1
     
     def __init__(self, logPath):
         if config.CASE_LOG_OUTPUT: 
             logPath = os.path.normpath(os.path.expanduser(logPath))
             try:
-                self.file = open(logPath, 'a')
+                self.fout = open(logPath, 'a')
             except IOError:
                 s_logDir = os.path.dirname(logPath)
                 print 'Could not open file %s. Making dir %s.' % (logPath,
                         s_logDir)
                 os.makedirs(s_logDir)
-                self.file = open(logPath, 'a')
+                self.fout = open(logPath, 'a')
+
+    def __del__(self):
+        if self.fout:
+            self.fout.close()
         
     def write(self, data):
         end = -1
@@ -52,7 +56,7 @@ class Output:
                 if end == len(data) - 1: return
             
     def writeRaw(self, data):
-        if config.CASE_LOG_OUTPUT:    self.file.write(data)
+        if config.CASE_LOG_OUTPUT:    self.fout.write(data)
         if config.CASE_SCREEN_OUTPUT: sys.__stdout__.write(data)
 
 # hijack the stdout and stderr
