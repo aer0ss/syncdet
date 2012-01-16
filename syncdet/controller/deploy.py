@@ -5,6 +5,7 @@
 # - to collect log files from actors to the controller's system
 #############################################################################
 import os.path, os, tarfile
+from multiprocessing import Pool
 
 import lib, log
 import config, systems
@@ -18,6 +19,41 @@ ACTOR_PY_FILES =     ( 'systems.py', 'config.py', 'systemsdef.py',
                        'case/__init__.py',
                       )
 ACTOR_TAR_PATH = 'actorsrc.tar.gz'
+
+
+class TarFileDeployer:
+    _s_locTar = ''
+    _system = None
+    v = False         # Verbose?
+    def __init__(self, s_locTar, system, verbose):
+        self._s_locTar = s_locTar
+        self._system = system
+        self.v = verbose
+        assert os.path.exists(self._s_locTar)
+        assert isinstance(self._system, systems.System)
+
+    def deploy(self):
+        s_dstRoot = self._system.detRoot
+        
+        # Ensure the destination DET root and case directories
+        # are present on the remote machine.
+        cmd_mkdir = 'mkdir -p {}'.format(s_dstRoot)
+        self._system.executeRemoteCmd(os.P_WAIT, cmd_mkdir, self.v)
+
+        # Copy over the tar file
+        s_dstTar = os.path.join(s_dstRoot, ACTOR_TAR_PATH)
+        self._system.copyTo(self._s_locTar, s_dstTar)
+
+        # Extract the tar file to the syncdet root and remove the tar
+        cmd_extract = ('tar -xzf {0} -C {1}; '
+                       'rm {0};'
+                      ).format(s_dstTar, s_dstRoot)
+        self._system.executeRemoteCmd(os.P_WAIT, cmd_extract, self.v)
+
+def deployTarFileWrapper(tfd):
+    print tfd
+    tfd.deploy()
+
 
 # Deploys the "case/actor" package source code files
 # to all known Systems
@@ -36,26 +72,14 @@ def deployActorSrc(verbose):
                 tar.add(f)
         os.chdir(olddir)
 
-        # Iterate over the systems, scp the tar file and extract it
-        for system in systems.systems:
-            assert isinstance(system, systems.System)
-            s_dstRoot = system.detRoot
-            
-            # Ensure the destination DET root and case directories
-            # are present on the remote machine.
-            cmd_mkdir = 'mkdir -p {}'.format(s_dstRoot)
-            system.executeRemoteCmd(os.P_WAIT, cmd_mkdir, verbose)
+        # For each system, scp the tar file and extract it
+        #p = Pool(lib.getSysCount())
+        #it = p.imap(deployTarFileWrapper,
+        map(deployTarFileWrapper,
+                (TarFileDeployer(s_locTar, syst, verbose)
+                   for syst in systems.systems))
 
-            # Copy over the tar file
-            s_dstTar = os.path.join(s_dstRoot, ACTOR_TAR_PATH)
-            system.copyTo(s_locTar, s_dstTar)
-
-            # Extract the tar file to the syncdet root and remove the tar
-            cmd_extract = ('tar -xzf {0} -C {1}; '
-                           'rm {0};'
-                          ).format(s_dstTar, s_dstRoot)
-            system.executeRemoteCmd(os.P_WAIT, cmd_extract, verbose)
-    
+        #while next(it, None): pass
 
         # Done with the tar file; locally remove it
         if os.path.exists(s_locTar): os.remove(s_locTar)
