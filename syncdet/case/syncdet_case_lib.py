@@ -37,6 +37,8 @@ def getControllerRoot():
     return sys.argv[7]
 
 def getLocalSystem():
+    if not systems.systems:
+        systems.init(False, getSysCount())
     return systems.getSystem(getSysId())
 
 def getLocalRoot(): return getLocalSystem().detRoot

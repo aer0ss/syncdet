@@ -4,8 +4,8 @@
 # - to deploy test case source and scenarios to actors
 # - to collect log files from actors to the controller's system
 #############################################################################
-import os.path, os, tarfile
 from multiprocessing import Pool
+import os.path, os, tarfile
 
 import lib, log
 import config, systems
@@ -24,11 +24,9 @@ ACTOR_TAR_PATH = 'actorsrc.tar.gz'
 class TarFileDeployer:
     _s_locTar = ''
     _system = None
-    v = False         # Verbose?
-    def __init__(self, s_locTar, system, verbose):
+    def __init__(self, s_locTar, system):
         self._s_locTar = s_locTar
         self._system = system
-        self.v = verbose
         assert os.path.exists(self._s_locTar)
         assert isinstance(self._system, systems.System)
 
@@ -38,7 +36,7 @@ class TarFileDeployer:
         # Ensure the destination DET root and case directories
         # are present on the remote machine.
         cmd_mkdir = 'mkdir -p {}'.format(s_dstRoot)
-        self._system.executeRemoteCmd(os.P_WAIT, cmd_mkdir, self.v)
+        self._system.executeRemoteCmd(os.P_WAIT, cmd_mkdir)
 
         # Copy over the tar file
         s_dstTar = os.path.join(s_dstRoot, ACTOR_TAR_PATH)
@@ -48,17 +46,17 @@ class TarFileDeployer:
         cmd_extract = ('tar -xzf {0} -C {1}; '
                        'rm {0};'
                       ).format(s_dstTar, s_dstRoot)
-        self._system.executeRemoteCmd(os.P_WAIT, cmd_extract, self.v)
+        self._system.executeRemoteCmd(os.P_WAIT, cmd_extract)
+
 
 def deployTarFileWrapper(tfd):
-    print tfd
     tfd.deploy()
 
 
 # Deploys the "case/actor" package source code files
 # to all known Systems
 # - assumes all files in ACTOR_PY_FILES exist locally
-def deployActorSrc(verbose):
+def deployActorSrc():
     if not config.DIRECTORY_SHARING:
         s_locRoot = lib.getLocalRoot()
 
@@ -73,13 +71,10 @@ def deployActorSrc(verbose):
         os.chdir(olddir)
 
         # For each system, scp the tar file and extract it
-        #p = Pool(lib.getSysCount())
-        #it = p.imap(deployTarFileWrapper,
-        map(deployTarFileWrapper,
-                (TarFileDeployer(s_locTar, syst, verbose)
-                   for syst in systems.systems))
-
-        #while next(it, None): pass
+        p = Pool(lib.getSysCount())
+        print systems.systems
+        p.map(deployTarFileWrapper, 
+               [TarFileDeployer(s_locTar, syst) for syst in systems.systems])
 
         # Done with the tar file; locally remove it
         if os.path.exists(s_locTar): os.remove(s_locTar)
@@ -87,7 +82,7 @@ def deployActorSrc(verbose):
 
 # Deploys the test case directory of source files to the specified system
 # - relTestDir is relative to SyncDET root directory
-def deployCaseSrc(s_relTestDir, system, verbose):
+def deployCaseSrc(s_relTestDir, system):
     if not config.DIRECTORY_SHARING:
         s_locDir, s_dstDir = (
                         os.path.normpath(os.path.join(root, s_relTestDir))
@@ -97,7 +92,7 @@ def deployCaseSrc(s_relTestDir, system, verbose):
     
         # Ensure the destination test directory's parent is present
         cmd_mkdir = 'mkdir -p %s' % (s_dstDir)
-        system.executeRemoteCmd(os.P_WAIT, cmd_mkdir, verbose)
+        system.executeRemoteCmd(os.P_WAIT, cmd_mkdir)
     
         # Copy the entire test directory to the remote machine
         #   -copy the local directory to the parent of the destination

@@ -8,6 +8,7 @@ import controller.report
 import controller.lib
 import controller.deploy
 import controller
+import systems
 import config
 
 # argument parsing
@@ -61,9 +62,11 @@ if not len(args):
 else:
     scenarios = args
 
-# how many systems?
+# initialize the systems, and 
 if options.systems != -1:
-    controller.lib.setSysCount(options.systems)
+    systems.init(options.verbose, options.systems)
+else:
+    systems.init(options.verbose)
 
 # case timeout?
 if options.casetimeout:
@@ -83,12 +86,13 @@ else:
 # launch the sync service
 controller.syncsvc.startService(options.verbose)
 
-if config.DIRECTORY_SHARING != True:
-    print 'warning: there previously existed support for ' \
+if config.DIRECTORY_SHARING == True:
+    print 'error: there previously existed support for ' \
           'DIRECTORY_SHARING=True (ie a shared NFS drive), ' \
           'but now we assume this not to be the case.'
-    controller.deploy.deployActorSrc(options.verbose)
-    #sys.exit()
+    sys.exit()
+else:
+    controller.deploy.deployActorSrc()
 
 # launch the scenarios
 for scenario in scenarios:

@@ -13,6 +13,19 @@ systems = [];
 def getSystem(sysId):
     return systems[sysId]
 
+# Initialize the global list of systems with 
+# - the max permissable number of systems
+# - whether to display verbose msgs
+#
+def init(verbose, maxNumSystems = None):
+    global systems
+    # Static initialization from systemsdef.py
+    for d_system in systemsdef.d_systems:
+        systems.append(System(d_system, verbose))
+
+    if maxNumSystems and maxNumSystems < len(systems):
+        systems = systems[:maxNumSystems]
+
 # Class definition of a System
 class System:
     rsh = ''
@@ -21,9 +34,11 @@ class System:
     address = ''
     _copyFrom = 'scp -r %login@%host:%src %dst'
     _copyTo   = 'scp -r %src %login@%host:%dst'
+    _verbose = False # Verbose output?
 
-    def __init__(self, d_system):
+    def __init__(self, d_system, verbose = False):
         assert isinstance(d_system, dict)
+        self._verbose = verbose
 
         for elem in d_system.keys():
             self.__dict__[elem] = d_system[elem]
@@ -43,14 +58,14 @@ class System:
 
     # return the result of os.spawnvp, according to mode. cmd is a string
     #
-    def executeRemoteCmd(self, mode, cmd, verbose):
+    def executeRemoteCmd(self, mode, cmd):
         args = [
                self.rsh,
                self.login + '@' + self.address,
                cmd
                ]
-        if verbose:
-            print 'cmd[%d]' % systems.index(self),
+        if self._verbose:
+            print 'cmd[{}]'.format(self.address),
             for arg in args: print arg,
             print 
         return os.spawnvp(mode, args[0], args)
@@ -59,15 +74,14 @@ class System:
     def _copy(self, cmd, src, dst):
         cmd = cmd.replace('%src', src)
         cmd = cmd.replace('%dst', dst)
-        print cmd
+        if self._verbose:
+            print cmd
         exit = os.system(cmd)
         if not (exit == 0):
-            s_warning = ('<System._copy> system command {} ' 
-                         'returned exit code {}. ' 
-                         'See http://support.attachmate.com/techdocs/2116.html'
-                        ).format(cmd, exit)
-            print s_warning
+            if self._verbose:
+                s_warning = ('<System._copy> system command {} ' 
+                             'returned exit code {}. ' 
+                             'See http://support.attachmate.com/techdocs/2116.html'
+                            ).format(cmd, exit)
+                print s_warning
 
-# Static initialization from systemsdef.py
-for d_system in systemsdef.d_systems:
-    systems.append(System(d_system))
