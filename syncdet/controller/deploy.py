@@ -72,7 +72,6 @@ def deployActorSrc():
 
         # For each system, scp the tar file and extract it
         p = Pool(lib.getSysCount())
-        print systems.systems
         p.map(deployTarFileWrapper, 
                [TarFileDeployer(s_locTar, syst) for syst in systems.systems])
 
