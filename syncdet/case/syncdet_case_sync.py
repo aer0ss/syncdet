@@ -47,7 +47,7 @@ def syncPrev(pnid, prev = None, timeout = 0, voteYes = True):
         if getSysId() == 0: return OK
         else: prev = getSysId() - 1
         
-    id = str(pnid) + '.%d<=>%d' % (prev, getSysId()) 
+    id = '{}.{}<=>{}'.format(pnid, prev, getSysId()) 
     return sync(id, [prev], timeout, voteYes)
 
 def syncNext(pnid, next = None, timeout = 0, voteYes = True):
