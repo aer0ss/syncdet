@@ -28,8 +28,6 @@ class Output:
                 self.fout = open(logPath, 'a')
             except IOError:
                 s_logDir = os.path.dirname(logPath)
-                print 'Could not open file %s. Making dir %s.' % (logPath,
-                        s_logDir)
                 os.makedirs(s_logDir)
                 self.fout = open(logPath, 'a')
 
