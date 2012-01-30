@@ -68,6 +68,9 @@ def executeRemoteCmd(sysId, cmd):
 def launchCase(module, dir, instId, verbose):
     n, timeout = analyze(module, dir)
         
+    # Deploy the necessary test case source code to the remote systems
+    deploy.deployCaseSrc(dir, [systems.getSystem(i) for i in range(n)])
+
     pids = {}    # { pid: sysId }
     for i in range(n):
         system = systems.getSystem(i)
@@ -79,9 +82,7 @@ def launchCase(module, dir, instId, verbose):
                                       scn.getScenarioInstanceId(), 
                                       instId, n, dir, lib.getLocalRoot())
 
-        # First deploy the necessary test case source code to the remote system
-        # then execute the remote command
-        deploy.deployCaseSrc(dir, system)
+        # execute the remote command
         pids[executeRemoteCmd(i, cmd)] = i
 
     start = time.time()
