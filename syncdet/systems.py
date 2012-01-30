@@ -56,9 +56,17 @@ class System:
         cmd = self._copyTo
         self._copy(cmd, src, dst)
 
+    def execRemoteCmdBlock(self, cmd):
+        return self._executeRemoteCmd(os.P_WAIT, cmd)
+
+    # return the pid of the local proxy process. cmd is a string
+    #
+    def execRemoteCmdNonBlock(self, cmd):
+        return self._executeRemoteCmd(os.P_NOWAIT, cmd)
+
     # return the result of os.spawnvp, according to mode. cmd is a string
     #
-    def executeRemoteCmd(self, mode, cmd):
+    def _executeRemoteCmd(self, mode, cmd):
         args = [
                self.rsh,
                self.login + '@' + self.address,

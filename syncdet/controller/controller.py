@@ -56,13 +56,6 @@ def analyze(module, dir):
             "its '%s' data structure." % (module, SPEC_NAME)
         return min(n, preferred), timeout
     
-# return the pid of the local proxy process. cmd is a string
-#
-def executeRemoteCmd(sysId, cmd):
-    system = systems.getSystem(sysId)
-    return system.executeRemoteCmd(os.P_NOWAIT, cmd)
-
-
 # return the number of systems and a list of systems that didn't finish on time
 #
 def launchCase(module, dir, instId, verbose):
@@ -83,7 +76,7 @@ def launchCase(module, dir, instId, verbose):
                                       instId, n, dir, lib.getLocalRoot())
 
         # execute the remote command
-        pids[executeRemoteCmd(i, cmd)] = i
+        pids[system.execRemoteCmdNonBlock(cmd)] = i
 
     start = time.time()
     while 1:
@@ -134,7 +127,7 @@ KILL_CMD = "for i in `ps -eo pid,cmd | grep '%s' | grep -v grep | " \
 def killRemoteInstance(sysId, instId, verbose):
     # instId uniquely identifies the case instance
     cmd =  KILL_CMD % instId
-    executeRemoteCmd(sysId, cmd)
+    systems.getSystem(sysId).execRemoteCmdNonBlock(cmd)
     
     # don't cancel. let sync GC do the work
     # cancel the synchronizer
@@ -143,7 +136,7 @@ def killRemoteInstance(sysId, instId, verbose):
         
 def killAllRemoteInstances(verbose):
     cmd = KILL_CMD % WRAPPER_NAME
-    for i in range(lib.getSysCount()): executeRemoteCmd(i, cmd)
+    for s in systems.systems: s.execRemoteCmdNonBlock(cmd)
         
 def purgeLogFiles():
     os.system('rm -rf %s/%s/*' % (lib.getLocalRoot(), config.LOG_DIR))

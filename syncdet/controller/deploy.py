@@ -20,6 +20,8 @@ ACTOR_PY_FILES =     ( 'systems.py', 'config.py', 'systemsdef.py',
                       )
 ACTOR_TAR_PATH = 'actorsrc.tar.gz'
 
+pool = None
+
 # Deploys the "case/actor" package source code files
 # to all known Systems
 # - assumes all files in ACTOR_PY_FILES exist locally
@@ -30,9 +32,10 @@ def deployActorSrc():
         # Create a tarball of Actor source files
         s_tarPath = createTarFile_(s_locRoot, ACTOR_TAR_PATH, ACTOR_PY_FILES)
 
+        global pool
+        if not pool: pool = Pool(lib.getSysCount())
         # For each system, scp the tar file and extract it
-        p = Pool(lib.getSysCount())
-        p.map(deployTarFileWrapper, 
+        pool.map(deployTarFileWrapper, 
                [TarFileDeployer(s_tarPath, '', syst) for syst in systems.systems])
 
         # Done with the tar file; locally remove it
@@ -49,8 +52,9 @@ def deployCaseSrc(s_relTestDir, ls_systems):
                                     CASE_TAR_PATH, [s_relTestDir])
     
         # For each system, scp the tar file and extract it
-        p = Pool(len(ls_systems))
-        p.map(deployTarFileWrapper, 
+        global pool
+        if not pool: pool = Pool(lib.getSysCount())
+        pool.map(deployTarFileWrapper, 
                [TarFileDeployer(s_tarPath, os.path.dirname(s_relTestDir), syst) 
                 for syst in ls_systems])
 
@@ -97,7 +101,6 @@ class TarFileDeployer:
         assert isinstance(self._system, systems.System)
 
     def deploy(self):
-        
         # Copy over the tar file to the home directory
         s_dstTar = os.path.join('~', os.path.basename(self._s_locTar))
         self._system.copyTo(self._s_locTar, s_dstTar)
@@ -110,7 +113,7 @@ class TarFileDeployer:
                        'tar -xzf {1} -C {0}; '
                        'rm {1};'
                       ).format(s_dstdirExtract, s_dstTar)
-        self._system.executeRemoteCmd(os.P_WAIT, cmd_extract)
+        self._system.execRemoteCmdBlock(cmd_extract)
 
 def deployTarFileWrapper(tfd):
     tfd.deploy()
