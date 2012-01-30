@@ -56,7 +56,7 @@ def syncNext(pnid, next = None, timeout = 0, voteYes = True):
         if getSysId() == getSysCount() - 1: return OK
         else: next = getSysId() + 1
         
-    id = str(pnid) + '.%d<=>%d' % (getSysId(), next) 
+    id = '{0}.{1}<=>{2}'.format(pnid, getSysId(), next) 
     return sync(id, [next], timeout, voteYes)
 
 def makeSyncId(id):
