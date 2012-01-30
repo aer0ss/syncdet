@@ -31,23 +31,20 @@ class TarFileDeployer:
         assert isinstance(self._system, systems.System)
 
     def deploy(self):
-        s_dstRoot = self._system.detRoot
         
-        # Ensure the destination DET root and case directories
-        # are present on the remote machine.
-        cmd_mkdir = 'mkdir -p {}'.format(s_dstRoot)
-        self._system.executeRemoteCmd(os.P_WAIT, cmd_mkdir)
-
-        # Copy over the tar file
-        s_dstTar = os.path.join(s_dstRoot, ACTOR_TAR_PATH)
+        # Copy over the tar file to the home directory
+        s_dstTar = os.path.join('~', ACTOR_TAR_PATH)
         self._system.copyTo(self._s_locTar, s_dstTar)
 
-        # Extract the tar file to the syncdet root and remove the tar
-        cmd_extract = ('tar -xzf {0} -C {1}; '
-                       'rm {0};'
-                      ).format(s_dstTar, s_dstRoot)
+        # Ensure the destination DET root and case directories
+        # are present on the remote machine.
+        # Then extract the tar file to the syncdet root and remove the tar
+        s_dstRoot = self._system.detRoot
+        cmd_extract = ('mkdir -p {0}; '
+                       'tar -xzf {1} -C {0}; '
+                       'rm {1};'
+                      ).format(self._system.detRoot, s_dstTar)
         self._system.executeRemoteCmd(os.P_WAIT, cmd_extract)
-
 
 def deployTarFileWrapper(tfd):
     tfd.deploy()
