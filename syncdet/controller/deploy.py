@@ -21,34 +21,6 @@ ACTOR_PY_FILES =     ( 'systems.py', 'config.py', 'systemsdef.py',
 ACTOR_TAR_PATH = 'actorsrc.tar.gz'
 
 
-class TarFileDeployer:
-    _s_locTar = ''
-    _system = None
-    def __init__(self, s_locTar, system):
-        self._s_locTar = s_locTar
-        self._system = system
-        assert os.path.exists(self._s_locTar)
-        assert isinstance(self._system, systems.System)
-
-    def deploy(self):
-        
-        # Copy over the tar file to the home directory
-        s_dstTar = os.path.join('~', ACTOR_TAR_PATH)
-        self._system.copyTo(self._s_locTar, s_dstTar)
-
-        # Ensure the destination DET root and case directories
-        # are present on the remote machine.
-        # Then extract the tar file to the syncdet root and remove the tar
-        s_dstRoot = self._system.detRoot
-        cmd_extract = ('mkdir -p {0}; '
-                       'tar -xzf {1} -C {0}; '
-                       'rm {1};'
-                      ).format(self._system.detRoot, s_dstTar)
-        self._system.executeRemoteCmd(os.P_WAIT, cmd_extract)
-
-def deployTarFileWrapper(tfd):
-    tfd.deploy()
-
 
 # Deploys the "case/actor" package source code files
 # to all known Systems
@@ -58,26 +30,20 @@ def deployActorSrc():
         s_locRoot = lib.getLocalRoot()
 
         # Create a tarball of Actor source files
-        s_locTar = os.path.join(s_locRoot, ACTOR_TAR_PATH)
-        olddir = os.getcwd()
-        os.chdir(s_locRoot)
-        with tarfile.open(s_locTar, 'w:gz') as tar:
-            for f in ACTOR_PY_FILES:
-                assert os.path.exists(f)
-                tar.add(f)
-        os.chdir(olddir)
+        s_tarPath = createTarFile_(s_locRoot, ACTOR_TAR_PATH, ACTOR_PY_FILES)
 
         # For each system, scp the tar file and extract it
         p = Pool(lib.getSysCount())
         p.map(deployTarFileWrapper, 
-               [TarFileDeployer(s_locTar, syst) for syst in systems.systems])
+               [TarFileDeployer(s_tarPath, syst) for syst in systems.systems])
 
         # Done with the tar file; locally remove it
-        if os.path.exists(s_locTar): os.remove(s_locTar)
+        if os.path.exists(s_tarPath): os.remove(s_tarPath)
 
 
 # Deploys the test case directory of source files to the specified system
 # - relTestDir is relative to SyncDET root directory
+CASE_TAR_PATH = 'casesrc.tar.gz'
 def deployCaseSrc(s_relTestDir, system):
     if not config.DIRECTORY_SHARING:
         s_locDir, s_dstDir = (
@@ -85,6 +51,11 @@ def deployCaseSrc(s_relTestDir, system):
                         for root in (lib.getLocalRoot(), system.detRoot)
                               )
         assert os.path.exists(s_locDir)
+
+        ls_fpy = [os.path.normpath(os.path.join(s_relTestDir, f)) 
+                   for f in os.listdir(s_locDir) if os.path.splitext(f) != '.pyc']
+        print ls_fpy
+        #createTarFile(lib.getLocalRoot(), CASE_TAR_PATH, ls_fpy)
     
         # Ensure the destination test directory's parent is present
         cmd_mkdir = 'mkdir -p %s' % (s_dstDir)
@@ -112,3 +83,58 @@ def gatherLog(sysId, module, instId):
         #       - handle local can not store file
         system.copyFrom(s_remLogPath, s_locLogPath)
         
+
+############################################################
+# Local helper functions and classes
+############################################################
+
+#class SourceCodeDeployer:
+#    _systems = []
+
+class TarFileDeployer:
+    _s_locTar = ''
+    _system = None
+    def __init__(self, s_locTar, system):
+        self._s_locTar = s_locTar
+        self._system = system
+        assert os.path.exists(self._s_locTar)
+        assert isinstance(self._system, systems.System)
+
+    def deploy(self):
+        
+        # Copy over the tar file to the home directory
+        s_dstTar = os.path.join('~', os.path.basename(self._s_locTar))
+        self._system.copyTo(self._s_locTar, s_dstTar)
+
+        # Ensure the destination DET root and case directories
+        # are present on the remote machine.
+        # Then extract the tar file to the syncdet root and remove the tar
+        s_dstRoot = self._system.detRoot
+        cmd_extract = ('mkdir -p {0}; '
+                       'tar -xzf {1} -C {0}; '
+                       'rm {1};'
+                      ).format(self._system.detRoot, s_dstTar)
+        self._system.executeRemoteCmd(os.P_WAIT, cmd_extract)
+
+def deployTarFileWrapper(tfd):
+    tfd.deploy()
+
+
+# Create a tarball of the files in ls_files
+# - s_detRoot is the SyncDET Root
+# - s_tarName is the desired name of the tarball (gzipped!)
+# - ls_files is a list of file paths, *relative to s_detRoot*
+# Returns local path of tarball
+# Side Effect: creates new tarball, changes directory, changes back
+def createTarFile_(s_detRoot, s_tarName, ls_files):
+    s_tarPath = os.path.join(s_detRoot, s_tarName)
+    olddir = os.getcwd()
+    os.chdir(s_detRoot)
+    with tarfile.open(s_tarPath, 'w:gz') as tar:
+        for f in ls_files:
+            assert os.path.exists(f)
+            tar.add(f)
+    os.chdir(olddir)
+    return s_tarPath
+
+
