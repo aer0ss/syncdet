@@ -23,17 +23,19 @@ def makeDirTree(root, depth, nsubdirs, nfiles, maxfilesize):
 
     while nfiles > 0:
         pass
- 
+
 
 def getRandDirname(prefix):
     return '{0}{1}'.format(prefix, random.getrandbits(_NUM_RAND_BITS)) 
 
 def getRandFilename(allowTrailingDotSpace=True):
     validChars = string.letters + ' ' + '.'
+    l = _FILENAME_LEN
     if allowTrailingDotSpace:
-        fn = ''.join( random.sample(validChars, _FILENAME_LEN) ) 
+        fn = ''.join( random.sample(validChars * l, l) ) 
     else:
-        fn = ''.join( random.sample(validChars, _FILENAME_LEN-1) ) \
+        l = _FILENAME_LEN - 1
+        fn = ''.join( random.sample(validChars *l , l) ) \
            + ''.join( random.choice(list(set(validChars) 
                                 - set(_WIN32_DISALLOWED_TRAILING_CHARACTERS))))
     return fn
@@ -58,18 +60,16 @@ def writeFile(dirname, filename, maxfilesize):
         startTime = time.time()
 
         while nblocks > 0:
-            randstr = ''.join(random.sample(string.letters, _RAND_STRING_LEN))
-            print 'writing {}{}'.format(randstr, _FILLER_SUFFIX)
+            randstr = ''.join(random.sample(string.letters * _RAND_STRING_LEN,
+                                            _RAND_STRING_LEN))
             f.write(randstr + _FILLER_SUFFIX)
             nblocks -= 1
         
         # write the remaining bytes (this will write on a per-byte basis)
         remBytes = asize - f.tell()
         while remBytes > 0:
-            randstr = ''.join(random.sample(
-                                       string.letters, 
-                                       min(1, remBytes / 4)))
-            print 'remBytes={} | writing {}'.format(remBytes,randstr)
+            nchars = max(1, remBytes / 2)
+            randstr = ''.join(random.sample(string.letters * nchars, nchars))
             f.write(randstr)
             remBytes = asize - f.tell()
 
