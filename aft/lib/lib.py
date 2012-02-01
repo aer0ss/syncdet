@@ -1,6 +1,6 @@
-import os, time
+import os, time, os.path
 import case
-import aerofsapp
+import aerofsapp, file
 
 #######################################
 # configurations
@@ -26,10 +26,21 @@ def getFSRTRoot(): pass
 def getFSMountRoot(): pass
 
 def launchFS(): pass
-    
 def terminateFS(ignoreError = False): pass
-
 def killFS(): pass
+
+
+
+# @param root        the directory containing the tree to be created
+# @param depth       0: make files in root, with no subdirectories
+#                    1: make files in root, with one more level of subdirs
+# @param nsubdirs    number of subdirectories for each directory
+# @param nfiles      number of files per directory
+# @param maxfilesize maximum file size, in bytes
+#
+def makeDirTree(root, depth, nsubdirs = 1, nfiles = 1, maxfilesize = 8): 
+    return file.makeDirTree(root, depth, nsubdirs, nfiles, maxfilesize)
+
 
 
 # @param content     must be one line only

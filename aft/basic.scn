@@ -1,4 +1,8 @@
 :include common.scn
+:scn basic
+    :serial
+        start()
+        stop()
+
 :serial
-    start()
-    stop()
+    basic()
