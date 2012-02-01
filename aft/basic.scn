@@ -1,0 +1,4 @@
+:include common.scn
+:serial
+    start()
+    stop()
