@@ -84,8 +84,8 @@ def writeFile(dirname, filename, fsize):
                 randstr = ''.join(random.sample(population, nchars))
 
             f.write(randstr)
-            #f.flush()
-            #os.fsync(f.fileno())
+            f.flush()
+            os.fsync(f.fileno())
 
             remBytes = fsize - f.tell()
 
