@@ -12,6 +12,8 @@ aeroApp = None #lib.createAeroFSApp()
 
 #######################################
 # lib functions
+def init(seed = None):
+    file.init(seed)
 
 # Application directory (where aerofs.jar lives)
 #

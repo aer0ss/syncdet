@@ -1,15 +1,14 @@
 import random, string, os.path, time, sys, os
 
-# TODO: This should be more gracefully set up
-_RAND_SEED = 0
-random.seed(_RAND_SEED)
-
-
 _MAX_DIRECTORY_INDEX = 100000000
 _NUM_RAND_BITS = 31
 _FILENAME_LEN = 30
 _WIN32_DISALLOWED_TRAILING_CHARACTERS = ' .' # disallow spaces and dots
 
+
+# @param seed        the seed to be used for all random calls
+def init(seed):
+    random.seed(seed)
 
 # @param root        the directory containing the tree to be created
 # @param depth       0: make files in root, with no subdirectories
@@ -17,14 +16,27 @@ _WIN32_DISALLOWED_TRAILING_CHARACTERS = ' .' # disallow spaces and dots
 # @param nsubdirs    number of subdirectories for each directory
 # @param nfiles      number of files per directory
 # @param maxfilesize maximum file size, in bytes
+# @param randomize   randomize the file sizes and nsubdirs, nfiles, etc
 #
-def makeDirTree(root, depth, nsubdirs, nfiles, maxfilesize): 
+def makeDirTree(root, depth, nsubdirs, nfiles, maxfilesize, randomize=False): 
     assert os.path.exists(root)
+    assert depth >= 0
 
-    while nfiles > 0:
-        # figure out the file length
-        #fsize = maxfilesize #random.randint(0, maxfilesize)
-        pass
+    for _ in xrange(0, nfiles):
+        # Create a filename, determine a file size, then write content to file
+        fpath = os.path.join(root, getRandFilename())
+        if os.path.exists(fpath): 
+            print 'Warning: file {0} is being overwritten.'.format(fpath)
+        fsize = random.randint(0, maxfilesize) if randomize else maxfilesize
+        writeFile(fpath, fsize)
+
+    if depth > 0:
+        for _ in xrange(0, nsubdirs):
+            dpath = os.path.join(root, getRandDirname('d_'))
+            os.mkdir(dpath)
+            makeDirTree(dpath, depth-1, nsubdirs, 
+                        nfiles, maxfilesize, randomize)
+        
 
 
 def getRandDirname(prefix):
@@ -50,8 +62,7 @@ _FILLER_SUFFIX = 'tr' + 'ol' * (_BLOCK_STR_LEN - _RAND_STRING_LEN - 2)
 
 # @param fsize          desired file size in bytes
 #
-def writeFile(dirname, filename, fsize):
-    filepath = os.path.join(dirname, filename)
+def writeFile(filepath, fsize):
     with open(filepath, 'w') as f:
         # Determine the block size in bytes
         bsize = sys.getsizeof('a'*_RAND_STRING_LEN + _FILLER_SUFFIX)
