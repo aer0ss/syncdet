@@ -1,4 +1,4 @@
-import random, string, os.path, time, sys
+import random, string, os.path, time, sys, os
 
 # TODO: This should be more gracefully set up
 _RAND_SEED = 0
@@ -22,6 +22,8 @@ def makeDirTree(root, depth, nsubdirs, nfiles, maxfilesize):
     assert os.path.exists(root)
 
     while nfiles > 0:
+        # figure out the file length
+        #fsize = maxfilesize #random.randint(0, maxfilesize)
         pass
 
 
@@ -41,43 +43,55 @@ def getRandFilename(allowTrailingDotSpace=True):
     return fn
 
 
-_BLOCK_STR_LEN = 1024
+_IN_MEMORY_MAX = 100 * 1024 * 1024
+_BLOCK_STR_LEN = 1024 # A prime number
 _RAND_STRING_LEN = 32
 _FILLER_SUFFIX = 'tr' + 'ol' * (_BLOCK_STR_LEN - _RAND_STRING_LEN - 2)
 
-def writeFile(dirname, filename, maxfilesize):
+# @param fsize          desired file size in bytes
+#
+def writeFile(dirname, filename, fsize):
     filepath = os.path.join(dirname, filename)
     with open(filepath, 'w') as f:
-
-        # figure out the file length
-        asize = random.randint(0, maxfilesize)
-
-        # Determine the block size
+        # Determine the block size in bytes
         bsize = sys.getsizeof('a'*_RAND_STRING_LEN + _FILLER_SUFFIX)
-
-        nblocks = asize / bsize
+        nblocks = fsize / bsize
+        nblocksInMem = _IN_MEMORY_MAX / bsize
 
         startTime = time.time()
 
+        population = string.letters * _RAND_STRING_LEN
         while nblocks > 0:
-            randstr = ''.join(random.sample(string.letters * _RAND_STRING_LEN,
-                                            _RAND_STRING_LEN))
-            f.write(randstr + _FILLER_SUFFIX)
+            randstr = ''.join(random.sample(population, _RAND_STRING_LEN)) \
+                      + _FILLER_SUFFIX
+            f.write(randstr) 
             nblocks -= 1
+            if nblocks % nblocksInMem == 0:
+                f.flush()
+                os.fsync(f.fileno())
         
-        # write the remaining bytes (this will write on a per-byte basis)
-        remBytes = asize - f.tell()
+        # write the remaining bytes 
+        remBytes = fsize - f.tell()
         while remBytes > 0:
+            # Since a python string may not map 1:1 to a byte,
+            # conservatively generate filler
             nchars = max(1, remBytes / 2)
-            randstr = ''.join(random.sample(string.letters * nchars, nchars))
-            f.write(randstr)
-            remBytes = asize - f.tell()
+            
+            if nchars > _RAND_STRING_LEN:
+                randstr = ''.join(random.sample(population, _RAND_STRING_LEN)) \
+                           + _FILLER_SUFFIX[:(nchars - _RAND_STRING_LEN)]
+            else:
+                randstr = ''.join(random.sample(population, nchars))
 
-        fsize = f.tell()
-        print('asize:{0}, fsize:{1} for {2}'.format(asize, fsize, filepath))
+            f.write(randstr)
+            #f.flush()
+            #os.fsync(f.fileno())
+
+            remBytes = fsize - f.tell()
 
         endTime = time.time()
 
-        print('{0} sec for {1} MB'.format((endTime - startTime), 
-                                          (fsize / (1024 * 1024))))
+        print('{2}:{0} sec for {1} MB'.format((endTime - startTime), 
+                                          (fsize / (1024 * 1024)),
+                                          filepath))
 
