@@ -42,7 +42,9 @@ def makeDirTree(root, depth, nsubdirs, nfiles, maxfilesize, randomize=False):
 def getRandDirname(prefix):
     return '{0}{1}'.format(prefix, random.getrandbits(_NUM_RAND_BITS)) 
 
-def getRandFilename(allowTrailingDotSpace=True):
+# TODO: make the sampling population a global variable so that it isn't
+# re-calculated
+def getRandFilename(allowTrailingDotSpace=False):
     validChars = string.letters + ' ' + '.'
     l = _FILENAME_LEN
     if allowTrailingDotSpace:

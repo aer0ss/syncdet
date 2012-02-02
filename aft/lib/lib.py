@@ -34,14 +34,17 @@ def killFS(): pass
 
 
 # @param root        the directory containing the tree to be created
-# @param depth       0: make files in root, with no subdirectories
-#                    1: make files in root, with one more level of subdirs
+# @param depth       1: create a dir of files in root, with no subdirs
+#                    >=2: create a dir of files in root with subdirs
 # @param nsubdirs    number of subdirectories for each directory
 # @param nfiles      number of files per directory
 # @param maxfilesize maximum file size, in bytes
 #
-def makeDirTree(root, depth, nsubdirs = 1, nfiles = 1, maxfilesize = 8): 
-    return file.makeDirTree(root, depth, nsubdirs, nfiles, maxfilesize)
+def makeDirTree(root, depth, nsubdirs = 1, nfiles = 1, maxfilesize = 100): 
+    assert depth > 0
+    
+    dpath = os.path.join(root, file.getRandDirname('dtree_'))
+    return file.makeDirTree(dpath, depth-1, nsubdirs, nfiles, maxfilesize)
 
 
 
