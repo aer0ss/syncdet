@@ -1,6 +1,6 @@
-import os, time, os.path
+import os, time, os.path, random
 import case
-import aerofsapp, file
+import aerofs, file
 
 #######################################
 # configurations
@@ -8,28 +8,32 @@ import aerofsapp, file
 # a general timeout value
 WAIT_TIMEOUT    = 5
 
-aeroApp = None #lib.createAeroFSApp()
+aero = aerofs.createAeroFS()
 
 #######################################
 # lib functions
 def init(seed = None):
-    file.init(seed)
+    # Set the random seed here, one common place, in case many modules use it
+    random.seed(seed)
+    #file.init(seed)
 
 # Application directory (where aerofs.jar lives)
 #
-def getFSAppRoot(): pass
+def getFSAppRoot(): return aero.getAppRoot()
 
 # Run Time directory (where databases and logs live)
 #
-def getFSRTRoot(): pass
+def getFSRTRoot(): return aero.getRTRoot()
 
 # Directory where AeroFS stores/libraries are mounted
 #
-def getFSMountRoot(): pass
+def getFSMountRoot(): return aero.getFSRoot()
 
-def launchFS(): pass
-def terminateFS(ignoreError = False): pass
-def killFS(): pass
+def launchFS(): aero.launch()
+
+def terminateFS(ignoreError = False): aero.terminate()
+
+def killFS(): aero.kill()
 
 
 # @param subsets     tuple of subsets of peers that can intra-communicate

@@ -1,0 +1,3 @@
+
+class AFTError(RuntimeError): pass
+

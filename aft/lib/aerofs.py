@@ -1,10 +1,11 @@
 import os.path, subprocess, sys, time
+from afterror import AFTError
 
 #######################################
 # configurations
 FS_NAME         = 'AeroFS'
 
-class Failure(RuntimeError): pass
+class AeroError(AFTError): pass
 
 def createAeroFS(): 
     if sys.platform.startswith('linux'):
@@ -71,7 +72,7 @@ class AeroFS:
         # Check if the process is still alive
         ret = self._proc.poll()
         if ret != None:
-            raise Failure(('{0} terminated early with code {1}'
+            raise AeroError(('{0} terminated early with code {1}'
                              ).format(self._bin, ret))
 
         self._proc.terminate()
@@ -79,7 +80,8 @@ class AeroFS:
         while not self._proc.poll():
             if time.time() - tstart > timeout:
                 self.kill()
-                raise Failure(('{0} termination timeout over {1}s'.format(self._bin)))
+                raise AeroError(('{0} termination timeout over {1}s'
+                                ).format(self._bin))
             time.sleep(1)
 
         print 'terminated {1} {0}, with return code {2}'.format(
@@ -100,7 +102,7 @@ class AeroFS:
     def _launch(self, program, javaArgs, args):
         assert program in self._aerofsPrograms
         if self._proc:
-            raise Failure(('{0} has already been launched with pid {1}'
+            raise AeroError(('{0} has already been launched with pid {1}'
                           ).format(self._bin, self._proc.pid))
 
         cmd = ['java'] + javaArgs + \
