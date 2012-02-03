@@ -5,10 +5,10 @@ import os.path, subprocess
 FS_NAME         = 'AeroFS'
 
 
-def createAeroFSApp(): pass #return AeroFSAppLinux()
+def createAeroFS(): pass #return AeroFSonLinux()
 
-class AeroFSApp:
-    _aerofsPrograms = ['cli, gui, daemon, sh, fsck']
+class AeroFSAbstact:
+    _aerofsPrograms = ['cli', 'gui', 'daemon', 'sh', 'fsck']
     _proc = None
 
     def __init__(self): pass
@@ -25,7 +25,7 @@ class AeroFSApp:
     # args: a list of arguments
     #
     def launch(self, program, args = []):
-        assert program in _aerofsPrograms
+        assert program in self._aerofsPrograms
         cmd = ['java', '-jar',
                os.path.join(self.getAppRoot(),'aerofs.jar'),
                'DEFAULT',
@@ -41,27 +41,27 @@ class AeroFSApp:
     def kill(self): raise NotImplementedError 
         # kill _pid
 
-    def _printCmd(cmd): print ' '.join(cmd)
+    def _printCmd(self, cmd): print ' '.join(cmd)
 
-class AeroFSAppLinux(AeroFSApp):
+class AeroFSonLinux(AeroFSAbstact):
     def getAppRoot(self): return '~/.aerofs-bin'        
     def getFSRoot(self): return '~/AeroFS'
 
-class AeroFSAppLinuxProd(AeroFSAppLinux):
+class AeroFSonLinuxProd(AeroFSonLinux):
     def getRTRoot(self): return '~/.aerofs'
 
-class AeroFSAppLinuxStaging(AeroFSAppLinux):
+class AeroFSonLinuxStaging(AeroFSonLinux):
     def getRTRoot(self): return '~/.aerofs.staging'
 
-class AeroFSAppOSX(AeroFSApp):
+class AeroFSonOSX(AeroFSAbstact):
     def getAppRoot(self): 
         return '/Applications/AeroFS.app/Contents/Resources/Java'
     def getFSRoot(self): return '~/AeroFS'
 
-class AeroFSAppOSXProd(AeroFSAppOSX):
+class AeroFSonOSXProd(AeroFSonOSX):
     def getRTRoot(self): 
         return '~/Library/Caches/com.aerofs'
 
-class AeroFSAppOSXStaging(AeroFSAppOSX):
+class AeroFSonOSXStaging(AeroFSonOSX):
     def getRTRoot(self): 
         return '~/Library/Caches/com.aerofs.staging'
