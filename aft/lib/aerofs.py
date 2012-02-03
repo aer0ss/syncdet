@@ -12,11 +12,11 @@ class AeroFSAbstact:
     _proc = None
 
     def __init__(self): pass
+    def getFSRoot(self): raise NotImplementedError 
     # Directory of AeroFS binaries
     def getAppRoot(self): raise NotImplementedError 
     # Directory of runtime data (db, logs, etc)
     def getRTRoot(self): raise NotImplementedError 
-    def getFSRoot(self): raise NotImplementedError 
     def getDaemonLog(self): 
         return os.path.join(self.getRTRoot(), 'daemon.log')
     def getGuiLog(self):
@@ -25,8 +25,22 @@ class AeroFSAbstact:
     # args: a list of arguments
     #
     def launch(self, program, args = []):
+        javaArgs = []
+        if program == 'daemon':
+            javaArgs += ['-ea', 
+                        '-Xmx64m', 
+                        '-XX:+UseConcMarkSweepGC',
+                        '-Djava.net.preferIPv4Stack=true']
+        self._launch(program, javaArgs, args)
+        
+    def terminate(self): raise NotImplementedError 
+    def kill(self): raise NotImplementedError 
+        # kill _pid
+
+    def _launch(self, program, javaArgs, args):
         assert program in self._aerofsPrograms
-        cmd = ['java', '-jar',
+        cmd = ['java'] + javaArgs + \
+              ['-jar',
                os.path.join(self.getAppRoot(),'aerofs.jar'),
                'DEFAULT',
                program]
@@ -36,32 +50,26 @@ class AeroFSAbstact:
 
         # TODO: verify safe/correct launch by looking at log files, 
         #       or communicating with daemon/shell
-        
-    def terminate(self): raise NotImplementedError 
-    def kill(self): raise NotImplementedError 
-        # kill _pid
 
     def _printCmd(self, cmd): print ' '.join(cmd)
 
 class AeroFSonLinux(AeroFSAbstact):
-    def getAppRoot(self): return '~/.aerofs-bin'        
     def getFSRoot(self): return '~/AeroFS'
-
-class AeroFSonLinuxProd(AeroFSonLinux):
+    def getAppRoot(self): return '~/.aerofs-bin'        
     def getRTRoot(self): return '~/.aerofs'
 
 class AeroFSonLinuxStaging(AeroFSonLinux):
     def getRTRoot(self): return '~/.aerofs.staging'
 
 class AeroFSonOSX(AeroFSAbstact):
+    def getFSRoot(self): return '~/AeroFS'
     def getAppRoot(self): 
         return '/Applications/AeroFS.app/Contents/Resources/Java'
-    def getFSRoot(self): return '~/AeroFS'
-
-class AeroFSonOSXProd(AeroFSonOSX):
-    def getRTRoot(self): 
-        return '~/Library/Caches/com.aerofs'
+    def getRTRoot(self): return '~/Library/Caches/com.aerofs'
 
 class AeroFSonOSXStaging(AeroFSonOSX):
     def getRTRoot(self): 
         return '~/Library/Caches/com.aerofs.staging'
+
+
+
