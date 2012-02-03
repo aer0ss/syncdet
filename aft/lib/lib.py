@@ -32,19 +32,20 @@ def terminateFS(ignoreError = False): pass
 def killFS(): pass
 
 
+# @param subsets     tuple of subsets of peers that can intra-communicate
+#
+def networkPartition(subsets): pass
+def clearNetworkPartition(): pass
 
-# @param root        the directory containing the tree to be created
-# @param depth       1: create a dir of files in root, with no subdirs
-#                    >=2: create a dir of files in root with subdirs
+# @param root        the directory to be the root of the tree
+# @param depth       0: make files in root, with no subdirectories
+#                    1: make files in root, with one more level of subdirs
 # @param nsubdirs    number of subdirectories for each directory
 # @param nfiles      number of files per directory
 # @param maxfilesize maximum file size, in bytes
 #
-def makeDirTree(root, depth, nsubdirs = 1, nfiles = 1, maxfilesize = 100): 
-    assert depth > 0
-    
-    dpath = os.path.join(root, file.getRandDirname('dtree_'))
-    return file.makeDirTree(dpath, depth-1, nsubdirs, nfiles, maxfilesize)
+def makeDirTree(root, depth, nsubdirs, nfiles, maxfilesize = 100): 
+    return file.makeDirTree(dpath, depth, nsubdirs, nfiles, maxfilesize)
 
 
 
@@ -54,26 +55,14 @@ def makeDirTree(root, depth, nsubdirs = 1, nfiles = 1, maxfilesize = 100):
 #                           empty and is not identical to what's expected
 #
 def waitFile(path, content, mutable = False):
-    assert content
-    while 1:
-        time.sleep(1)
-        if not os.access(path, os.F_OK): continue
-    
-        file = open(path, 'rb')
-        line = file.readline()
-        file.close()
-        # the file might be initially empty when created
-        if not line: continue
-        if line != content:
-            if mutable: continue
-            else: raise case.Failure, 'string mismatch. expect "%s" ' \
-                                'actual "%s" in file %s' % (str, line, path)
-        break
+    pass
 
-def waitDir(path):
+def waitDir(path): pass
     while 1:
         time.sleep(1)
-        if not os.access(path, os.F_OK): continue
+        if not os.path.exists(path): continue
         if not os.path.isdir(path):
             raise case.Failure, path + ' is not a directory'
         break
+
+def waitDirTree(root, depth, nsubdirs, nfiles): pass
