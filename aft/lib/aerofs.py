@@ -1,28 +1,58 @@
-import os.path, subprocess
+import os.path, subprocess, sys, time
 
 #######################################
 # configurations
 FS_NAME         = 'AeroFS'
 
+class Failure(RuntimeError): pass
 
-def createAeroFS(): pass #return AeroFSonLinux()
+def createAeroFS(): 
+    if sys.platform.startswith('linux'):
+        return AeroFS('~/.aerofs-bin', '~/AeroFS', '~/.aerofs')
+    elif sys.platform.startswith('darwin'):
+        return AeroFS('/Applications/AeroFS.app/Contents/Resources/Java',
+                      '~/AeroFS', 
+                      '~/Library/Caches/com.aerofs')
+    #elif sys.platform.startswith('cygwin'):
+    else:
+        raise NotImplementedError(
+                'This module does not support {0}'.format(sys.platform))
 
-class AeroFSAbstact:
+class AeroFS:
     _aerofsPrograms = ['cli', 'gui', 'daemon', 'sh', 'fsck']
+    _bin = 'aerofs.jar'
+    _rtroot = None
+    _approot = None
+    _fsroot = None
     _proc = None
+    
+    def __init__(self, approot, fsroot, rtroot): 
+        self._proc = None
+        self._approot = approot
+        self._rtroot = rtroot
+        self._fsroot = fsroot
+    
 
-    def __init__(self): pass
-    def getFSRoot(self): raise NotImplementedError 
+    # Directory where AeroFS libraries/stores live
+    #
+    def getFSRoot(self): return self._fsroot
+
     # Directory of AeroFS binaries
-    def getAppRoot(self): raise NotImplementedError 
+    #
+    def getAppRoot(self): return self._approot
+
     # Directory of runtime data (db, logs, etc)
-    def getRTRoot(self): raise NotImplementedError 
+    #
+    def getRTRoot(self): return self._fsroot
+
+    # Paths to Daemon and GUI logs
     def getDaemonLog(self): 
         return os.path.join(self.getRTRoot(), 'daemon.log')
     def getGuiLog(self):
         return os.path.join(self.getRTRoot(), 'gui.log')
 
-    # args: a list of arguments
+    # @param program:    string of the program to execute, e.g. daemon or cli
+    # @param args:       a list of arguments to AeroFS, not java
     #
     def launch(self, program, args = []):
         javaArgs = []
@@ -33,43 +63,66 @@ class AeroFSAbstact:
                         '-Djava.net.preferIPv4Stack=true']
         self._launch(program, javaArgs, args)
         
-    def terminate(self): raise NotImplementedError 
-    def kill(self): raise NotImplementedError 
-        # kill _pid
+    # @param timeout:  permitted time in seconds to gracefully terminate
+    #
+    def terminate(self, timeout=5): 
+        assert self._proc and 'No instance of process'
 
+        # Check if the process is still alive
+        ret = self._proc.poll()
+        if ret != None:
+            raise Failure(('{0} terminated early with code {1}'
+                             ).format(self._bin, ret))
+
+        self._proc.terminate()
+        tstart = time.time()
+        while not self._proc.poll():
+            if time.time() - tstart > timeout:
+                self.kill()
+                raise Failure(('{0} termination timeout over {1}s'.format(self._bin)))
+            time.sleep(1)
+
+        print 'terminated {1} {0}, with return code {2}'.format(
+                self._bin, self._proc.pid, self._proc.poll())
+    
+        # TODO should I verify anything else, e.g. log file?
+        self._proc = None
+
+    def kill(self): 
+        try:
+            self._proc.kill()
+        except OSError, data:
+            print data
+        self._proc = None
+
+    #========================================================================
+    # Helper methods
     def _launch(self, program, javaArgs, args):
         assert program in self._aerofsPrograms
+        if self._proc:
+            raise Failure(('{0} has already been launched with pid {1}'
+                          ).format(self._bin, self._proc.pid))
+
         cmd = ['java'] + javaArgs + \
               ['-jar',
-               os.path.join(self.getAppRoot(),'aerofs.jar'),
+               os.path.join(self.getAppRoot(),self._bin),
                'DEFAULT',
                program]
         cmd += args
         self._printCmd(cmd)
-        _proc = subprocess.Popen(cmd)
+        self._proc = subprocess.Popen(cmd)
 
         # TODO: verify safe/correct launch by looking at log files, 
         #       or communicating with daemon/shell
 
     def _printCmd(self, cmd): print ' '.join(cmd)
 
-class AeroFSonLinux(AeroFSAbstact):
-    def getFSRoot(self): return '~/AeroFS'
-    def getAppRoot(self): return '~/.aerofs-bin'        
-    def getRTRoot(self): return '~/.aerofs'
-
-class AeroFSonLinuxStaging(AeroFSonLinux):
-    def getRTRoot(self): return '~/.aerofs.staging'
-
-class AeroFSonOSX(AeroFSAbstact):
-    def getFSRoot(self): return '~/AeroFS'
-    def getAppRoot(self): 
-        return '/Applications/AeroFS.app/Contents/Resources/Java'
-    def getRTRoot(self): return '~/Library/Caches/com.aerofs'
-
-class AeroFSonOSXStaging(AeroFSonOSX):
-    def getRTRoot(self): 
-        return '~/Library/Caches/com.aerofs.staging'
 
 
-
+#============================================================================
+# Test Code
+af = createAeroFS()
+af.launch('daemon')
+af.terminate()
+# Should fail with an assertion error
+af.terminate()
