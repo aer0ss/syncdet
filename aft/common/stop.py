@@ -1,4 +1,3 @@
-import case
 import lib
 
 def entry():

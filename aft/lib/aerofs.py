@@ -112,7 +112,12 @@ class AeroFS:
                program]
         cmd += args
         self._printCmd(cmd)
-        self._proc = subprocess.Popen(cmd)
+        try:
+            self._proc = subprocess.Popen(cmd)
+        except OSError, e:
+            raise AeroError('When executing {1}, error {0}'.format(e,cmd))
+
+        assert self._proc
 
         # TODO: verify safe/correct launch by looking at log files, 
         #       or communicating with daemon/shell
@@ -123,8 +128,8 @@ class AeroFS:
 
 #============================================================================
 # Test Code
-af = createAeroFS()
-af.launch('daemon')
-af.terminate()
-# Should fail with an assertion error
-af.terminate()
+#af = createAeroFS()
+#af.launch('daemon')
+#af.terminate()
+## Should fail with an assertion error
+#af.terminate()

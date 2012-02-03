@@ -2,7 +2,7 @@ import case
 import lib
 
 def entry():
-    lib.terminateFS(True)
-    return 'terminated AeroFS, ignoring errors'
+    lib.killFS()
+    return 'killed AeroFS, ignoring errors'
 
 spec = { 'default': entry }

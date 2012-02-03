@@ -29,7 +29,8 @@ def getFSRTRoot(): return aero.getRTRoot()
 #
 def getFSMountRoot(): return aero.getFSRoot()
 
-def launchFS(): aero.launch()
+def launchFS(program = 'daemon'): aero.launch(program)
+def launchFSDaemon(): aero.launch('daemon')
 
 def terminateFS(ignoreError = False): aero.terminate()
 
@@ -61,7 +62,7 @@ def makeDirTree(root, depth, nsubdirs, nfiles, maxfilesize = 100):
 def waitFile(path, content, mutable = False):
     pass
 
-def waitDir(path): pass
+def waitDir(path): 
     while 1:
         time.sleep(1)
         if not os.path.exists(path): continue
