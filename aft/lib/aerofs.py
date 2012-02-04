@@ -1,4 +1,4 @@
-import os.path, subprocess, sys, time
+import os.path, subprocess, sys, time, os
 from afterror import AFTError
 
 #######################################
@@ -29,9 +29,11 @@ class AeroFS:
     
     def __init__(self, approot, fsroot, rtroot): 
         self._proc = None
-        self._approot = approot
-        self._rtroot = rtroot
-        self._fsroot = fsroot
+        # Must explicitly expand user symbols of these directories, 
+        # as the child process does not know to do this
+        (self._approot, self._rtroot, self._fsroot) = (
+                    os.path.expanduser(r) for r in (approot, fsroot, rtroot)
+                                                      )
 
     # Directory where AeroFS libraries/stores live
     #
@@ -154,6 +156,8 @@ class AeroFSonLinux(AeroFS):
                               '~/.aerofs.staging/AeroFS', 
                               '~/.aerofs.staging')
 
+    # Add the environment variable required only for Linux
+    # * note the child process will inherit this environment
     def launch(self, program, args = []):
         os.putenv('LD_LIBRARY_PATH', self._approot)
         AeroFS.launch(self, program, args)
