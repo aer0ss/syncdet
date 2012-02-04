@@ -100,6 +100,7 @@ class AeroFS:
 
     #========================================================================
     # Helper methods
+
     def _launch(self, program, javaArgs, args):
         assert program in self._aerofsPrograms
         if self._proc:
@@ -153,6 +154,10 @@ class AeroFSonLinux(AeroFS):
                               '~/.aerofs.staging/AeroFS', 
                               '~/.aerofs.staging')
 
+    def launch(self, program, args = []):
+        os.putenv('LD_LIBRARY_PATH', self._approot)
+        AeroFS.launch(self, program, args)
+
     def install(self):
         fname = self._downloadInstaller()
         # install java
@@ -178,8 +183,9 @@ class AeroFSonOSX(AeroFS):
 
 #============================================================================
 # Test Code
-#af = createAeroFS()
-#af.launch('daemon')
-#af.terminate()
-## Should fail with an assertion error
-#af.terminate()
+if __name__ == '__main__':
+    af = createAeroFS()
+    af.launch('daemon')
+    af.terminate()
+    # Should fail with an assertion error
+    af.terminate()
