@@ -4,16 +4,19 @@ from afterror import AFTError
 #######################################
 # configurations
 FS_NAME         = 'AeroFS'
+FS_BIN          = 'aerofs.jar'
+WEB_DOWNLOADS   = 'https://www.aerofs.com/staging/downloads'
+INSTALLER_LINUX = 'aerofs-installer.deb'
+INSTALLER_OSX   = 'AeroFSInstall.dmg'
+INSTALLER_WIN   = 'AeroFSInstall.exe'
 
 class AeroError(AFTError): pass
 
 def createAeroFS(): 
     if sys.platform.startswith('linux'):
-        return AeroFS('~/.aerofs-bin', '~/AeroFS', '~/.aerofs')
+        return AeroFSonLinux()
     elif sys.platform.startswith('darwin'):
-        return AeroFS('/Applications/AeroFS.app/Contents/Resources/Java',
-                      '~/AeroFS', 
-                      '~/Library/Caches/com.aerofs')
+        return AeroFSonOSX()
     #elif sys.platform.startswith('cygwin'):
     else:
         raise NotImplementedError(
@@ -21,10 +24,7 @@ def createAeroFS():
 
 class AeroFS:
     _aerofsPrograms = ['cli', 'gui', 'daemon', 'sh', 'fsck']
-    _bin = 'aerofs.jar'
-    _rtroot = None
-    _approot = None
-    _fsroot = None
+    _bin = FS_BIN
     _proc = None
     
     def __init__(self, approot, fsroot, rtroot): 
@@ -32,7 +32,6 @@ class AeroFS:
         self._approot = approot
         self._rtroot = rtroot
         self._fsroot = fsroot
-    
 
     # Directory where AeroFS libraries/stores live
     #
@@ -51,6 +50,8 @@ class AeroFS:
         return os.path.join(self.getRTRoot(), 'daemon.log')
     def getGuiLog(self):
         return os.path.join(self.getRTRoot(), 'gui.log')
+
+    def install(self): raise NotImplementedError
 
     # @param program:    string of the program to execute, e.g. daemon or cli
     # @param args:       a list of arguments to AeroFS, not java
@@ -107,7 +108,7 @@ class AeroFS:
 
         cmd = ['java'] + javaArgs + \
               ['-jar',
-               os.path.join(self.getAppRoot(),self._bin),
+               os.path.join(self.getAppRoot(), self._bin),
                'DEFAULT',
                program]
         cmd += args
@@ -122,9 +123,58 @@ class AeroFS:
         # TODO: verify safe/correct launch by looking at log files, 
         #       or communicating with daemon/shell
 
+    def _getInstallerName(): raise NotImplementedError
+
+    # Downloads the AeroFS installer, 
+    # * returns the full path of the local installer
+
+    def _downloadInstaller():
+        cmd = ['wget', 
+               os.path.join(WEB_DOWNLOADS, self._getInstallerName())
+              ]
+        self._printCmd(cmd)
+        try:
+            subprocess.check_call(cmd)
+        except CalledProcessError, e:
+            raise AeroError('Failed download. Error: {0}'.format(e))
+
+        fname = os.path.abspath(self._getInstallerName())
+        if not os.path.exists(fname):
+            raise AeroError('Installer {0} not found.'.format(fname))
+
+        return fname
+            
     def _printCmd(self, cmd): print ' '.join(cmd)
 
 
+class AeroFSonLinux(AeroFS):
+    def __init__(self):
+        AeroFS.__init__(self, '~/.aerofs-bin', 
+                              '~/.aerofs.staging/AeroFS', 
+                              '~/.aerofs.staging')
+
+    def install(self):
+        fname = self._downloadInstaller()
+        # install java
+        # install shar utils
+        # sudo apt-get -f install
+        os.remove(fname)
+        
+    def _getInstallerName(): return INSTALLER_LINUX
+
+class AeroFSonOSX(AeroFS):
+    def __init__(self):
+        AeroFS.__init__(self, '/Applications/AeroFS.app/Contents/Resources/Java',
+                              '~/Library/Caches/com.aerofs.staging/AeroFS',
+                              '~/Library/Caches/com.aerofs.staging')
+    def install(self):
+        fname = self._downloadInstaller()
+
+        os.remove(fname)
+
+        
+    def _getInstallerName(): return INSTALLER_OSX
+       
 
 #============================================================================
 # Test Code
