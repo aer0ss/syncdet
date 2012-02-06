@@ -108,3 +108,11 @@ def writeFile(filepath, fsize):
                                           (fsize / (1024 * 1024)),
                                           filepath))
 
+
+#============================================================================
+# Test Code
+if __name__ == '__main__':
+    init(0)
+    r = os.path.join('.', getRandDirname('root_'))
+    os.makedirs(r)
+    makeDirTree(r, 3, 2, 10, 1024)
