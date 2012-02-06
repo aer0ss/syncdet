@@ -112,7 +112,7 @@ class AeroFS:
 
     def kill(self): 
         try:
-            for p in self._procs:
+            for p in filter(None, self._procs):
                 p.kill()
         except OSError, data:
             print data
