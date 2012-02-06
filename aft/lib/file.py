@@ -109,6 +109,27 @@ def writeFile(filepath, fsize):
                                           filepath))
 
 
+# Wait For File/Dir Tree idea:
+# 1 rdiffdir can be installed with homebrew on OSX, probably exists on cygwin
+#   - http://linux.die.net/man/1/rdiffdir
+#   - preliminary test did not work:
+#   -> scp a directory to two linux boxes, compute sig_file, perform delta
+#   -> somehow the delta was not empty. *perhaps I did not interpret the output
+#      correctly*
+# 2 md5deep can be installed with homebrew on OSX
+#   - http://ubuntuforums.org/showthread.php?t=1516451
+#   - md5deep -r -l . > /path/to/outputFile.txt
+#   - sort -k 2 -o /path/to/sortedOutputFile.txt /path/to/outputFile.txt
+#   - diff /path/to/sortedOutputFile1.txt /path/to/sortedOutputFile2.txt
+#   - Downside: must scp the output file
+# 3 python's filecmp and dircmp modules
+# 4 Create a dirtree object, constructed with depth, ndirs, nfiles, SEED, etc.
+#   - on creator side, call method .makeDir()
+#   - on receiver, call method.waitDir(), which locally constructs the dir
+#      in some random local tmp directory, then uses md5 to compare.
+#   - Downside: how to set timeout, and how to tell difference between
+#      AeroFS taking a long time to sync, and waiting for dir creation.
+
 #============================================================================
 # Test Code
 if __name__ == '__main__':
