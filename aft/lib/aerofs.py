@@ -1,10 +1,15 @@
 import os.path, subprocess, sys, time, os
+from os.path import join
 from afterror import AFTError
 
 #######################################
 # configurations
 FS_NAME         = 'AeroFS'
 FS_BIN          = 'aerofs.jar'
+FLAG_NODM       = 'nodm'
+FLAG_FS_LOG     = 'lol'
+FILE_DAEMON_PID = 'pid'
+
 WEB_DOWNLOADS   = 'https://www.aerofs.com/staging/downloads'
 INSTALLER_LINUX = 'aerofs-installer.deb'
 INSTALLER_OSX   = 'AeroFSInstall.dmg'
@@ -23,12 +28,12 @@ def createAeroFS():
                 'This module does not support {0}'.format(sys.platform))
 
 class AeroFS:
-    _aerofsPrograms = ['cli', 'gui', 'daemon', 'sh', 'fsck']
+    _aerofsPrograms = ['cli', 'daemon', 'sh', 'fsck']
     _bin = FS_BIN
-    _proc = None
+    _procs = None
     
     def __init__(self, approot, fsroot, rtroot): 
-        self._proc = None
+        self._procs = []
         # Must explicitly expand user symbols of these directories, 
         # as the child process does not know to do this
         (self._approot, self._rtroot, self._fsroot) = (
@@ -49,65 +54,84 @@ class AeroFS:
 
     # Paths to Daemon and GUI logs
     def getDaemonLog(self): 
-        return os.path.join(self.getRTRoot(), 'daemon.log')
+        return join(self.getRTRoot(), 'daemon.log')
     def getGuiLog(self):
-        return os.path.join(self.getRTRoot(), 'gui.log')
+        return join(self.getRTRoot(), 'gui.log')
 
     def install(self): raise NotImplementedError
 
-    # @param program:    string of the program to execute, e.g. daemon or cli
     # @param args:       a list of arguments to AeroFS, not java
     #
-    def launch(self, program, args = []):
-        javaArgs = []
-        if program == 'daemon':
-            javaArgs += ['-ea', 
-                        '-Xmx64m', 
-                        '-XX:+UseConcMarkSweepGC',
-                        '-Djava.net.preferIPv4Stack=true']
-        self._launch(program, javaArgs, args)
+    def launch(self, args = []):
+        # Set the flags to indicate lots of logging, and no daemon monitor
+        with open(join(self.getRTRoot(), FLAG_NODM), 'a'): pass
+        with open(join(self.getRTRoot(), FLAG_FS_LOG), 'a'): pass
+
+        self._launchDaemon(args)
+        self._launchCLI(args)
         
     # @param timeout:  permitted time in seconds to gracefully terminate
     #
     def terminate(self, timeout=5): 
-        assert self._proc and 'No instance of process'
+        assert (len(self._procs) == 2) and all(self._procs)
 
-        # Check if the process is still alive
-        ret = self._proc.poll()
-        if ret != None:
-            raise AeroError(('{0} terminated early with code {1}'
-                             ).format(self._bin, ret))
+        # Find any process that died early (has a return code)
+        ps = filter(subprocess.Popen.poll, self._procs)
+        for p in ps:
+            raise AeroError(('pid {0} terminated early with code {1}'
+                             ).format(p.pid, p.returncode))
 
-        self._proc.terminate()
-        tstart = time.time()
-        while not self._proc.poll():
-            if time.time() - tstart > timeout:
-                self.kill()
-                raise AeroError(('{0} termination timeout over {1}s'
-                                ).format(self._bin))
-            time.sleep(1)
+        # Verify that the current daemon has same pid as the one launched
+        try:
+            with open(join(self.getRTRoot(), FILE_DAEMON_PID), 'r') as f:
+                pid = int(f.read())
+                if not any((p.pid == pid for p in self._procs)):
+                    raise AeroError(
+                            ('Current daemon process has different pid'
+                              '{0}').format(pid))
+        except IOError, e:
+            raise AeroError(e) 
+        except ValueError, e:
+            raise AeroError('Could not convert pid to integer {0}'.format(e))
 
-        print 'terminated {1} {0}, with return code {2}'.format(
-                self._bin, self._proc.pid, self._proc.poll())
-    
+        for p in self._procs:
+            p.terminate()
+            tstart = time.time()
+            while not p.poll():
+                if time.time() - tstart > timeout:
+                    self.kill()
+                    raise AeroError(('{0} termination timeout over {1}s'
+                                    ).format(self._bin, timeout))
+                time.sleep(1)
+
+            print 'terminated {1} {0}, with return code {2}'.format(
+                    self._bin, p.pid, p.poll())
+        
         # TODO should I verify anything else, e.g. log file?
-        self._proc = None
+        self._procs = []
 
     def kill(self): 
         try:
-            self._proc.kill()
+            for p in self._procs:
+                p.kill()
         except OSError, data:
             print data
-        self._proc = None
+        self._procs = []
 
     #========================================================================
     # Helper methods
+    def _launchDaemon(self, args):
+        javaArgs = ['-ea', 
+                        '-Xmx64m', 
+                        '-XX:+UseConcMarkSweepGC',
+                        '-Djava.net.preferIPv4Stack=true']
+        self._launch('daemon', args, javaArgs)
 
-    def _launch(self, program, javaArgs, args):
+    def _launchCLI(self, args):
+        self._launch('cli', args)
+
+    def _launch(self, program, args, javaArgs = []):
         assert program in self._aerofsPrograms
-        if self._proc:
-            raise AeroError(('{0} has already been launched with pid {1}'
-                          ).format(self._bin, self._proc.pid))
 
         cmd = ['java'] + javaArgs + \
               ['-jar',
@@ -117,11 +141,9 @@ class AeroFS:
         cmd += args
         self._printCmd(cmd)
         try:
-            self._proc = subprocess.Popen(cmd)
+            self._procs.append(subprocess.Popen(cmd))
         except OSError, e:
             raise AeroError('When executing {1}, error {0}'.format(e,cmd))
-
-        assert self._proc
 
         # TODO: verify safe/correct launch by looking at log files, 
         #       or communicating with daemon/shell
@@ -158,9 +180,9 @@ class AeroFSonLinux(AeroFS):
 
     # Add the environment variable required only for Linux
     # * note the child process will inherit this environment
-    def launch(self, program, args = []):
+    def launch(self, args = []):
         os.putenv('LD_LIBRARY_PATH', self._approot)
-        AeroFS.launch(self, program, args)
+        AeroFS.launch(self, args)
 
     def install(self):
         fname = self._downloadInstaller()
@@ -189,7 +211,8 @@ class AeroFSonOSX(AeroFS):
 # Test Code
 if __name__ == '__main__':
     af = createAeroFS()
-    af.launch('daemon')
-    af.terminate()
+    af.launch()
+    time.sleep(5)
+    #af.terminate()
     # Should fail with an assertion error
     af.terminate()
