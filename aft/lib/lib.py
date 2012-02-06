@@ -29,8 +29,8 @@ def getFSRTRoot(): return aero.getRTRoot()
 #
 def getFSMountRoot(): return aero.getFSRoot()
 
-def launchFS(program = 'daemon'): aero.launch(program)
-def launchFSDaemon(): aero.launch('daemon')
+def launchFS(args = []): aero.launch(args)
+def launchFSDaemon(args = []): aero._launchDaemon(args)
 
 def terminateFS(ignoreError = False): aero.terminate()
 
