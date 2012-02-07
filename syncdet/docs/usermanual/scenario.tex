@@ -9,26 +9,89 @@ a scenario.
 A scenario essentially represents the combination of a number of execution {\em
 items}. An item can be a {\em test case} module, a group name, or even another
 scenario name. Test cases, the smallest building blocks of SyncDET scenarios,
-are small isolated Python functional tests. Using
-{\em directives}, items can be executed in some particular combination (e.g.,
-sequentially or in random order), and frequently-used scenarios can be combined
-into larger scenarios.
+are small isolated Python functional tests that either pass or fail. Each item
+is executed concurrently on all actor systems, but {\em directives} are used to
+define the execution order of items with respect to one system.  Items can be
+executed in some particular combination (e.g., sequentially or in random order),
+and frequently-used scenarios can be combined into larger scenarios.
 
 Scenarios can be as simple or complex as you need; when writing your own SyncDET
 scenario, you may only require the use of one to three test cases.
 
 \subsection{Directives}
-{\tt :serial}[,{\it count}]
+\directiveexec{serial}{count}
 
-{\tt :shuffle}[,{\it count}]
-{\tt :parallel}[,{\it count}]
+\directiveexec{repeat}{count}
+Execute items sequentially. Each item will be executed sequentially count times
+before proceeding to the next item. If count is zero, only the first item will
+be executed, and will be executed infinite times until the program is
+terminated. The default value for count is one. The two directives are
+interchangeable.
 
-{\tt :opening}
-{\tt :closing}
-{\tt :scn[,nofail]} {\it name}
-{\tt :group} {\it name}
-{\tt :include} {\it path}
+\directiveexec{shuffle}{count}
+Execute items sequentially, but in a random order. All items will be executed
+exactly once unless {\it count} is non-zero, in which case {\it count} items
+will be randomly selected and executed. If {\it count} is greater than the
+number of items, some items will be executed more than once. The default value
+for count is zero.
 
-{\it name}{\tt ()}
+\directiveexec{parallel}{count}
+Execute all items in the block in parallel (with respect to one system). Each
+item will be copied count times and all copies will be executed in parallel with
+copies of other items. {\it count} must not be zero. Its default value is one.
+
+%\directivemarkup{opening}
+%\directivemarkup{closing}
+
+\directivemarkup[name]{scn[,nofail]}
+Define a new scenario called {\it name}, which can be executed by calling {\it
+name}{\tt ()} from within a scenario file. With {\tt nofail}, the entire
+scenario is stopped if any item fails, otherwise a failed item is skipped and
+the next item started.
+
+%\directivemarkup[name]{group}
+
+\directivemarkup[path]{include} Link to scenario file {\it path} for defined
+scenarios.
 
 \subsection{Use of Directives}
+
+In this section, we list some typical uses of the directives. To loop over a
+list of items for 10 times:
+\begin{verbatim}
+    :repeat,10
+        :serial
+            item1
+            item2
+            item3
+\end{verbatim}
+To execute a random item in a list:
+\begin{verbatim}
+    :shuffle,1
+        item1
+        item2
+        item3
+\end{verbatim}
+To randomly pick ten items from a list, and execute all of them in parallel:
+\begin{verbatim}
+    :parallel,10
+        :shuffle,1
+            item1
+            item2
+            item3
+\end{verbatim}
+Note that in the above case, one item may have multiple instances executing in
+parallel. We can define a reusable scenario for the first example that will
+abort if any item fails, then execute it:
+\begin{verbatim}
+:scn,nofail firstEx
+    :repeat,10
+        :serial
+            item1
+            item2
+            item3
+
+:serial
+    firstEx()
+\end{verbatim}
+

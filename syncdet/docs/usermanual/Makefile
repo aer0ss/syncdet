@@ -1,6 +1,8 @@
 TARGET = paper
 SRC = paper.tex \
+      globaldefs.tex \
       introduction.tex \
+      scenario.tex \
       installation.tex
 
 BIB =
