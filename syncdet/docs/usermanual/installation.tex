@@ -1,0 +1,27 @@
+\section{Installation}
+
+\subsection{System Requirements}
+
+Running SyncDET requires one or more UNIX, Linux, or cygwin systems. 
+The controller (master) system has only been tested for OSX and requires the
+following:
+\begin{enumerate}
+\item Python 2.7+ installed
+\item git
+\item Commands {\tt tar}, and {\tt grep}.
+\end{enumerate}
+The requirements for each actor system (slave) follow:
+\begin{enumerate}
+\item Python 2.6+ installed.
+\item An ssh daemon server installed and running; future support can be made for
+{\tt telnet} or {\tt rlogin} if desired. The controller system should be able to login
+without entering a password.
+\item Commands {\tt ps}, {\tt grep}, {\tt tar}, and {\tt sed} installed. {\tt ps} must
+support the option {\tt -eo pid,cmd}, which lists all processes with a PID and a
+command line per row.
+\end{enumerate}
+
+\subsection{Installing the Controller}
+
+git clone repos/aerofs.testframework
+

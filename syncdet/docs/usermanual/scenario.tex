@@ -1,0 +1,34 @@
+\section{SyncDET Scenarios}
+
+From a controller (master) system, SyncDET deploys and executes distributed
+scenarios on multiple actor (slave) systems. This section explains the structure
+of a SyncDET scenario file, including the symbols and directives that constitute
+a scenario.
+
+\subsection{Concepts}
+A scenario essentially represents the combination of a number of execution {\em
+items}. An item can be a {\em test case} module, a group name, or even another
+scenario name. Test cases, the smallest building blocks of SyncDET scenarios,
+are small isolated Python functional tests. Using
+{\em directives}, items can be executed in some particular combination (e.g.,
+sequentially or in random order), and frequently-used scenarios can be combined
+into larger scenarios.
+
+Scenarios can be as simple or complex as you need; when writing your own SyncDET
+scenario, you may only require the use of one to three test cases.
+
+\subsection{Directives}
+{\tt :serial}[,{\it count}]
+
+{\tt :shuffle}[,{\it count}]
+{\tt :parallel}[,{\it count}]
+
+{\tt :opening}
+{\tt :closing}
+{\tt :scn[,nofail]} {\it name}
+{\tt :group} {\it name}
+{\tt :include} {\it path}
+
+{\it name}{\tt ()}
+
+\subsection{Use of Directives}
