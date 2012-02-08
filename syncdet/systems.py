@@ -4,7 +4,7 @@
 #     definition of the System class
 #
 # To view or change attributes of particular systems, see systemsdef.py
-import os
+import os, sys, subprocess
 import systemsdef
 
 # Global definition of list of systems
@@ -32,8 +32,8 @@ class System:
     login = ''
     detRoot = ''
     address = ''
-    _copyFrom = 'scp -r %login@%host:%src %dst'
-    _copyTo   = 'scp -r %src %login@%host:%dst'
+    _copyFrom = ['scp', '-r', '%login@%host:%src', '%dst']
+    _copyTo = ['scp', '-r', '%src', '%login@%host:%dst']
     _verbose = False # Verbose output?
 
     def __init__(self, d_system, verbose = False):
@@ -44,8 +44,9 @@ class System:
             self.__dict__[elem] = d_system[elem]
 
         self._copyFrom, self._copyTo = (
-            s.replace('%host', self.address).replace('%login', self.login)
-             for s in (self._copyFrom, self._copyTo)
+               [s.replace('%host', self.address).replace('%login', self.login)
+                 for s in copyList] 
+                 for copyList in (self._copyFrom, self._copyTo)
             )
 
     def copyFrom(self, src, dst):
@@ -80,16 +81,20 @@ class System:
 
         
     def _copy(self, cmd, src, dst):
-        cmd = cmd.replace('%src', src)
-        cmd = cmd.replace('%dst', dst)
-        if self._verbose:
-            print cmd
-        exit = os.system(cmd)
-        if not (exit == 0):
+        cmd = [s.replace('%src', src).replace('%dst', dst) for s in cmd]
+
+        try:
             if self._verbose:
-                s_warning = ('<System._copy> system command {} ' 
-                             'returned exit code {}. ' 
-                             'See http://support.attachmate.com/techdocs/2116.html'
-                            ).format(cmd, exit)
+                print ' '.join(cmd)
+                subprocess.check_call(cmd)
+            else:
+                with open(os.devnull, 'w') as fstdout:
+                    subprocess.check_call(cmd, stdout = fstdout)
+        except subprocess.CalledProcessError, e:
+            if self._verbose:
+                s_warning = ('<System._copy> {0}'
+                             'see http://support.attachmate.com/techdocs/2116.html'
+                            ).format(e)
                 print s_warning
+                sys.exit(-1)
 
