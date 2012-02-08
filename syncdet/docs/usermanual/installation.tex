@@ -26,6 +26,16 @@ $ mkdir ~/repos; cd ~/repos
 $ git clone ssh://z.arrowfs.org/repos/aerofs.syncdet
 \end{verbatim}
 
+\subsection{Actor VMs}
+SyncDET-ready virtual machines have been created for Linux, OSX Leopard, Windows
+7 and Windows XP. They are shared as bzipped tarballs in an AeroFS library
+somewhere (ask Mark or Weihan). They satisfy the system requirements listed
+above, except for passwordless ssh; you must copy over your public key. To
+extract the linux VM, for example:
+\begin{verbatim}
+$ tar -xvf syncdet-ubuntu1110_32.tar.bz2 -C <parent directory of VM>
+\end{verbatim}
+
 \subsection{Systems Configuration}
 You must manually configure the actor and controller systems. 
 
