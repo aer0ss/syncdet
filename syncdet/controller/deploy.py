@@ -48,9 +48,14 @@ CASE_TAR_PATH = 'casesrc.tar.gz'
 def deployCaseSrc(s_relTestDir, ls_systems):
     assert len(ls_systems) > 0
     if not config.DIRECTORY_SHARING:
-        s_tarPath = createTarFile_(lib.getLocalRoot(), 
-                                    CASE_TAR_PATH, [s_relTestDir])
-    
+        # The following dirname only returns the parent directory if there is
+        # no slash at the end of the path.
+        if s_relTestDir[-1] == '/': s_relTestDir = s_relTestDir[:-1]
+        s_tarPath = createTarFile_(os.path.join(lib.getLocalRoot(),
+                                    os.path.dirname(s_relTestDir)),
+                                    CASE_TAR_PATH,
+                                    [os.path.basename(s_relTestDir)])
+
         # For each system, scp the tar file and extract it
         global pool
         if not pool: pool = Pool(lib.getSysCount())
@@ -120,15 +125,15 @@ def deployTarFileWrapper(tfd):
 
 
 # Create a tarball of the files in ls_files
-# - s_detRoot is the SyncDET Root
+# - root is the directory in which ls_files should be found
 # - s_tarName is the desired name of the tarball (gzipped!)
-# - ls_files is a list of file paths, *relative to s_detRoot*
+# - ls_files is a list of file paths, *relative to root*
 # Returns local path of tarball
 # Side Effect: creates new tarball, changes directory, changes back
-def createTarFile_(s_detRoot, s_tarName, ls_files):
-    s_tarPath = os.path.join(s_detRoot, s_tarName)
+def createTarFile_(root, s_tarName, ls_files):
+    s_tarPath = os.path.join(root, s_tarName)
     olddir = os.getcwd()
-    os.chdir(s_detRoot)
+    os.chdir(root)
     with tarfile.open(s_tarPath, 'w:gz') as tar:
         for f in ls_files:
             assert os.path.exists(f)
