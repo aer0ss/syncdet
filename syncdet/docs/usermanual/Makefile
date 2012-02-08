@@ -4,6 +4,7 @@ SRC = paper.tex \
       introduction.tex \
       scenario.tex \
       testcases.tex \
+      aft.tex \
       installation.tex
 
 BIB =

@@ -1,0 +1,19 @@
+\subsection{AeroFS-specific Test API ({\tt aft} directory)}
+Write your AeroFS-specific test scenarios and cases in the {\tt aft} directory.
+An API of python functions will
+\begin{itemize}
+\item get AeroFS directories: Application, RunTime, File-sharing mount
+\item launch AeroFS (assuming it is installed)
+\item kill/terminate AeroFS
+\item create a directory tree of files
+\end{itemize}
+in {\tt [SyncDETRoot]/aft/lib/lib.py}.
+
+Also consider using the {\tt common.scn} scenario file for a Scenario interface
+to
+\begin{itemize}
+\item {\tt start} AeroFS
+\item {\tt stop} AeroFS
+\end{itemize}
+
+For both APIs, more functions will be written as required.
