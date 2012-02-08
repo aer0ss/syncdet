@@ -6,6 +6,7 @@ OK        = 0
 FAIL      = 1
 TIMEOUT   = 2
 
+# Raise a case.Failure if your test case fails
 class Failure(RuntimeError): pass
 
 s_sysId = None

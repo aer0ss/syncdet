@@ -3,6 +3,7 @@ SRC = paper.tex \
       globaldefs.tex \
       introduction.tex \
       scenario.tex \
+      testcases.tex \
       installation.tex
 
 BIB =
