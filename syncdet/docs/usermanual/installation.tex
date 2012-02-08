@@ -20,7 +20,38 @@ support the option {\tt -eo pid,cmd}, which lists all processes with a PID and a
 command line per row.
 \end{enumerate}
 
-\subsection{Installing the Controller}
+\subsection{Acquiring Source Code}
+\begin{verbatim}
+$ mkdir ~/repos; cd ~/repos
+$ git clone ssh://z.arrowfs.org/repos/aerofs.syncdet
+\end{verbatim}
 
-git clone repos/aerofs.testframework
+\subsection{Systems Configuration}
+You must manually configure the actor and controller systems. 
+
+\subsubsection{Actors} 
+List the hostname or IP address of all systems to be used as actors in {\tt
+[SyncDETRepo]/syncdet/systemsdef.py}. Specifically modify the d\_systems
+dictionary:
+\begin{verbatim}
+# the dictionary definition of the systems
+d_systems = [
+            { 'address': '192.168.1.16' },
+            { 'address': '192.168.1.17' },
+            ]
+\end{verbatim}
+
+\subsubsection{Controller} 
+Specify the hostname of the controller from which you will launch
+SyncDET scenarios, by modifying {\tt [SyncDETRepo]/syncdet/config.py}:
+\begin{verbatim}
+# the address or the host name of the controller
+CONTROLLER_ADDR = "192.168.1.15"
+\end{verbatim}
+
+\subsection{Running the Demo Scenario}
+\begin{verbatim}
+$ cd [SyncDETRepo]/syncdet
+$ ./det -f default.scn
+\end{verbatim}
 

@@ -16,17 +16,9 @@
 #
 # login:       the login name of the system. It should normally be the root.
 #
-# address:     the address or the host name of the system
-#
 # detRoot:     the directory where det should be copied over
 # 
-# copyFrom:    the command to copy a file %src on a remote host %host to a 
-#              local path %dst. Must support directory copy and follow
-#              symbol links if any.
-#
-# copyTo:      the command to copy a local file %src to %dst on a remote host 
-#              %host. Must support directory copy and follow
-#              symbol links if any.
+# address:     the address or the host name of the system
 #
 
 defaults = {
@@ -37,7 +29,8 @@ defaults = {
 
 # the dictionary definition of the systems
 d_systems = [
-           { 'address': '192.168.98.133' },
+           { 'address': '192.168.1.16' },
+           { 'address': '192.168.1.17' },
            ]
 
 # fill in the defaults

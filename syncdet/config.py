@@ -4,7 +4,7 @@
 import getpass
 
 # the address or the host name of the controller
-CONTROLLER_ADDR = "dev"
+CONTROLLER_ADDR = "192.168.1.18"
 
 # can cases use the console screen as stdout and stderr?
 CASE_SCREEN_OUTPUT = True
