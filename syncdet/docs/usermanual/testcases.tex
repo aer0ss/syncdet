@@ -1,0 +1,66 @@
+\section{Test Cases}
+In this section, we provide further details on writing test cases, the building
+blocks of scenarios. A test case is an ordinary Python script executed
+concurrently by some number of actor systems. Systems are assigned an ID giving
+them a total order. The following sections describe how to specify the
+point-of-entry of the test case, how to write test functions, and the various
+APIs to study.
+
+\subsection{Sample Code}
+For examples, see {\tt helloworld.py} and {\tt sync.py} in the demo code.
+
+\subsection{The {\tt spec} data structure}
+Every test case python script must define a global dictionary, {\tt spec}, which
+specifies the point-of-entry function to the test case across all actor systems,
+and its permissable duration.  The following are the dictionary (key, value)
+pairs, and their meanings.
+
+\begin{center}
+\begin{tabular}{ r | p{8cm} }
+    key           & value \\
+    \hline
+    {\tt 'entries'} 
+        & a list of length $n$, specifying the entry-point function names for
+          the first $n$ systems \\
+    %\hline
+    {\tt 'default'}
+        & the name of the entry-point function name for all other systems \\
+    {\tt 'timeout'}
+        & the maximum execution time of the test case, after which the test
+          fails (integer, in seconds) \\
+\end{tabular}
+\end{center}
+
+At least one of {\tt entries} or {\tt default} are required, and {\tt timeout}
+is entirely optional, with the default specified in {\tt config.py}
+
+\subsection{Test Case API: {\tt import case}} 
+
+This section briefly describes the general SyncDET API for writing test cases.
+ 
+For functions to get information about the currently executing test case or
+scenario see {\tt [SyncDETRoot]/syncdet/case/syncdet\_case\_lib.py}:
+\begin{itemize}
+\item get the local system ID, 
+\item get the total number of systems executing the given test case, 
+\item get the local SyncDET root (on the actor)
+\item get the test case module name, and more.
+\end{itemize}
+
+Optionally, test-case-writers could have access to the systems.System class,
+providing methods to scp files/folders to other actor systems. This is not
+officially supported yet, but given any requests, it can be arranged.
+
+\subsubsection{Synchronization API}
+
+Three functions of interest are defined in \\*
+{\tt [SyncDETRoot]/syncdet/case/syncdet\_case\_sync.py}:
+\begin{itemize}
+\item {\tt case.sync(...)}, a barrier across all systems
+\item {\tt case.syncPrev(...)}, a barrier shared with this system and the previous
+\item {\tt case.syncNext(...)}, a barrier shared with this system and the next
+\end{itemize}
+This API is also accessed through the {\tt case} module.
+
+\subsection{AeroFS-specific API}
+

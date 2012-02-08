@@ -7,11 +7,15 @@ FAIL      = 1
 TIMEOUT   = 2
 
 # Raise a case.Failure if your test case fails
+#
 class Failure(RuntimeError): pass
 
 s_sysId = None
 s_sysCount = None
 
+# return the System ID of this local system
+# (system IDs form a total order)
+#
 def getSysId():
     global s_sysId
     if not s_sysId: s_sysId = int(sys.argv[2])
@@ -25,23 +29,36 @@ def getSysCount():
     if not s_sysCount: s_sysCount = int(sys.argv[5])
     return s_sysCount
 
+# return the test case module name
+#
 def getCaseModuleName():
     return sys.argv[1]
 
+# return a unique instance ID of this test case
+#
 def getInstanceId():
     return sys.argv[4]
 
+# return a unique instance ID of this scenario
+# (e.g. date and time)
+#
 def getScenarioId():
     return sys.argv[3]
 
+# return the SyncDET root on the controller system
+#
 def getControllerRoot():
     return sys.argv[7]
 
+# return a reference to instance of systems.System for this machine
+#
 def getLocalSystem():
     if not systems.systems:
         systems.init(False, getSysCount())
     return systems.getSystem(getSysId())
 
+# return the SyncDET root on this local system
+#
 def getLocalRoot(): return getLocalSystem().detRoot
 
 def getLogDir():

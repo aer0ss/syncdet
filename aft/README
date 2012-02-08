@@ -1,0 +1,15 @@
+--------------------------------------------------------------------------------
+* [A]ero[F]S-specific [T]est cases
+* author: Mark Jeffrey
+* date: Feb 8, 2012
+--------------------------------------------------------------------------------
+This directory contains AeroFS-specific test cases and a corresponding
+API. SyncDET does not depend on this directory, but this directory leverages
+SyncDET to launch test cases.
+
+Add your scenarios (.scn) to this directory, with python scripts in a
+sub-directory (sub-module). 
+
+To access the AeroFS-specifc API
+import lib (see ./lib/lib.py)
+
