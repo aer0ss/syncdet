@@ -27,6 +27,7 @@ pdf:
 
 dvipdf: $(TARGET).dvi
 	dvipdf $(TARGET)
+	cp $(TARGET).pdf ../usermanual.pdf
 
 pspdf: $(TARGET).dvi
 	dvips $(TARGET)

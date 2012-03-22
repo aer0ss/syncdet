@@ -1,6 +1,6 @@
-import sys, string, datetime, threading, scn, os.path, os
+import threading, scn, os.path
 
-import config, controller, log, lib
+import config, log, lib
 
 RES_OK      = 0
 RES_NOSTART = 1
@@ -41,13 +41,13 @@ def reportCase(module, caseInstId, n, unfinished):
         
         try:
             logpath = log.getLocalLogPath(i, module, caseInstId)
-            file = open(logpath, 'r')
+            f = open(logpath, 'r')
         except IOError:
             results.append([RES_NOSTART, 'please check e.g. systems.py'])
             continue
             
         while 1:
-            line = file.readline()
+            line = f.readline()
             if not line:
                 code = RES_TERM
                 text = ''
@@ -63,7 +63,7 @@ def reportCase(module, caseInstId, n, unfinished):
                 code = RES_FAIL
                 text = line[ind + len('CASE_FAILED: '):-1]
                 break
-        file.close()
+        f.close()
         
         results.append([code, text])
         continue

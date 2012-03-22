@@ -5,7 +5,7 @@
 #
 # To view or change attributes of particular systems, see systemsdef.py
 import os, sys, subprocess
-import systemsdef
+import systems_def
 
 # Global definition of list of systems
 systems = [];
@@ -19,8 +19,8 @@ def getSystem(sysId):
 #
 def init(verbose, maxNumSystems = None):
     global systems
-    # Static initialization from systemsdef.py
-    for d_system in systemsdef.d_systems:
+    # Static initialization from systems_def.py
+    for d_system in systems_def.d_systems:
         systems.append(System(d_system, verbose))
 
     if maxNumSystems and maxNumSystems < len(systems):

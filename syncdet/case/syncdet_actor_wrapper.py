@@ -1,12 +1,12 @@
-import string, sys, os.path
-
-# unlike other scripts, we're invoked from the current directory. 
-# we should include the DET root path to let all imports work.
-sys.path.insert(1, 
-    os.path.normpath(os.path.join(sys.path[0] , '../')))
-
-from syncdet_case_lib import *
+import sys, os.path
 import config
+
+# unlike other scripts, we're invoked from the current directory.
+# we should include the DET root path to let all imports work.
+sys.path.insert(1, os.path.normpath(os.path.join(sys.path[0] , '../')))
+
+from syncdet_case_lib import getCaseModuleName, getSysId, getLogFilePath, \
+        failTestCase
 
 # add the module's parent directory. argv[6] is the directory name relative
 # to SyncDET's path.
@@ -20,9 +20,9 @@ exec 'import ' + getCaseModuleName()
 class Output:
     fout = None
     newline = 1
-    
+
     def __init__(self, logPath):
-        if config.CASE_LOG_OUTPUT: 
+        if config.CASE_LOG_OUTPUT:
             logPath = os.path.normpath(os.path.expanduser(logPath))
             try:
                 self.fout = open(logPath, 'a')
@@ -34,7 +34,7 @@ class Output:
     def __del__(self):
         if self.fout:
             self.fout.close()
-        
+
     def write(self, data):
         end = -1
         while 1:
@@ -52,7 +52,7 @@ class Output:
                 self.newline = 1
                 # if the '\n' is the last char
                 if end == len(data) - 1: return
-            
+
     def writeRaw(self, data):
         if config.CASE_LOG_OUTPUT:    self.fout.write(data)
         if config.CASE_SCREEN_OUTPUT: sys.__stdout__.write(data)
@@ -72,8 +72,6 @@ try:
     if ret: print 'CASE_OK:', str(ret)
     else:   print 'CASE_OK'
 
-# CRAP!!! why cannot we use Failure??????????????
-# except Failure, data:
 except RuntimeError, data:
-    print 'CASE_FAILED: %s' % str(data)
-    
+    failTestCase(str(data))
+

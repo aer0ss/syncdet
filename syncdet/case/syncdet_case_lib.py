@@ -2,13 +2,9 @@ import sys, os.path
 
 import config, systems
 
-OK        = 0
-FAIL      = 1
-TIMEOUT   = 2
-
-# Raise a case.Failure if your test case fails
-#
-class Failure(RuntimeError): pass
+OK = 0
+FAIL = 1
+TIMEOUT = 2
 
 s_sysId = None
 s_sysCount = None
@@ -63,17 +59,22 @@ def getLocalRoot(): return getLocalSystem().detRoot
 
 def getLogDir():
     return '%s/%s/%s' % (getLocalRoot(),
-                         config.LOG_DIR, 
+                         config.LOG_DIR,
                          getScenarioId())
 
 def getControllerLogDir():
     return '%s/%s/%s' % (getControllerRoot(),
-                         config.LOG_DIR, 
+                         config.LOG_DIR,
                          getScenarioId())
-    
+
 def getLogFilePath():
     return os.path.join(getLogDir(),
                         '%s.%s.%s' % (getCaseModuleName(),
                                       getInstanceId(),
                                       getSysId()))
 
+# Call this method to fail a test case. An optional message can be provided
+# to describe the failure
+def failTestCase(msg = ""):
+    print 'CASE_FAILED: {0}'.format(msg)
+    sys.exit()

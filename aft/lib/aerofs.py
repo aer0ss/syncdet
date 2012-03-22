@@ -1,6 +1,7 @@
-import os.path, subprocess, sys, time, os
+import os.path, subprocess, sys, time
 from os.path import join
 from afterror import AFTError
+from subprocess import CalledProcessError
 
 #######################################
 # configurations
@@ -17,7 +18,7 @@ INSTALLER_WIN   = 'AeroFSInstall.exe'
 
 class AeroError(AFTError): pass
 
-def createAeroFS(): 
+def createAeroFS():
     if sys.platform.startswith('linux'):
         return AeroFSonLinux()
     elif sys.platform.startswith('darwin'):
@@ -31,8 +32,8 @@ class AeroFS:
     _aerofsPrograms = ['cli', 'daemon', 'sh', 'fsck']
     _bin = FS_BIN
     _procs = None
-    
-    def __init__(self, approot, fsroot, rtroot): 
+
+    def __init__(self, approot, fsroot, rtroot):
         self._procs = []
         # Must explicitly expand user symbols of these directories, 
         # as the child process does not know to do this
@@ -53,7 +54,7 @@ class AeroFS:
     def getRTRoot(self): return self._fsroot
 
     # Paths to Daemon and GUI logs
-    def getDaemonLog(self): 
+    def getDaemonLog(self):
         return join(self.getRTRoot(), 'daemon.log')
     def getGuiLog(self):
         return join(self.getRTRoot(), 'gui.log')
@@ -69,10 +70,10 @@ class AeroFS:
 
         self._launchDaemon(args)
         self._launchCLI(args)
-        
+
     # @param timeout:  permitted time in seconds to gracefully terminate
     #
-    def terminate(self, timeout=5): 
+    def terminate(self, timeout = 5):
         assert (len(self._procs) == 2) and all(self._procs)
 
         # Find any process that died early (has a return code)
@@ -90,7 +91,7 @@ class AeroFS:
                             ('Current daemon process has different pid'
                               '{0}').format(pid))
         except IOError, e:
-            raise AeroError(e) 
+            raise AeroError(e)
         except ValueError, e:
             raise AeroError('Could not convert pid to integer {0}'.format(e))
 
@@ -106,11 +107,11 @@ class AeroFS:
 
             print 'terminated {1} {0}, with return code {2}'.format(
                     self._bin, p.pid, p.poll())
-        
+
         # TODO should I verify anything else, e.g. log file?
         self._procs = []
 
-    def kill(self): 
+    def kill(self):
         try:
             for p in filter(None, self._procs):
                 print 'Killing {0}'.format(p.pid)
@@ -122,8 +123,8 @@ class AeroFS:
     #========================================================================
     # Helper methods
     def _launchDaemon(self, args):
-        javaArgs = ['-ea', 
-                        '-Xmx64m', 
+        javaArgs = ['-ea',
+                        '-Xmx64m',
                         '-XX:+UseConcMarkSweepGC',
                         '-Djava.net.preferIPv4Stack=true']
         self._launch('daemon', args, javaArgs)
@@ -144,18 +145,19 @@ class AeroFS:
         try:
             self._procs.append(subprocess.Popen(cmd))
         except OSError, e:
-            raise AeroError('When executing {1}, error {0}'.format(e,cmd))
+            raise AeroError('When executing {1}, error {0}'.format(e, cmd))
 
         # TODO: verify safe/correct launch by looking at log files, 
         #       or communicating with daemon/shell
 
+    @staticmethod
     def _getInstallerName(): raise NotImplementedError
 
     # Downloads the AeroFS installer, 
     # * returns the full path of the local installer
 
-    def _downloadInstaller():
-        cmd = ['wget', 
+    def _downloadInstaller(self):
+        cmd = ['wget',
                os.path.join(WEB_DOWNLOADS, self._getInstallerName())
               ]
         self._printCmd(cmd)
@@ -169,14 +171,14 @@ class AeroFS:
             raise AeroError('Installer {0} not found.'.format(fname))
 
         return fname
-            
+
     def _printCmd(self, cmd): print ' '.join(cmd)
 
 
 class AeroFSonLinux(AeroFS):
     def __init__(self):
-        AeroFS.__init__(self, '~/.aerofs-bin', 
-                              '~/.aerofs.staging/AeroFS', 
+        AeroFS.__init__(self, '~/.aerofs-bin',
+                              '~/.aerofs.staging/AeroFS',
                               '~/.aerofs.staging')
 
     # Add the environment variable required only for Linux
@@ -191,7 +193,8 @@ class AeroFSonLinux(AeroFS):
         # install shar utils
         # sudo apt-get -f install
         os.remove(fname)
-        
+
+    @staticmethod
     def _getInstallerName(): return INSTALLER_LINUX
 
 class AeroFSonOSX(AeroFS):
@@ -204,9 +207,9 @@ class AeroFSonOSX(AeroFS):
 
         os.remove(fname)
 
-        
+    @staticmethod
     def _getInstallerName(): return INSTALLER_OSX
-       
+
 
 #============================================================================
 # Test Code

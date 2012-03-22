@@ -34,5 +34,5 @@ if __name__ == '__main__':
     try:
         p.kill()
     #except AFTError, e:
-    except DAemonMonitorThread, e:
+    except DaemonMonitorThread, e:
         pass

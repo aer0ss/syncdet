@@ -29,8 +29,8 @@ defaults = {
 
 # the dictionary definition of the systems
 d_systems = [
-           { 'address': '192.168.1.16' },
-           { 'address': '192.168.1.17' },
+           { 'address': '192.168.1.35' },
+           { 'address': '192.168.1.37' },
            ]
 
 # fill in the defaults

@@ -4,7 +4,7 @@
 import getpass
 
 # the address or the host name of the controller
-CONTROLLER_ADDR = "192.168.1.18"
+CONTROLLER_ADDR = "192.168.1.30"
 
 # can cases use the console screen as stdout and stderr?
 CASE_SCREEN_OUTPUT = True
@@ -34,10 +34,9 @@ SYNC_SERVICE_BACKLOG = 1000
 CASE_OUTPUT_PREFIX = '%d| '
 
 # the log file directory on each system, relative to DET's root directory
-# must pre-exist
-LOG_DIR = 'log'
+LOG_DIR = 'logs'
 
-# the report directory
+# the report directory, relative to DET's root directory
 REPORT_DIR = 'reports'
 
 # if the SyncDET directory is shared to the remote systems or not

@@ -3,11 +3,9 @@
 import sys, optparse
 
 import controller.scn
-import controller.syncsvc
 import controller.report
-import controller.lib
 import controller.deploy
-import controller
+import controller.sync_service
 import systems
 import config
 
@@ -84,7 +82,7 @@ else:
     scn = controller.scn.compile(options.scnfile)
 
 # launch the sync service
-controller.syncsvc.startService(options.verbose)
+controller.sync_service.startService(options.verbose)
 
 if config.DIRECTORY_SHARING == True:
     print 'error: there previously existed support for ' \
