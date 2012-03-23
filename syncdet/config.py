@@ -30,8 +30,8 @@ SYNC_SERVICE_PORT = 2985
 # the backlog length for the sync service
 SYNC_SERVICE_BACKLOG = 1000
 
-# the prefix for case output. %d will be replaced by the system id
-CASE_OUTPUT_PREFIX = '%d| '
+# the prefix for case output. {0} will be replaced by the system id
+CASE_OUTPUT_PREFIX = '{0}| '
 
 # the log file directory on each system, relative to DET's root directory
 LOG_DIR = 'logs'

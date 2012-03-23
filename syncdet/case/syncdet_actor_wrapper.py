@@ -4,7 +4,9 @@ import sys, os.path
 # we should include the DET root path to let all imports work.
 sys.path.insert(1, os.path.normpath(os.path.join(sys.path[0] , '../')))
 
-from syncdet_case_lib import * #@UnusedWildImport
+import config
+from syncdet_case_lib import getSysId, getLogFilePath, getCaseModuleName, \
+        failTestCase
 
 # add the module's parent directory. argv[6] is the directory name relative
 # to SyncDET's path.
@@ -15,64 +17,85 @@ sys.path.insert(1,
 # import the case module
 exec 'import ' + getCaseModuleName()
 
-class Output:
-    fout = None
-    newline = 1
-    
-    def __init__(self, logPath):
-        if config.CASE_LOG_OUTPUT: 
-            logPath = os.path.normpath(os.path.expanduser(logPath))
-            try:
-                self.fout = open(logPath, 'a')
-            except IOError:
-                s_logDir = os.path.dirname(logPath)
-                os.makedirs(s_logDir)
-                self.fout = open(logPath, 'a')
+class MultipleOutputStreams:
+    '''This class duck types the stream interface. It duplicates the input data
+    to zero or more stream objects 
+    '''
+    streams = None
 
-    def __del__(self):
-        if self.fout:
-            self.fout.close()
-        
+    def __init__(self, streams):
+        self.streams = streams
+
+    def write(self, data):
+        for stream in self.streams:
+            stream.write(data)
+
+class PrefixOutputStream:
+    '''This class duck types the stream interface. It is a decorator of another
+    stream object, adding a prefix string to each line of input data
+    '''
+
+    f = None
+    prefix = None
+    newline = 1
+
+    def __init__(self, f, prefix):
+        self.prefix = prefix
+        self.f = f;
+
     def write(self, data):
         end = -1
         while 1:
-            if config.CASE_SCREEN_OUTPUT and self.newline:
-                sys.__stdout__.write(config.CASE_OUTPUT_PREFIX % (getSysId()))
+            if self.newline:
+                self.f.write(self.prefix)
             start = end + 1
             end = data.find('\n', start)
             if end < 0:
                 if (start < len(data)):
-                    self.writeRaw(data[start:])
+                    self.f.write(data[start:])
                     self.newline = 0
                 return
             else:
-                self.writeRaw(data[start : end + 1])
+                self.f.write(data[start : end + 1])
                 self.newline = 1
                 # if the '\n' is the last char
                 if end == len(data) - 1: return
-            
-    def writeRaw(self, data):
-        if config.CASE_LOG_OUTPUT:    self.fout.write(data)
-        if config.CASE_SCREEN_OUTPUT: sys.__stdout__.write(data)
 
-    def fileno(self):
-        return self.fout.fileno()
+def redirectStdOutAndErr():
+    streams = []
 
-# hijack the stdout and stderr
-sys.stdout = sys.stderr = Output(getLogFilePath())
+    if config.CASE_LOG_OUTPUT:
+        path = getLogFilePath()
+        try:
+            streams.append(open(path, 'a'))
+        except IOError:
+            # create the parent folder and try again
+            s_logDir = os.path.dirname(path)
+            os.makedirs(s_logDir)
+            streams.append(open(path, 'a'))
 
-SPEC_NAME = 'spec'
+    if config.CASE_SCREEN_OUTPUT:
+        prefix = config.CASE_OUTPUT_PREFIX.format(getSysId())
+        stream = PrefixOutputStream(sys.stdout, prefix)
+        streams.append(stream)
 
-try:
-    # execute the right entry point
-    spec = eval(getCaseModuleName() + '.' + SPEC_NAME)
-    if 'entries' in spec.keys() and getSysId() < len(spec['entries']):
-        ret = spec['entries'][getSysId()]()
-    else:
-        ret = spec['default']()
-    if ret: print 'CASE_OK:', str(ret)
-    else:   print 'CASE_OK'
+    sys.stdout = sys.stderr = MultipleOutputStreams(streams)
 
-except RuntimeError, data:
-    failTestCase(str(data))
-    
+def main():
+    redirectStdOutAndErr()
+
+    try:
+        # execute the right entry point
+        spec = eval(getCaseModuleName() + '.spec')
+        if 'entries' in spec.keys() and getSysId() < len(spec['entries']):
+            ret = spec['entries'][getSysId()]()
+        else:
+            ret = spec['default']()
+        if ret: print 'CASE_OK:', str(ret)
+        else:   print 'CASE_OK'
+
+    except RuntimeError, data:
+        failTestCase(str(data))
+
+if __name__ == '__main__':
+    main()

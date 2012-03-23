@@ -12,8 +12,8 @@ import config, systems
 
 # Tuple of src files which must be deployed for actors to run cases
 # - file path relative to syncdet root
-ACTOR_PY_FILES =     ( 'systems.py', 'config.py', 'systems_def.py',
-                       'case/syncdet_actor_wrapper.py', 
+ACTOR_PY_FILES = ('systems.py', 'config.py', 'systems_def.py',
+                       'case/syncdet_actor_wrapper.py',
                        'case/syncdet_case_lib.py',
                        'case/syncdet_case_sync.py',
                        'case/syncdet_case_subprocess.py',
@@ -36,7 +36,7 @@ def deployActorSrc():
         global pool
         if not pool: pool = Pool(lib.getSysCount())
         # For each system, scp the tar file and extract it
-        pool.map(deployTarFileWrapper, 
+        pool.map(deployTarFileWrapper,
                [TarFileDeployer(s_tarPath, '', syst) for syst in systems.systems])
 
         # Done with the tar file; locally remove it
@@ -60,8 +60,8 @@ def deployCaseSrc(s_relTestDir, ls_systems):
         # For each system, scp the tar file and extract it
         global pool
         if not pool: pool = Pool(lib.getSysCount())
-        pool.map(deployTarFileWrapper, 
-               [TarFileDeployer(s_tarPath, os.path.dirname(s_relTestDir), syst) 
+        pool.map(deployTarFileWrapper,
+               [TarFileDeployer(s_tarPath, os.path.dirname(s_relTestDir), syst)
                 for syst in ls_systems])
 
         # Done with the tar file; locally remove it
@@ -74,18 +74,17 @@ def gatherLog(sysId, module, instId):
         system = systems.getSystem(sysId)
 
         # Determine where the logfile should be stored locally
-        s_locLogPath = log.getLocalLogPath(sysId, module, instId)
+        localLogDir = log.getLocalLogDir()
 
         # The remote file name should be the same, needing only account for
         # a different SyncDET root
-        s_remLogPath = s_locLogPath.replace(
-                            lib.getLocalRoot(),
-                            system.detRoot)
+        remLogPath = localLogDir.replace(lib.getLocalRoot(), system.detRoot)
+        remLogPath = os.path.join(remLogPath, "*")
 
         # TODO: - handle remote does not have file
         #       - handle local can not store file
-        system.copyFrom(s_remLogPath, s_locLogPath)
-        
+        system.copyFrom(remLogPath, localLogDir)
+
 
 ############################################################
 # Local helper functions and classes
@@ -97,7 +96,7 @@ def gatherLog(sysId, module, instId):
 class TarFileDeployer:
     _s_locTar = ''
     # Directory to extract the tarball, relative to SyncDET root
-    _s_dirExtract = '' 
+    _s_dirExtract = ''
     _system = None
     def __init__(self, s_locTar, s_dirExtract, system):
         self._s_locTar = s_locTar

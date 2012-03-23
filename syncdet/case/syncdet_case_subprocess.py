@@ -1,5 +1,6 @@
-import subprocess, sys
+import subprocess
 from threading import Thread
+from case import getLogFilePath
 
 class WaitingThread(Thread):
 
@@ -12,14 +13,17 @@ class WaitingThread(Thread):
     def run(self):
         self.p.wait()
 
-def startSubprocess(args):
-    """Run command with arguments. Both the command and arguments are specified
-    in args, e.g. ["/bin/sleep", "5"]
+def startSubprocess(cmd, name = None):
+    """Run command in a separate process.
+    
+    @param cmd: list of strings representing  a command with arguments. 
+    e.g. ["/bin/sleep", "5"]
+    @param name: the name of the process, will be used in the log file name.
+    When None, the cmd[0] will be used as the name.
+    @return: a subprocess.Popen object that represents the subprocess
 
-    Return a subprocess.Popen object that represents the subprocess
-
-    The stdout and stderr of the subprocess are redirected to the current 
-    process's stdout and stderr.
+    The stdout and stderr of the subprocess are redirected to a log file which
+    can be found under the same folder of the test case's log.
     
     A new, non-daemon thread is created to wait for the subprocess to complete.
     Therefore, not terminating the subprocess would prevent the current process
@@ -29,7 +33,11 @@ def startSubprocess(args):
     subprocesses intervening with subsequent test cases.    
     """
 
-    p = subprocess.Popen(args, 0, None, sys.stdout, sys.stderr)
+    if name is None:
+        name = cmd[0]
+
+    f = open(getLogFilePath('-subprocess.' + name), 'a')
+    p = subprocess.Popen(cmd, 0, None, f, f)
 
     thd = WaitingThread(p);
     thd.setDaemon(False)

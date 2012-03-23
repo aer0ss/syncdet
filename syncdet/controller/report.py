@@ -2,10 +2,10 @@ import threading, scn, os.path
 
 import config, log, lib
 
-RES_OK      = 0
+RES_OK = 0
 RES_NOSTART = 1
-RES_FAIL    = 2
-RES_TERM    = 3
+RES_FAIL = 2
+RES_TERM = 3
 RES_TIMEOUT = 4
 
 def isReportEnabled():
@@ -14,12 +14,12 @@ def isReportEnabled():
 # static initialization
 #
 if isReportEnabled():
-    s_reportPath = '{0}/{1}/report.{2}.txt'.format(lib.getLocalRoot(), 
+    s_reportPath = '{0}/{1}/report-{2}.txt'.format(lib.getLocalRoot(),
            config.REPORT_DIR, scn.getScenarioInstanceId())
     d = os.path.dirname(s_reportPath)
     if not os.path.exists(d): os.mkdir(d)
     s_reportFile = None    # open the file only when generating the report
-    s_lock       = threading.Lock()
+    s_lock = threading.Lock()
 
 # return '' if reporting is not enabled
 def getReportPath():
@@ -32,20 +32,20 @@ def getReportPath():
 #
 def reportCase(module, caseInstId, n, unfinished):
     if not isReportEnabled(): return True
-        
+
     results = []    # [[RES_*, explanation]]
     for i in range(n):
         if i in unfinished:
             results.append([RES_TIMEOUT, ''])
             continue
-        
+
         try:
             logpath = log.getLocalLogPath(i, module, caseInstId)
             f = open(logpath, 'r')
         except IOError:
             results.append([RES_NOSTART, 'please check e.g. systems.py'])
             continue
-            
+
         while 1:
             line = f.readline()
             if not line:
@@ -64,7 +64,7 @@ def reportCase(module, caseInstId, n, unfinished):
                 text = line[ind + len('CASE_FAILED: '):-1]
                 break
         f.close()
-        
+
         results.append([code, text])
         continue
 
@@ -76,7 +76,7 @@ def reportCase(module, caseInstId, n, unfinished):
             okay = False
         if results[i][1]:
             text = True
-        
+
     global s_lock
     s_lock.acquire()
 
@@ -85,7 +85,7 @@ def reportCase(module, caseInstId, n, unfinished):
         s_reportFile = open(s_reportPath, 'w')
 
     logpath = log.getLocalLogPath(0, module, caseInstId)
-    
+
     if okay:
         s_reportFile.write('OK     %s\t%s\n' % (module, logpath))
     else:
@@ -95,7 +95,7 @@ def reportCase(module, caseInstId, n, unfinished):
     if not okay or text:
         for i in range(n):
             s_reportFile.write('    sys %d: ' % i)
-            
+
             if results[i][0] == RES_OK:
                 s_reportFile.write('OK.       ')
             elif results[i][0] == RES_NOSTART:
@@ -106,12 +106,12 @@ def reportCase(module, caseInstId, n, unfinished):
                 s_reportFile.write('quit abnormally.')
             elif results[i][0] == RES_TIMEOUT:
                 s_reportFile.write('timed out.')
-            
+
             s_reportFile.write(' ' + results[i][1] + '\n')
 
     # to let the user read the error report ASAP
     s_reportFile.flush()
-        
+
     # unlock
     s_lock.release()
 

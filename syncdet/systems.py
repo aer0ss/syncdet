@@ -36,7 +36,7 @@ class System:
     _copyTo = ['scp', '-r', '%src', '%login@%host:%dst']
     _verbose = False # Verbose output?
 
-    def __init__(self, d_system, verbose = False):
+    def __init__(self, d_system, verbose):
         assert isinstance(d_system, dict)
         self._verbose = verbose
 
@@ -45,7 +45,7 @@ class System:
 
         self._copyFrom, self._copyTo = (
                [s.replace('%host', self.address).replace('%login', self.login)
-                 for s in copyList] 
+                 for s in copyList]
                  for copyList in (self._copyFrom, self._copyTo)
             )
 
@@ -76,10 +76,10 @@ class System:
         if self._verbose:
             print 'cmd[{}]'.format(self.address),
             for arg in args: print arg,
-            print 
+            print
         return os.spawnvp(mode, args[0], args)
 
-        
+
     def _copy(self, cmd, src, dst):
         cmd = [s.replace('%src', src).replace('%dst', dst) for s in cmd]
 

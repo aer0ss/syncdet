@@ -2,9 +2,9 @@ import sys, os.path
 
 import config, systems
 
-OK        = 0
-FAIL      = 1
-TIMEOUT   = 2
+OK = 0
+FAIL = 1
+TIMEOUT = 2
 
 s_sysId = None
 s_sysCount = None
@@ -67,10 +67,15 @@ def getControllerLogDir():
                          config.LOG_DIR,
                          getScenarioId())
 
-def getLogFilePath():
-    name = '{0}.{1}.{2}.log'.format(getCaseModuleName(), getInstanceId(),
-            getSysId())
-    return os.path.join(getLogDir(), name)
+def getLogFileName(module, instId, sysId, suffix = ''):
+    '''Return the log file name'''
+    return '{0}-{1}-{2}{3}.log'.format(module, instId, sysId, suffix)
+
+def getLogFilePath(suffix = ''):
+    '''Return the log file path of the calling test case'''
+    name = getLogFileName(getCaseModuleName(), getInstanceId(), getSysId(),
+            suffix)
+    return os.path.normpath(os.path.expanduser(os.path.join(getLogDir(), name)))
 
 # Call this method to fail a test case. An optional message can be provided
 # to describe the failure 

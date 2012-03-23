@@ -69,7 +69,7 @@ else:
 # case timeout?
 if options.casetimeout:
     config.CASE_TIMEOUT = options.casetimeout
-    
+
 # compile the scenario file
 # is a single case specified?
 if options.case:
@@ -98,4 +98,4 @@ for scenario in scenarios:
 
 if not options.verify and controller.report.getReportPath():
     print 'the report is at', controller.report.getReportPath()
-        
+

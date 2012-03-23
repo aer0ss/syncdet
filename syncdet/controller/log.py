@@ -2,9 +2,11 @@ import sys, os
 
 import config, scn, lib
 
+from case import getLogFileName
+
 # static initialization
 #
-s_localLogDir = '%s/%s/%s' % (lib.getLocalRoot(), config.LOG_DIR, 
+s_localLogDir = '{0}/{1}/{2}'.format(lib.getLocalRoot(), config.LOG_DIR,
                        scn.getScenarioInstanceId())
 
 # create the dir regardless of whether logging is enabled, to ensure scenario
@@ -19,14 +21,12 @@ except OSError:
 if config.DIRECTORY_SHARING and config.MAKE_SHARED_DIRECTORY_WRITABLE:
     os.system(config.MAKE_SHARED_DIRECTORY_WRITABLE % s_localLogDir)
 
-# Return the log file path, relative to the log directory
-#
-def getRelativeLogPath(sysId, module, instId):
-    return '{0}.{1}.{2}.log'.format(module, instId, sysId)
-
-# make the log path for the controller system
-#
 def getLocalLogPath(sysId, module, instId):
+    '''@return: the test case log path for the controller system'''
+    return os.path.realpath(os.path.join(getLocalLogDir(),
+            getLogFileName(module, instId, sysId)))
+
+def getLocalLogDir():
+    '''@return: the test case log directory for the controller system'''
     global s_localLogDir
-    return os.path.realpath(os.path.join(
-                s_localLogDir, getRelativeLogPath(sysId, module, instId)))
+    return s_localLogDir
