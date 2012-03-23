@@ -22,7 +22,7 @@ if config.DIRECTORY_SHARING and config.MAKE_SHARED_DIRECTORY_WRITABLE:
 # Return the log file path, relative to the log directory
 #
 def getRelativeLogPath(sysId, module, instId):
-    return '%s.%s.%s' % (module, instId, sysId)
+    return '{0}.{1}.{2}.log'.format(module, instId, sysId)
 
 # make the log path for the controller system
 #

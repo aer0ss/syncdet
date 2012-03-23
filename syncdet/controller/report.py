@@ -14,8 +14,8 @@ def isReportEnabled():
 # static initialization
 #
 if isReportEnabled():
-    s_reportPath = '%s/%s/report.%s' % (lib.getLocalRoot(), config.REPORT_DIR, 
-                                        scn.getScenarioInstanceId())
+    s_reportPath = '{0}/{1}/report.{2}.txt'.format(lib.getLocalRoot(), 
+           config.REPORT_DIR, scn.getScenarioInstanceId())
     d = os.path.dirname(s_reportPath)
     if not os.path.exists(d): os.mkdir(d)
     s_reportFile = None    # open the file only when generating the report

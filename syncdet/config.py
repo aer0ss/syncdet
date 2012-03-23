@@ -18,7 +18,7 @@ CASE_REPORT = True
 
 # the default timeout for controller waiting for cases to finish. in sec.
 # overwritten by command line option '-t' or spec['timeout']
-CASE_TIMEOUT = 60 * 10
+CASE_TIMEOUT = 60
 
 # the default timeout for synchronizers. in sec.
 # overwritten by sync()'s timeout parameter

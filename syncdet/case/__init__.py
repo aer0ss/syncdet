@@ -3,4 +3,5 @@
 #
 
 from syncdet_case_lib import *
-from syncdet_case_sync import *
+from syncdet_case_sync import sync, syncNext, syncPrev
+from syncdet_case_subprocess import startSubprocess

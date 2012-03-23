@@ -35,8 +35,7 @@ At least one of {\tt entries} or {\tt default} are required, and {\tt timeout}
 is entirely optional, with the default specified in {\tt config.py}
 
 \subsection{How test failures are detected}
-A test case is considered a failure and will be reported in any of the 
-following situations:
+A test case is considered a failure and will be reported, in any of the following situations:
 
 \begin{itemize}
 \item An exception is raised and not caught within the entry-point function.
@@ -45,8 +44,7 @@ following situations:
 in config.py for details.)
 \end{itemize}
 
-Therefore, the simplest way to fail a test case is to raise an arbitrary
-exception.
+Therefore, the simplest way to fail a test case is to raise an arbitrary exception.
 
 \subsection{Test Case API: {\tt import case}} 
 

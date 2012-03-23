@@ -2,9 +2,9 @@ import sys, os.path
 
 import config, systems
 
-OK = 0
-FAIL = 1
-TIMEOUT = 2
+OK        = 0
+FAIL      = 1
+TIMEOUT   = 2
 
 s_sysId = None
 s_sysCount = None
@@ -68,13 +68,12 @@ def getControllerLogDir():
                          getScenarioId())
 
 def getLogFilePath():
-    return os.path.join(getLogDir(),
-                        '%s.%s.%s' % (getCaseModuleName(),
-                                      getInstanceId(),
-                                      getSysId()))
+    name = '{0}.{1}.{2}.log'.format(getCaseModuleName(), getInstanceId(),
+            getSysId())
+    return os.path.join(getLogDir(), name)
 
 # Call this method to fail a test case. An optional message can be provided
-# to describe the failure
+# to describe the failure 
 def failTestCase(msg = ""):
     print 'CASE_FAILED: {0}'.format(msg)
     sys.exit()
