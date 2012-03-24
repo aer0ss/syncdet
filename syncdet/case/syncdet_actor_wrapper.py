@@ -32,7 +32,7 @@ class MultipleOutputStreams:
 
 class PrefixOutputStream:
     '''This class duck types the stream interface. It is a decorator of another
-    stream object, adding a prefix string to each line of input data
+    stream object, adding a prefix string to each line of input data.
     '''
 
     f = None
@@ -66,13 +66,7 @@ def redirectStdOutAndErr():
 
     if config.CASE_LOG_OUTPUT:
         path = getLogFilePath()
-        try:
-            streams.append(open(path, 'a'))
-        except IOError:
-            # create the parent folder and try again
-            s_logDir = os.path.dirname(path)
-            os.makedirs(s_logDir)
-            streams.append(open(path, 'a'))
+        streams.append(open(path, 'a'))
 
     if config.CASE_SCREEN_OUTPUT:
         prefix = config.CASE_OUTPUT_PREFIX.format(getSysId())

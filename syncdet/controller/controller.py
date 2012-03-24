@@ -1,6 +1,6 @@
 import time, signal, sys, threading, os.path
 
-import config, systems, report, lib, scn, deploy
+import config, systems, report, lib, scn, deploy, log
 
 WRAPPER_NAME = 'syncdet_actor_wrapper.py'
 
@@ -10,8 +10,9 @@ def errorAnalysis(msg):
     print 'error:', msg
     sys.exit()
 
-# return: the number of systems to launch, and the case timeout value
 def analyze(module, dir):
+    '''@return: the number of systems to launch, and the case timeout value
+    '''
     try:
         sys.path.insert(0, os.path.join(lib.getLocalRoot(), dir))
         exec 'import ' + module
@@ -27,7 +28,7 @@ def analyze(module, dir):
         if 'entries' not in spec.keys() and 'default' not in spec.keys():
             raise Exception
 
-        n = lib.getSysCount()
+        n = systems.getSystemCount()
         preferred = 0
         if 'entries' in spec.keys():
             preferred += len(spec['entries'])
@@ -56,9 +57,10 @@ def analyze(module, dir):
             "its '%s' data structure." % (module, SPEC_NAME)
         return min(n, preferred), timeout
 
-# return the number of systems and a list of systems that didn't finish on time
-#
 def launchCase(module, dir, instId, verbose):
+    '''@return: the number of systems and a list of systems that didn't finish 
+    on time'''
+
     n, timeout = analyze(module, dir)
 
     # Deploy the necessary test case source code to the remote systems
@@ -112,13 +114,12 @@ def makeCaseInstanceId():
     s_lock.release()
     return ret
 
-# return False if the case failed
-#
 def executeCase(module, dir, verbose):
+    '''@return: False if the case failed'''
     instId = makeCaseInstanceId()
     n, unfinished = launchCase(module, dir, instId, verbose)
     for i in range(n):
-        deploy.gatherLog(i, module, instId)
+        log.collectLog(i, module, instId)
     return report.reportCase(module, instId, n, unfinished)
 
 KILL_CMD = "for i in `ps -eo pid,command | grep '%s' | grep -v grep | " \

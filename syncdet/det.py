@@ -14,33 +14,33 @@ import config
 usage = "usage: %prog [options] scenario"
 parser = optparse.OptionParser(usage)
 
-parser.add_option("-f", "--scenario", dest="scnfile", default="default.scn",
-                  help="specify the scenario file. default.scn is the default",
-                  metavar="FILE")
-parser.add_option("-c", "--case", dest="case",
-                  help="specify a single case, CASE, to run. Change the Python"\
+parser.add_option("-f", "--scenario", dest = "scnfile", default = "default.scn",
+                  help = "specify the scenario file. default.scn is the default",
+                  metavar = "FILE")
+parser.add_option("-c", "--case", dest = "case",
+                  help = "specify a single case, CASE, to run. Change the Python"\
                   " root directory to DIR before running. DIR must be relative"\
                   " to SyncDET's root directory",
-                  metavar="DIR,CASE")
+                  metavar = "DIR,CASE")
 
-parser.add_option("-m", "--systems", dest="systems", type="int", default="-1",
-                  help="the max number of systems to use. use all sytems "\
-                  "otherwise", metavar="N")
-parser.add_option("-t", "--case-timeout", dest="casetimeout", type="int",
-                  help="the case timeout, overwriting config.CASE_TIMEOUT",
-                  metavar="TIMEOUT")
-parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
-                  default=False,
-                  help="verbose mode")
-parser.add_option("-e", "--verify", dest="verify", action="store_true",
-                  default=False,
-                  help="print but not actually run the cases")
+parser.add_option("-m", "--systems", dest = "systems", type = "int", default = "-1",
+                  help = "the max number of systems to use. use all sytems "\
+                  "otherwise", metavar = "N")
+parser.add_option("-t", "--case-timeout", dest = "casetimeout", type = "int",
+                  help = "the case timeout, overwriting config.CASE_TIMEOUT",
+                  metavar = "TIMEOUT")
+parser.add_option("-v", "--verbose", dest = "verbose", action = "store_true",
+                  default = False,
+                  help = "verbose mode")
+parser.add_option("-e", "--verify", dest = "verify", action = "store_true",
+                  default = False,
+                  help = "print but not actually run the cases")
 
-parser.add_option("--clobber", dest="clobber", action="store_true",
-                  help="kill all remaning remote sessions and quit")
-parser.add_option("--purge-log", dest="purge", action="store_true",
-                  default=False,
-                  help="empty the log directory and then quit")
+parser.add_option("--clobber", dest = "clobber", action = "store_true",
+                  help = "kill all remaning remote sessions and quit")
+parser.add_option("--purge-log", dest = "purge", action = "store_true",
+                  default = False,
+                  help = "empty the log directory and then quit")
 
 options, args = parser.parse_args()
 
@@ -84,12 +84,7 @@ else:
 # launch the sync service
 controller.sync_service.startService(options.verbose)
 
-if config.DIRECTORY_SHARING == True:
-    print 'error: there previously existed support for ' \
-          'DIRECTORY_SHARING=True (ie a shared NFS drive), ' \
-          'but now we assume this not to be the case.'
-    sys.exit()
-else:
+if not options.verify:
     controller.deploy.deployActorSrc()
 
 # launch the scenarios

@@ -1,7 +1,6 @@
 #
 # the SyncDET configuration file
 #
-import getpass
 
 # the address or the host name of the controller
 CONTROLLER_ADDR = "192.168.1.30"
@@ -38,13 +37,6 @@ LOG_DIR = 'logs'
 
 # the report directory, relative to DET's root directory
 REPORT_DIR = 'reports'
-
-# if the SyncDET directory is shared to the remote systems or not
-DIRECTORY_SHARING = False
-
-# the local command to make the file or directory %s remotely writable, if the
-# directory is shared to remote systems.
-MAKE_SHARED_DIRECTORY_WRITABLE = 'chown ' + getpass.getuser() + ' %s'
 
 # the delay in sec between launches of consecutive parallel items
 # this is used to to limit system loads on actors

@@ -7,8 +7,8 @@
 from multiprocessing import Pool
 import os.path, tarfile
 
-import lib, log
-import config, systems
+import lib
+import systems
 
 # Tuple of src files which must be deployed for actors to run cases
 # - file path relative to syncdet root
@@ -27,20 +27,19 @@ pool = None
 # to all known Systems
 # - assumes all files in ACTOR_PY_FILES exist locally
 def deployActorSrc():
-    if not config.DIRECTORY_SHARING:
-        s_locRoot = lib.getLocalRoot()
+    s_locRoot = lib.getLocalRoot()
 
-        # Create a tarball of Actor source files
-        s_tarPath = createTarFile_(s_locRoot, ACTOR_TAR_PATH, ACTOR_PY_FILES)
+    # Create a tarball of Actor source files
+    s_tarPath = createTarFile_(s_locRoot, ACTOR_TAR_PATH, ACTOR_PY_FILES)
 
-        global pool
-        if not pool: pool = Pool(lib.getSysCount())
-        # For each system, scp the tar file and extract it
-        pool.map(deployTarFileWrapper,
-               [TarFileDeployer(s_tarPath, '', syst) for syst in systems.systems])
+    global pool
+    if not pool: pool = Pool(systems.getSystemCount())
+    # For each system, scp the tar file and extract it
+    pool.map(deployTarFileWrapper,
+           [TarFileDeployer(s_tarPath, '', syst) for syst in systems.systems])
 
-        # Done with the tar file; locally remove it
-        if os.path.exists(s_tarPath): os.remove(s_tarPath)
+    # Done with the tar file; locally remove it
+    if os.path.exists(s_tarPath): os.remove(s_tarPath)
 
 
 # Deploys the test case directory of source files to the specified systems
@@ -48,43 +47,23 @@ def deployActorSrc():
 CASE_TAR_PATH = 'casesrc.tar.gz'
 def deployCaseSrc(s_relTestDir, ls_systems):
     assert len(ls_systems) > 0
-    if not config.DIRECTORY_SHARING:
-        # The following dirname only returns the parent directory if there is
-        # no slash at the end of the path.
-        if s_relTestDir[-1] == '/': s_relTestDir = s_relTestDir[:-1]
-        s_tarPath = createTarFile_(os.path.join(lib.getLocalRoot(),
-                                    os.path.dirname(s_relTestDir)),
-                                    CASE_TAR_PATH,
-                                    [os.path.basename(s_relTestDir)])
+    # The following dirname only returns the parent directory if there is
+    # no slash at the end of the path.
+    if s_relTestDir[-1] == '/': s_relTestDir = s_relTestDir[:-1]
+    s_tarPath = createTarFile_(os.path.join(lib.getLocalRoot(),
+                                os.path.dirname(s_relTestDir)),
+                                CASE_TAR_PATH,
+                                [os.path.basename(s_relTestDir)])
 
-        # For each system, scp the tar file and extract it
-        global pool
-        if not pool: pool = Pool(lib.getSysCount())
-        pool.map(deployTarFileWrapper,
-               [TarFileDeployer(s_tarPath, os.path.dirname(s_relTestDir), syst)
-                for syst in ls_systems])
+    # For each system, scp the tar file and extract it
+    global pool
+    if not pool: pool = Pool(systems.getSystemCount())
+    pool.map(deployTarFileWrapper,
+           [TarFileDeployer(s_tarPath, os.path.dirname(s_relTestDir), syst)
+            for syst in ls_systems])
 
-        # Done with the tar file; locally remove it
-        if os.path.exists(s_tarPath): os.remove(s_tarPath)
-
-
-def gatherLog(sysId, module, instId):
-    if not config.DIRECTORY_SHARING:
-
-        system = systems.getSystem(sysId)
-
-        # Determine where the logfile should be stored locally
-        localLogDir = log.getLocalLogDir()
-
-        # The remote file name should be the same, needing only account for
-        # a different SyncDET root
-        remLogPath = localLogDir.replace(lib.getLocalRoot(), system.detRoot)
-        remLogPath = os.path.join(remLogPath, "*")
-
-        # TODO: - handle remote does not have file
-        #       - handle local can not store file
-        system.copyFrom(remLogPath, localLogDir)
-
+    # Done with the tar file; locally remove it
+    if os.path.exists(s_tarPath): os.remove(s_tarPath)
 
 ############################################################
 # Local helper functions and classes

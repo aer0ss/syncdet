@@ -10,6 +10,13 @@ import systems_def
 # Global definition of list of systems
 systems = [];
 
+def getSystems():
+    return systems
+
+def getSystemCount():
+    assert len(systems) > 0
+    return len(systems)
+
 def getSystem(sysId):
     return systems[sysId]
 
@@ -58,11 +65,17 @@ class System:
         self._copy(cmd, src, dst)
 
     def execRemoteCmdBlock(self, cmd):
+        '''@param cmd: the string contains both the command to execute and its
+        arguemts, e.g., 'ls -l'
+        '''
         return self._executeRemoteCmd(os.P_WAIT, cmd)
 
     # return the pid of the local proxy process. cmd is a string
     #
     def execRemoteCmdNonBlock(self, cmd):
+        '''@param cmd: the string contains both the command to execute and its
+        arguemts, e.g., 'ls -l'
+        '''
         return self._executeRemoteCmd(os.P_NOWAIT, cmd)
 
     # return the result of os.spawnvp, according to mode. cmd is a string

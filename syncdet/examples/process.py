@@ -2,5 +2,5 @@
 from case import startSubprocess
 
 def subprocess():
-    startSubprocess('echo', ['ls', '-l'])
+    startSubprocess(['ls', '-l'])
 spec = { 'default': subprocess }

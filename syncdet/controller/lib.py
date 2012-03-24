@@ -1,17 +1,8 @@
 import sys, os.path, datetime, time
 
-import systems
-
 s_realRoot = os.path.realpath(os.path.expanduser(sys.path[0]))
 
 def getLocalRoot(): return s_realRoot
-
-def getSysCount():
-    assert len(systems.systems) > 0
-    return len(systems.systems)
-    #global s_sysCount
-    #return s_sysCount
-
 
 def generateTimeDerivedId(includeMSec):
     '''Generate a string based on the current time. the string can be used as
