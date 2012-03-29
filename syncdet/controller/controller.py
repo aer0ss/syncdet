@@ -78,7 +78,7 @@ def launchCase(module, dir, instId, verbose):
                                       instId, n, dir, lib.getLocalRoot())
 
         # execute the remote command
-        pids[system.execRemoteCmdNonBlock(cmd)] = i
+        pids[system.execRemoteCmdNonBlocking(cmd)] = i
 
     start = time.time()
     while 1:
@@ -128,7 +128,7 @@ KILL_CMD = "for i in `ps -eo pid,command | grep '%s' | grep -v grep | " \
 def killRemoteInstance(sysId, instId, verbose):
     # instId uniquely identifies the case instance
     cmd = KILL_CMD % instId
-    systems.getSystem(sysId).execRemoteCmdNonBlock(cmd)
+    systems.getSystem(sysId).execRemoteCmdNonBlocking(cmd)
 
     # don't cancel. let sync GC do the work
     # cancel the synchronizer
@@ -137,7 +137,7 @@ def killRemoteInstance(sysId, instId, verbose):
 
 def killAllRemoteInstances(verbose):
     cmd = KILL_CMD % WRAPPER_NAME
-    for s in systems.systems: s.execRemoteCmdNonBlock(cmd)
+    for s in systems.systems: s.execRemoteCmdNonBlocking(cmd)
 
 def purgeLogFiles():
     os.system('rm -rf %s/%s/*' % (lib.getLocalRoot(), config.LOG_DIR))

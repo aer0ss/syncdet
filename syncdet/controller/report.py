@@ -40,7 +40,7 @@ def reportCase(module, caseInstId, n, unfinished):
             continue
 
         try:
-            logpath = log.getLocalLogPath(i, module, caseInstId)
+            logpath = log.getControllerLogFilePath(i, module, caseInstId)
             f = open(logpath, 'r')
         except IOError:
             results.append([RES_NOSTART, 'please check e.g. systems.py'])
@@ -84,7 +84,7 @@ def reportCase(module, caseInstId, n, unfinished):
     if not s_reportFile:
         s_reportFile = open(s_reportPath, 'w')
 
-    logpath = log.getLocalLogPath(0, module, caseInstId)
+    logpath = log.getControllerLogFilePath(0, module, caseInstId)
 
     if okay:
         s_reportFile.write('OK     %s\t%s\n' % (module, logpath))

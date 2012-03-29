@@ -180,7 +180,7 @@ def execute(glob, scenario, verify, verbose):
         scn = glob.children[scenario]
 
     try:
-        log.initialize(verify)
+        log.createLogFolders(verify)
 
         # global opening
         ocUnit = scncc.Unit(scncc.SERIAL, 1)

@@ -1,54 +1,66 @@
 import sys, os
 
-import config, scn, lib, systems
+from os.path import join
 
-from case import getLogFileName
+import config, scn, lib, systems, case
 
-def initialize(verify):
+def createLogFolders(verify):
+    '''Create log folders on both the controller and actors. Although log
+    folders on actors can be created lazily when needed, creating it here for
+    all actors simplifies collectAllLogs() (as not all systems will be used for
+    a scenario) and test cases.
+    '''
     if verify: return
 
-    # create the log folder regardless of whether logging is enabled, to ensure 
+    # create the log folder regardless of whether logging is enabled, to ensure
     # scenario instances are unique
-    localLogDir = getLocalLogFolderPath()
+    pathCtrlrLogFolder = getControllerLogFolderPath()
     try:
-        os.makedirs(localLogDir)
+        os.makedirs(pathCtrlrLogFolder)
     except OSError:
-        if not os.path.exists(localLogDir):
-            print 'Directory ' + localLogDir + ' could not be created';
+        if not os.path.exists(pathCtrlrLogFolder):
+            print 'Directory ' + pathCtrlrLogFolder + ' could not be created';
             sys.exit();
 
     # create log directories on actor systems
     for system in systems.getSystems():
-        path = localToActorPath(localLogDir, system)
-        system.execRemoteCmdBlock('mkdir -p ' + path)
+        path = getActorLogFolderPath(system)
+        system.execRemoteCmdBlocking('mkdir -p ' + path)
 
-def getLocalLogFolderPath():
+def getLogFolderRelativePath():
+    '''@return the log file path relative to SyncDET root folder'''
+    return join(config.LOG_DIR, scn.getScenarioInstanceId());
+
+def getControllerLogFolderPath():
     '''@return: the directory where the controller system stores log files
     locally
     '''
-    return '{0}/{1}/{2}'.format(lib.getLocalRoot(), config.LOG_DIR,
-                       scn.getScenarioInstanceId());
+    return join(lib.getLocalRoot(), getLogFolderRelativePath());
 
-def getLocalLogPath(sysId, module, instId):
+def getControllerLogFilePath(sysId, module, instId):
     '''@return: the test case log path for the controller system'''
-    return os.path.realpath(os.path.join(getLocalLogFolderPath(),
-            getLogFileName(module, instId, sysId)))
+    name = case.getLogFileName(module, instId, sysId)
+    return join(getControllerLogFolderPath(), name)
 
-def localToActorPath(path, system):
-    # The remote file name should be the same, needing only account for
-    # a different SyncDET root
-    return path.replace(lib.getLocalRoot(), system.detRoot)
+def getActorLogFolderPath(system):
+    '''@return: the directory where the actor system stores log files
+    '''
+    return join(system.detRoot, getLogFolderRelativePath());
+
+def getActorLogFilePath(system, sysId, module, instId):
+    '''@return: the test case log path for the controller system'''
+    name = case.getLogFileName(module, instId, sysId)
+    return join(getActorLogFolderPath(system), name)
 
 def collectLog(sysId, module, instId):
     '''Retrieve the log file of a specific test case instance from a given actor
     system to the local log directory
     '''
 
-    # Determine where the logfile should be stored locally
-    localLogPath = getLocalLogPath(sysId, module, instId)
-
+    pathCtrlr = getControllerLogFilePath(sysId, module, instId)
     system = systems.getSystem(sysId)
-    system.copyFrom(localToActorPath(localLogPath, system), localLogPath)
+    pathActor = getActorLogFilePath(system, sysId, module, instId)
+    system.copyFrom(pathActor, pathCtrlr)
 
 def collectAllLogs():
     '''Retrieve all the log files under the log folders from all the actors to
@@ -56,10 +68,8 @@ def collectAllLogs():
     '''
 
     for system in systems.getSystems():
-        # Determine where the log file should be stored locally
-        localLogDir = getLocalLogFolderPath()
+        pathCtrlr = getControllerLogFolderPath()
+        pathActor = getActorLogFolderPath(system)
+        pathActor = os.path.join(pathActor, "*")
 
-        remLogPath = localToActorPath(localLogDir, system)
-        remLogPath = os.path.join(remLogPath, "*")
-
-        system.copyFrom(remLogPath, localLogDir)
+        system.copyFrom(pathActor, pathCtrlr)

@@ -64,7 +64,7 @@ class System:
         cmd = self._copyTo
         self._copy(cmd, src, dst)
 
-    def execRemoteCmdBlock(self, cmd):
+    def execRemoteCmdBlocking(self, cmd):
         '''@param cmd: the string contains both the command to execute and its
         arguemts, e.g., 'ls -l'
         '''
@@ -72,7 +72,7 @@ class System:
 
     # return the pid of the local proxy process. cmd is a string
     #
-    def execRemoteCmdNonBlock(self, cmd):
+    def execRemoteCmdNonBlocking(self, cmd):
         '''@param cmd: the string contains both the command to execute and its
         arguemts, e.g., 'ls -l'
         '''

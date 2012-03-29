@@ -97,7 +97,7 @@ class TarFileDeployer:
                        'tar -xzf {1} -C {0}; '
                        'rm {1};'
                       ).format(s_dstdirExtract, s_dstTar)
-        self._system.execRemoteCmdBlock(cmd_extract)
+        self._system.execRemoteCmdBlocking(cmd_extract)
 
 def deployTarFileWrapper(tfd):
     tfd.deploy()
