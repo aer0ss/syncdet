@@ -51,7 +51,7 @@ def getLocalActor():
 # return the SyncDET root on this local actor
 #
 def getRootFolderPath():
-    return os.path.normpath(os.path.expanduser(getLocalActor().detRoot))
+    return os.path.normpath(os.path.expanduser(getLocalActor().root))
 
 def getLogFolderPath():
     '''Return the log folder path of the calling test case.

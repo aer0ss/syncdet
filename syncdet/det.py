@@ -7,7 +7,7 @@ import controller.report
 import controller.deploy
 import controller.sync_service
 import actors
-import config
+import param
 
 # argument parsing
 
@@ -27,7 +27,7 @@ parser.add_option("-m", "--actors", dest = "actors", type = "int", default = "-1
                   help = "the max number of actors to use. use all sytems "\
                   "otherwise", metavar = "N")
 parser.add_option("-t", "--case-timeout", dest = "casetimeout", type = "int",
-                  help = "the case timeout, overwriting config.CASE_TIMEOUT",
+                  help = "the case timeout, overwriting param.CASE_TIMEOUT",
                   metavar = "TIMEOUT")
 parser.add_option("-v", "--verbose", dest = "verbose", action = "store_true",
                   default = False,
@@ -68,7 +68,7 @@ else:
 
 # case timeout?
 if options.casetimeout:
-    config.CASE_TIMEOUT = options.casetimeout
+    param.CASE_TIMEOUT = options.casetimeout
 
 # compile the scenario file
 # is a single case specified?

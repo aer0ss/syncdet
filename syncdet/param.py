@@ -1,9 +1,6 @@
 #
-# the SyncDET configuration file
+# This file defines SyncDET parameters
 #
-
-# the address or the host name of the controller
-CONTROLLER_ADDR = "192.168.1.102"
 
 # can cases use the console screen as stdout and stderr?
 CASE_SCREEN_OUTPUT = True

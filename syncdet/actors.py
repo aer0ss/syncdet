@@ -5,7 +5,7 @@
 #
 # To view or change attributes of particular actors, see actorsdef.py
 import os, sys, subprocess
-import actors_def
+import config
 
 # Global definition of list of actors
 actors = [];
@@ -26,8 +26,8 @@ def getActor(actorId):
 #
 def init(verbose, maxNumActors = None):
     global actors
-    # Static initialization from actors_def.py
-    for d_actor in actors_def.d_actors:
+    # Static initialization from config.py
+    for d_actor in config.d_actors:
         actors.append(Actor(d_actor, verbose))
 
     if maxNumActors and maxNumActors < len(actors):
@@ -37,7 +37,7 @@ def init(verbose, maxNumActors = None):
 class Actor:
     rsh = ''
     login = ''
-    detRoot = ''
+    root = ''
     address = ''
     _copyFrom = ['scp', '-r', '%login@%host:%src', '%dst']
     _copyTo = ['scp', '-r', '%src', '%login@%host:%dst']

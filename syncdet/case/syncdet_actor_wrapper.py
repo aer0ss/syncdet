@@ -4,7 +4,7 @@ import sys, os.path
 # we should include the DET root path to let all imports work.
 sys.path.insert(1, os.path.normpath(os.path.join(sys.path[0] , '../')))
 
-import config
+import param
 from syncdet_case_lib import getActorId, getLogFilePath, getCaseModuleName, \
         failTestCase
 
@@ -64,12 +64,12 @@ class PrefixOutputStream:
 def redirectStdOutAndErr():
     streams = []
 
-    if config.CASE_LOG_OUTPUT:
+    if param.CASE_LOG_OUTPUT:
         path = getLogFilePath()
         streams.append(open(path, 'a'))
 
-    if config.CASE_SCREEN_OUTPUT:
-        prefix = config.CASE_OUTPUT_PREFIX.format(getActorId())
+    if param.CASE_SCREEN_OUTPUT:
+        prefix = param.CASE_OUTPUT_PREFIX.format(getActorId())
         stream = PrefixOutputStream(sys.stdout, prefix)
         streams.append(stream)
 

@@ -1,6 +1,6 @@
 import time, signal, sys, threading, os.path
 
-import config, actors, report, scn, deploy, log
+import param, actors, report, scn, deploy, log
 
 from controller_lib import getRootFolderPath, generateTimeDerivedId
 
@@ -47,7 +47,7 @@ def analyze(module, dir):
         if 'timeout' in spec.keys():
             timeout = spec['timeout']
         else:
-            timeout = config.CASE_TIMEOUT
+            timeout = param.CASE_TIMEOUT
     except Exception:
         errorAnalysis(module + " has an invalid '" + SPEC_NAME + "' structure.")
 
@@ -72,7 +72,7 @@ def launchCase(module, dir, instId, verbose):
     for i in range(n):
         actor = actors.getActor(i)
         # the command
-        cmd = 'python {0}/case/{1} '.format(actor.detRoot, WRAPPER_NAME)
+        cmd = 'python {0}/case/{1} '.format(actor.root, WRAPPER_NAME)
         # the arguments:
         # module actorId scenarioId instId actorCount dir(relative to SyncDET root) controllerRoot
         cmd += '{0} {1} {2} {3} {4} {5} {6}'.format(module, i,
@@ -134,7 +134,7 @@ def killRemoteInstance(actorId, instId, verbose):
 
     # don't cancel. let sync GC do the work
     # cancel the synchronizer
-    # time.sleep(config.SYNC_CANCEL_DELAY)
+    # time.sleep(param.SYNC_CANCEL_DELAY)
     # sync.cancelSynchronizers(instId)
 
 def killAllRemoteInstances(verbose):
@@ -142,4 +142,4 @@ def killAllRemoteInstances(verbose):
     for s in actors.actors: s.execRemoteCmdNonBlocking(cmd)
 
 def purgeLogFiles():
-    os.actor('rm -rf %s/%s/*' % (getRootFolderPath(), config.LOG_DIR))
+    os.actor('rm -rf %s/%s/*' % (getRootFolderPath(), param.LOG_DIR))

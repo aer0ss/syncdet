@@ -37,28 +37,31 @@ $ tar -xvf syncdet-ubuntu1110_32.tar.bz2 -C <parent directory of VM>
 \end{verbatim}
 
 \subsection{Systems Configuration}
-You must manually configure the actor and controller systems. 
+First, create a configuration file from the template:
+\begin{verbatim}
+$ cd syncdet
+$ cp config.py.default config.py
+\end{verbatim}
+
+Second, edit the configuration file for the controller and actors. 
+
+\paragraph{Controller} 
+You need to specify the hostname of the localhost from which you will launch
+SyncDET (the localhost will be the controller):
+\begin{verbatim}
+# the IP address or host name of the controller
+controllerAddress = "192.168.1.15"
+\end{verbatim}
+This is necessary because actors connect back to the controller for certain tasks.
 
 \paragraph{Actors} 
-List the hostname or IP address of all systems to be used as actors in \\*
-{\tt [SyncDETRepo]/syncdet/actor\_def.py}. Specifically modify the d\_actors
-dictionary:
+List the hostname or IP address of all systems to be used as actors:
 \begin{verbatim}
 # the dictionary definition of the actors
 d_actors = [
             { 'address': '192.168.1.16' },
             { 'address': '192.168.1.17' },
             ]
-\end{verbatim}
-
-\paragraph{Controller} 
-You need to specify the hostname of the localhost from which you will launch
-SyncDET scenarios (the localhost will be the controller). This is necessary
-because actors connect back to the controller for certain tasks. It can be
-specified by modifying {\tt [SyncDETRepo]/syncdet/config.py}:
-\begin{verbatim}
-# the address or the host name of the controller
-CONTROLLER_ADDR = "192.168.1.15"
 \end{verbatim}
 
 \subsection{Running the Demo Scenario}

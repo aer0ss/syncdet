@@ -39,7 +39,7 @@ def getControllerLogFilePath(actorId, module, instId):
 def getActorLogFolderPath(actor):
     '''@return: the directory where the actor actor stores log files
     '''
-    return getLogFolderPath(actor.detRoot, scn.getScenarioId());
+    return getLogFolderPath(actor.root, scn.getScenarioId());
 
 def getActorLogFilePath(actor, actorId, module, instId):
     '''@return: the test case log path for the controller actor'''

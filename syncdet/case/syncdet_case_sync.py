@@ -1,5 +1,5 @@
 import socket, string
-import config
+import param, config
 
 from syncdet_case_lib import getActorId, getActorCount, getInstanceId
 from syncdet_case_lib import getCaseModuleName, OK, FAIL, TIMEOUT
@@ -7,7 +7,7 @@ from syncdet_case_lib import getCaseModuleName, OK, FAIL, TIMEOUT
 # id:      the sync id, can be either numerical or textual, identifying the 
 #          synchronizer within the scope of the instance
 # voteYes: False: vote no. it will cause the synchronization to fail
-# timeout: 0: use the default, system-wide timeout (config.SYNC_TIMEOUT)
+# timeout: 0: use the default, system-wide timeout (param.SYNC_TIMEOUT)
 # waits:   a list of actorId's to synchronize with. Passing None will
 #          sync with ALL other instances
 #
@@ -27,7 +27,7 @@ def sync(id, waits = None, timeout = 0, voteYes = True):
     print "SYNC '%s' %s" % (str(id), v)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((config.CONTROLLER_ADDR, config.SYNC_SERVICE_PORT))
+    s.connect((config.controllerAddress, param.SYNC_SERVICE_PORT))
     data = buildRequest(id, waits, voteYes, timeout)
     s.send(data)
     # BUGBUG: we don't consider partial receiving now
@@ -38,10 +38,10 @@ def sync(id, waits = None, timeout = 0, voteYes = True):
 #       Therefore, syncPrev/Next on the local actor won't mess up with other
 #       actors with the same syncPrev/Next id.
 #
-# prev/next: the previous or next actor to sync. passing None will sync 
-#       with the actor which actorId numerically precedes or succeed the local 
-#       actor, and if the local actorId is zero or getSysCount() - 1, return OK 
-#       immediately 
+# prev/next: the previous or next actor to sync. passing None will sync
+#       with the actor which actorId numerically precedes or succeed the local
+#       actor, and if the local actorId is zero or getSysCount() - 1, return OK
+#       immediately.
 #
 def syncPrev(pnid, prev = None, timeout = 0, voteYes = True):
 

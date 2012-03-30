@@ -18,7 +18,7 @@
 #    vote:     'y' or 'n'
 #    timeout:  the timeout value. counting starts from the time the
 #              message is received. present but ignored when vote = 'n'.
-#              0: use the default timeout (config.SYNC_TIMEOUT)
+#              0: use the default timeout (param.SYNC_TIMEOUT)
 #    actorIdi:   the actor Ids the test case want to synchronize with.
 #              present but ignored when vote = 'n'
 #
@@ -43,15 +43,16 @@
 # cancel() as the sync service runs in another thread
 #
 
-import socket, select, threading
+import socket, select, threading, string
+import config, param
 
-from synchronizer import * #@UnusedWildImport
+from synchronizer import processTimeOut, processRequest
 
 def startService(verbose):
     sListen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sListen.bind(('', config.SYNC_SERVICE_PORT))
-    sListen.listen(config.SYNC_SERVICE_BACKLOG)
-    
+    sListen.bind(('', param.SYNC_SERVICE_PORT))
+    sListen.listen(param.SYNC_SERVICE_BACKLOG)
+
     sListen.setblocking(0)
 
     svc = ThdSyncService(sListen, verbose)
@@ -60,22 +61,22 @@ def startService(verbose):
 class ThdSyncService(threading.Thread):
     _listen = None
     _verbose = None
-    
+
     def __init__(self, listen, verbose):
         threading.Thread.__init__(self)
         self._listen = listen
         self._verbose = verbose;
-        
+
         self.setDaemon(True)
-                
+
     def run(self):
         ssRead = [self._listen]
         while 1:
             ssIn, _, _ = select.select(ssRead, (), (), 1)
-            
+
             # time out
             if not ssIn: processTimeOut()
-            
+
             # process socket input
             for s in ssIn:
                 # accept a new connection
@@ -94,7 +95,7 @@ class ThdSyncService(threading.Thread):
 
 # stores data buffers that are incomplete. indexed by sockets
 s_pendings = {}
-    
+
 def parsePacket(socket, data, verbose):
     global s_pendings
     # complete the buffer if we have data previously received
@@ -117,15 +118,15 @@ def parsePacket(socket, data, verbose):
         fields = string.split(data[:length])
     if verbose: print 'sync request:', fields
     processRequest(socket, fields)
-    
+
 def finiSocket(socket):
     global s_pendings
     if socket in s_pendings: del s_pendings[socket]
-    
+
 def cancelSynchronizers(signature = 'all'):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((config.CONTROLLER_ADDR, config.SYNC_SERVICE_PORT))
-    
+    s.connect((config.controllerAddress, param.SYNC_SERVICE_PORT))
+
     data = " C %s" % signature
     s.send("%d%s" % (len(data), data))
-    
+

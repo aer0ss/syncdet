@@ -13,7 +13,7 @@ import actors
 # - file path relative to syncdet root
 # FIXME Putting file names in the source code are fragile. Use the concept of
 # workspace as proposed by Allen
-ACTOR_PY_FILES = ('actors.py', 'config.py', 'actors_def.py', 'syncdet_lib.py',
+ACTOR_PY_FILES = ('actors.py', 'param.py', 'config.py', 'syncdet_lib.py',
                        'case/syncdet_actor_wrapper.py',
                        'case/syncdet_case_lib.py',
                        'case/syncdet_case_sync.py',
@@ -92,7 +92,7 @@ class TarFileDeployer:
 
         # Ensure the destination extraction directory exists
         # Then extract the tar file to that directory and remove the tar
-        s_dstdirExtract = os.path.join(self._actor.detRoot, self._s_dirExtract)
+        s_dstdirExtract = os.path.join(self._actor.root, self._s_dirExtract)
         cmd_extract = (
                        'mkdir -p {0}; '
                        'tar -xzf {1} -C {0}; '

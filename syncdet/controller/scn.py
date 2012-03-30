@@ -1,5 +1,5 @@
 import sys, threading, time, random, os, signal
-import controller_lib, config, scncc, scnpp, controller, log
+import controller_lib, param, scncc, scnpp, controller, log
 
 INDENT = 4
 
@@ -128,7 +128,7 @@ def executeUnit(scn, unit, verify, show, verbose, ind):
                 thd = ThdExecBasicItem(scn, bi, verify, show, verbose, ind, i)
                 thd.start()
                 thds.append(thd)
-                if config.PARALLEL_DELAY: time.sleep(config.PARALLEL_DELAY)
+                if param.PARALLEL_DELAY: time.sleep(param.PARALLEL_DELAY)
 
         # wait for threads to complete. As executeCase() has its own timeout
         # control. we don't manage timeouts here.

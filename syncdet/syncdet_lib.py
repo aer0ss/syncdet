@@ -4,12 +4,12 @@ can't easily run into the same name.
 '''
 
 import os.path
-import config
+import param
 
 def getLogFolderPath(root, scenarioId):
     '''Return the log folder path given the SyncDET root path and the scenario 
     id'''
-    return os.path.join(root, config.LOG_DIR, scenarioId);
+    return os.path.join(root, param.LOG_DIR, scenarioId);
 
 def getLogFilePath(pathLogFolder, module, instId, actorId, suffix = ''):
     '''Return the log file path'''
