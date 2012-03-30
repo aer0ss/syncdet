@@ -1,3 +1,0 @@
-
-class AFTError(RuntimeError): pass
-
