@@ -1,8 +1,8 @@
 import sys, os.path, datetime, time
 
-s_realRoot = os.path.realpath(os.path.expanduser(sys.path[0]))
+s_pathRoot = os.path.realpath(os.path.expanduser(sys.path[0]))
 
-def getLocalRoot(): return s_realRoot
+def getRootFolderPath(): return s_pathRoot
 
 def generateTimeDerivedId(includeMSec):
     '''Generate a string based on the current time. the string can be used as

@@ -1,6 +1,8 @@
 import time, signal, sys, threading, os.path
 
-import config, systems, report, lib, scn, deploy, log
+import config, systems, report, scn, deploy, log
+
+from controller_lib import getRootFolderPath, generateTimeDerivedId
 
 WRAPPER_NAME = 'syncdet_actor_wrapper.py'
 
@@ -14,7 +16,7 @@ def analyze(module, dir):
     '''@return: the number of systems to launch, and the case timeout value
     '''
     try:
-        sys.path.insert(0, os.path.join(lib.getLocalRoot(), dir))
+        sys.path.insert(0, os.path.join(getRootFolderPath(), dir))
         exec 'import ' + module
         sys.path.pop(0)
     except ImportError, data:
@@ -74,8 +76,8 @@ def launchCase(module, dir, instId, verbose):
         # the arguments:
         # module sysId scenarioId instId sysCount dir(relative to SyncDET root) controllerRoot
         cmd += '{0} {1} {2} {3} {4} {5} {6}'.format(module, i,
-                                      scn.getScenarioInstanceId(),
-                                      instId, n, dir, lib.getLocalRoot())
+                                      scn.getScenarioId(),
+                                      instId, n, dir, getRootFolderPath())
 
         # execute the remote command
         pids[system.execRemoteCmdNonBlocking(cmd)] = i
@@ -110,7 +112,7 @@ def makeCaseInstanceId():
     # lock to prevent coincidents on multi-processors
     global s_lock
     s_lock.acquire()
-    ret = lib.generateTimeDerivedId(True)
+    ret = generateTimeDerivedId(True)
     s_lock.release()
     return ret
 
@@ -140,4 +142,4 @@ def killAllRemoteInstances(verbose):
     for s in systems.systems: s.execRemoteCmdNonBlocking(cmd)
 
 def purgeLogFiles():
-    os.system('rm -rf %s/%s/*' % (lib.getLocalRoot(), config.LOG_DIR))
+    os.system('rm -rf %s/%s/*' % (getRootFolderPath(), config.LOG_DIR))

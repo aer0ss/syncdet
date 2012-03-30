@@ -1,7 +1,9 @@
-# we name the modules so that case modules developed by the 3rd party
-# wouldn't easily run into the same names.
-#
+'''This folder contains modules that are available only to the test cases.
+We name these modules in such a way that 3rd-party case modules can't easily run
+into same names.
+'''
 
 from syncdet_case_lib import *
 from syncdet_case_sync import sync, syncNext, syncPrev
-from syncdet_case_subprocess import startSubprocess
+from syncdet_case_background import startBackgroundProcess
+from syncdet_case_background import stopBackgroundProcess

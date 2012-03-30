@@ -36,5 +36,5 @@ d_systems = [
 # fill in the defaults
 for d_system in d_systems:
     for attr in defaults.keys():
-        if attr not in d_system.keys(): d_system[attr] = defaults[attr] 
+        if attr not in d_system.keys(): d_system[attr] = defaults[attr]
 

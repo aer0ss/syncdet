@@ -1,6 +1,7 @@
 import threading, scn, os.path
 
-import config, log, lib
+import config, log
+from controller_lib import getRootFolderPath
 
 RES_OK = 0
 RES_NOSTART = 1
@@ -14,8 +15,8 @@ def isReportEnabled():
 # static initialization
 #
 if isReportEnabled():
-    s_reportPath = '{0}/{1}/report-{2}.txt'.format(lib.getLocalRoot(),
-           config.REPORT_DIR, scn.getScenarioInstanceId())
+    s_reportPath = '{0}/{1}/report-{2}.txt'.format(getRootFolderPath(),
+           config.REPORT_DIR, scn.getScenarioId())
     d = os.path.dirname(s_reportPath)
     if not os.path.exists(d): os.mkdir(d)
     s_reportFile = None    # open the file only when generating the report

@@ -1,3 +1,5 @@
+'''This test case demonstrates how to use sync primitives.'''
+
 import case
 
 def sync():

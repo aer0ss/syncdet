@@ -1,8 +1,7 @@
 import sys, os
-
-from os.path import join
-
-import config, scn, lib, systems, case
+import scn, systems
+from controller_lib import getRootFolderPath
+from syncdet_lib import getLogFolderPath, getLogFilePath
 
 def createLogFolders(verify):
     '''Create log folders on both the controller and actors. Although log
@@ -27,30 +26,24 @@ def createLogFolders(verify):
         path = getActorLogFolderPath(system)
         system.execRemoteCmdBlocking('mkdir -p ' + path)
 
-def getLogFolderRelativePath():
-    '''@return the log file path relative to SyncDET root folder'''
-    return join(config.LOG_DIR, scn.getScenarioInstanceId());
 
 def getControllerLogFolderPath():
     '''@return: the directory where the controller system stores log files
-    locally
-    '''
-    return join(lib.getLocalRoot(), getLogFolderRelativePath());
+    locally'''
+    return getLogFolderPath(getRootFolderPath(), scn.getScenarioId());
 
 def getControllerLogFilePath(sysId, module, instId):
     '''@return: the test case log path for the controller system'''
-    name = case.getLogFileName(module, instId, sysId)
-    return join(getControllerLogFolderPath(), name)
+    return getLogFilePath(getControllerLogFolderPath(), module, instId, sysId)
 
 def getActorLogFolderPath(system):
     '''@return: the directory where the actor system stores log files
     '''
-    return join(system.detRoot, getLogFolderRelativePath());
+    return getLogFolderPath(system.detRoot, scn.getScenarioId());
 
 def getActorLogFilePath(system, sysId, module, instId):
     '''@return: the test case log path for the controller system'''
-    name = case.getLogFileName(module, instId, sysId)
-    return join(getActorLogFolderPath(system), name)
+    return getLogFilePath(getActorLogFolderPath(system), module, instId, sysId)
 
 def collectLog(sysId, module, instId):
     '''Retrieve the log file of a specific test case instance from a given actor

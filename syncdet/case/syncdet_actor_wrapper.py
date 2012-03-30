@@ -5,7 +5,7 @@ import sys, os.path
 sys.path.insert(1, os.path.normpath(os.path.join(sys.path[0] , '../')))
 
 import config
-from syncdet_case_lib import getSysId, getLogFilePath, getCaseModuleName, \
+from syncdet_case_lib import getSystemId, getLogFilePath, getCaseModuleName, \
         failTestCase
 
 # add the module's parent directory. argv[6] is the directory name relative
@@ -69,7 +69,7 @@ def redirectStdOutAndErr():
         streams.append(open(path, 'a'))
 
     if config.CASE_SCREEN_OUTPUT:
-        prefix = config.CASE_OUTPUT_PREFIX.format(getSysId())
+        prefix = config.CASE_OUTPUT_PREFIX.format(getSystemId())
         stream = PrefixOutputStream(sys.stdout, prefix)
         streams.append(stream)
 
@@ -81,8 +81,8 @@ def main():
     try:
         # execute the right entry point
         spec = eval(getCaseModuleName() + '.spec')
-        if 'entries' in spec.keys() and getSysId() < len(spec['entries']):
-            ret = spec['entries'][getSysId()]()
+        if 'entries' in spec.keys() and getSystemId() < len(spec['entries']):
+            ret = spec['entries'][getSystemId()]()
         else:
             ret = spec['default']()
         if ret: print 'CASE_OK:', str(ret)

@@ -2,21 +2,22 @@
 # Deployment Functions:
 # - to deploy actor case source code to actors
 # - to deploy test case source and scenarios to actors
-# - to collect log files from actors to the controller's system
 #############################################################################
 from multiprocessing import Pool
 import os.path, tarfile
 
-import lib
+from controller_lib import getRootFolderPath
 import systems
 
 # Tuple of src files which must be deployed for actors to run cases
 # - file path relative to syncdet root
-ACTOR_PY_FILES = ('systems.py', 'config.py', 'systems_def.py',
+# FIXME Putting file names in the source code are fragile. Use the concept of
+# workspace as proposed by Allen
+ACTOR_PY_FILES = ('systems.py', 'config.py', 'systems_def.py', 'syncdet_lib.py',
                        'case/syncdet_actor_wrapper.py',
                        'case/syncdet_case_lib.py',
                        'case/syncdet_case_sync.py',
-                       'case/syncdet_case_subprocess.py',
+                       'case/syncdet_case_background.py',
                        'case/__init__.py',
                       )
 ACTOR_TAR_PATH = 'actorsrc.tar.gz'
@@ -27,7 +28,7 @@ pool = None
 # to all known Systems
 # - assumes all files in ACTOR_PY_FILES exist locally
 def deployActorSrc():
-    s_locRoot = lib.getLocalRoot()
+    s_locRoot = getRootFolderPath()
 
     # Create a tarball of Actor source files
     s_tarPath = createTarFile_(s_locRoot, ACTOR_TAR_PATH, ACTOR_PY_FILES)
@@ -50,7 +51,7 @@ def deployCaseSrc(s_relTestDir, ls_systems):
     # The following dirname only returns the parent directory if there is
     # no slash at the end of the path.
     if s_relTestDir[-1] == '/': s_relTestDir = s_relTestDir[:-1]
-    s_tarPath = createTarFile_(os.path.join(lib.getLocalRoot(),
+    s_tarPath = createTarFile_(os.path.join(getRootFolderPath(),
                                 os.path.dirname(s_relTestDir)),
                                 CASE_TAR_PATH,
                                 [os.path.basename(s_relTestDir)])

@@ -1,12 +1,12 @@
 import sys, threading, time, random, os, signal
-import lib, config, scncc, scnpp, controller, log
+import controller_lib, config, scncc, scnpp, controller, log
 
 INDENT = 4
 
-s_scnInstId = lib.generateTimeDerivedId(False)
+s_scenarioId = controller_lib.generateTimeDerivedId(False)
 
-def getScenarioInstanceId():
-    return s_scnInstId
+def getScenarioId():
+    return s_scenarioId
 
 # resolve a list of items and return a list of basic items
 #

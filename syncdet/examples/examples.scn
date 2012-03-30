@@ -1,12 +1,6 @@
 :serial
-    # print "hello, world"
     hello_world
-
-    # fail a test
     failed_test
-
-    # showcase the synchronization primitives
     sync
-
-    # create a subprocess
-    process
+    start_background_process
+    stop_background_process

@@ -3,8 +3,7 @@
 #
 
 import sys, os.path
-
-import lib
+from controller_lib import getRootFolderPath
 
 # actions for each unit
 SERIAL = 0
@@ -133,7 +132,7 @@ def parseObject(path, lno, string):
     while 1:
         pos = dir[:tail].rfind('/')
         if pos <= 0: break
-        if os.path.samefile(dir[:pos], lib.getLocalRoot()):
+        if os.path.samefile(dir[:pos], getRootFolderPath()):
             found = True
             break
         tail = pos
