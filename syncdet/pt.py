@@ -2,33 +2,33 @@
 
 import sys, os
 
-import systems, config
+import actors
 
 def walk():
     cmd = ''
     for i in sys.argv[2:]: cmd += i + ' '
-    for i in range(len(systems.systems)):
-        system = systems.systems[i]
+    for i in range(len(actors.actors)):
+        actor = actors.actors[i]
         args = [
-               system['rsh'],
-               system['login'] + '@' + system['address'],
+               actor['rsh'],
+               actor['login'] + '@' + actor['address'],
                cmd
                ]
-        print '==============', system['address'], '================'
+        print '==============', actor['address'], '================'
         os.spawnvp(os.P_WAIT, args[0], args)
 
 ##########################################################
 
 def usage():
     print 'py: SyncDET PowerTools'
-    print 
+    print
     print '    %s <tool> [<options>]' % sys.argv[0]
     print
     print 'TOOLS:'
-    print '    walk <cmd>: run <cmd> on each system'
+    print '    walk <cmd>: run <cmd> on each actor'
     print
-    
-    sys.exit()    
+
+    sys.exit()
 
 if len(sys.argv) < 2: usage()
 

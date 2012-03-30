@@ -44,7 +44,7 @@ def reportCase(module, caseInstId, n, unfinished):
             logpath = log.getControllerLogFilePath(i, module, caseInstId)
             f = open(logpath, 'r')
         except IOError:
-            results.append([RES_NOSTART, 'please check e.g. systems.py'])
+            results.append([RES_NOSTART, 'please check e.g. actors.py'])
             continue
 
         while 1:
@@ -95,7 +95,7 @@ def reportCase(module, caseInstId, n, unfinished):
 
     if not okay or text:
         for i in range(n):
-            s_reportFile.write('    sys %d: ' % i)
+            s_reportFile.write('    actor %d: ' % i)
 
             if results[i][0] == RES_OK:
                 s_reportFile.write('OK.       ')

@@ -1,14 +1,14 @@
 import socket, string
 import config
 
-from syncdet_case_lib import getSystemId, getSystemCount, getInstanceId
+from syncdet_case_lib import getActorId, getActorCount, getInstanceId
 from syncdet_case_lib import getCaseModuleName, OK, FAIL, TIMEOUT
 
 # id:      the sync id, can be either numerical or textual, identifying the 
 #          synchronizer within the scope of the instance
 # voteYes: False: vote no. it will cause the synchronization to fail
 # timeout: 0: use the default, system-wide timeout (config.SYNC_TIMEOUT)
-# waits:   a list of sysId's to synchronize with. Passing None will
+# waits:   a list of actorId's to synchronize with. Passing None will
 #          sync with ALL other instances
 #
 # return:  OK, FAIL, or TIMEOUT
@@ -16,9 +16,9 @@ from syncdet_case_lib import getCaseModuleName, OK, FAIL, TIMEOUT
 def sync(id, waits = None, timeout = 0, voteYes = True):
 
     if waits == None:
-        # list all other systems
-        waits = range(getSystemId()) + range(getSystemId() + 1,
-                getSystemCount())
+        # list all other actors
+        waits = range(getActorId()) + range(getActorId() + 1,
+                getActorCount())
     if not waits:
         return OK
 
@@ -35,30 +35,30 @@ def sync(id, waits = None, timeout = 0, voteYes = True):
     return parseReply(id, data)
 
 # pnid: this param and prev in conjunction identify a sync id.
-#       Therefore, syncPrev/Next on the local system won't mess up with other
-#       systems with the same syncPrev/Next id.
+#       Therefore, syncPrev/Next on the local actor won't mess up with other
+#       actors with the same syncPrev/Next id.
 #
-# prev/next: the previous or next system to sync. passing None will sync 
-#       with the system which sysId numerically precedes or succeed the local 
-#       system, and if the local sysId is zero or getSysCount() - 1, return OK 
+# prev/next: the previous or next actor to sync. passing None will sync 
+#       with the actor which actorId numerically precedes or succeed the local 
+#       actor, and if the local actorId is zero or getSysCount() - 1, return OK 
 #       immediately 
 #
 def syncPrev(pnid, prev = None, timeout = 0, voteYes = True):
 
     if prev == None:
-        if getSystemId() == 0: return OK
-        else: prev = getSystemId() - 1
+        if getActorId() == 0: return OK
+        else: prev = getActorId() - 1
 
-    id = '{0}.{1}<=>{2}'.format(pnid, prev, getSystemId())
+    id = '{0}.{1}<=>{2}'.format(pnid, prev, getActorId())
     return sync(id, [prev], timeout, voteYes)
 
 def syncNext(pnid, next = None, timeout = 0, voteYes = True):
 
     if next == None:
-        if getSystemId() == getSystemCount() - 1: return OK
-        else: next = getSystemId() + 1
+        if getActorId() == getActorCount() - 1: return OK
+        else: next = getActorId() + 1
 
-    id = '{0}.{1}<=>{2}'.format(pnid, getSystemId(), next)
+    id = '{0}.{1}<=>{2}'.format(pnid, getActorId(), next)
     return sync(id, [next], timeout, voteYes)
 
 def makeSyncId(id):
@@ -67,19 +67,19 @@ def makeSyncId(id):
     return "%s.%s.%s" % (getCaseModuleName(), getInstanceId(), syncId)
 
 #  request format:
-#    "len S module.sig.syncId sysId vote timeout sysId1,sysId2...sysIdN"
+#    "len S module.sig.syncId actorId vote timeout actorId1,actorId2...actorIdN"
 # see controller/sync.py for detail
 #
 def buildRequest(id, waits, v, to):
     if v: vote = 'y'
     else: vote = 'n'
     timeout = to
-    sysIds = '';
+    actorIds = '';
     for i in range(len(waits)):
-        sysIds += str(waits[i])
-        if i < len(waits) - 1: sysIds += ','
-    data = " S %s %s %s %d %s" % (makeSyncId(id), getSystemId(),
-                                  vote, timeout, sysIds)
+        actorIds += str(waits[i])
+        if i < len(waits) - 1: actorIds += ','
+    data = " S %s %s %s %d %s" % (makeSyncId(id), getActorId(),
+                                  vote, timeout, actorIds)
     return "%d%s" % (len(data), data)
 
 # reply format

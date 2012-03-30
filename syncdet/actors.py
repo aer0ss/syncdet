@@ -1,40 +1,40 @@
 #
-# The Syncdet system definition file
-#     Contains the accessor for a particular system,
-#     definition of the System class
+# The Syncdet actor definition file
+#     Contains the accessor for a particular actor,
+#     definition of the Actor class
 #
-# To view or change attributes of particular systems, see systemsdef.py
+# To view or change attributes of particular actors, see actorsdef.py
 import os, sys, subprocess
-import systems_def
+import actors_def
 
-# Global definition of list of systems
-systems = [];
+# Global definition of list of actors
+actors = [];
 
-def getSystems():
-    return systems
+def getActors():
+    return actors
 
-def getSystemCount():
-    assert len(systems) > 0
-    return len(systems)
+def getActorCount():
+    assert len(actors) > 0
+    return len(actors)
 
-def getSystem(sysId):
-    return systems[sysId]
+def getActor(actorId):
+    return actors[actorId]
 
-# Initialize the global list of systems with 
-# - the max permissable number of systems
+# Initialize the global list of actors with 
+# - the max permissable number of actors
 # - whether to display verbose msgs
 #
-def init(verbose, maxNumSystems = None):
-    global systems
-    # Static initialization from systems_def.py
-    for d_system in systems_def.d_systems:
-        systems.append(System(d_system, verbose))
+def init(verbose, maxNumActors = None):
+    global actors
+    # Static initialization from actors_def.py
+    for d_actor in actors_def.d_actors:
+        actors.append(Actor(d_actor, verbose))
 
-    if maxNumSystems and maxNumSystems < len(systems):
-        systems = systems[:maxNumSystems]
+    if maxNumActors and maxNumActors < len(actors):
+        actors = actors[:maxNumActors]
 
-# Class definition of a System
-class System:
+# Class definition of a Actor
+class Actor:
     rsh = ''
     login = ''
     detRoot = ''
@@ -43,12 +43,12 @@ class System:
     _copyTo = ['scp', '-r', '%src', '%login@%host:%dst']
     _verbose = False # Verbose output?
 
-    def __init__(self, d_system, verbose):
-        assert isinstance(d_system, dict)
+    def __init__(self, d_actor, verbose):
+        assert isinstance(d_actor, dict)
         self._verbose = verbose
 
-        for elem in d_system.keys():
-            self.__dict__[elem] = d_system[elem]
+        for elem in d_actor.keys():
+            self.__dict__[elem] = d_actor[elem]
 
         self._copyFrom, self._copyTo = (
                [s.replace('%host', self.address).replace('%login', self.login)
@@ -105,7 +105,7 @@ class System:
                     subprocess.check_call(cmd, stdout = fstdout)
         except subprocess.CalledProcessError, e:
             if self._verbose:
-                s_warning = ('<System._copy> {0}'
+                s_warning = ('<Actor._copy> {0}'
                              'see http://support.attachmate.com/techdocs/2116.html'
                             ).format(e)
                 print s_warning

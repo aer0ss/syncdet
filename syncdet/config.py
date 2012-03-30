@@ -3,7 +3,7 @@
 #
 
 # the address or the host name of the controller
-CONTROLLER_ADDR = "192.168.1.30"
+CONTROLLER_ADDR = "192.168.1.102"
 
 # can cases use the console screen as stdout and stderr?
 CASE_SCREEN_OUTPUT = True
@@ -29,17 +29,17 @@ SYNC_SERVICE_PORT = 2985
 # the backlog length for the sync service
 SYNC_SERVICE_BACKLOG = 1000
 
-# the prefix for case output. {0} will be replaced by the system id
+# the prefix for case output. {0} will be replaced by the actor id
 CASE_OUTPUT_PREFIX = '{0}| '
 
-# the log file directory on each system, relative to DET's root directory
+# the log file directory on each actor, relative to DET's root directory
 LOG_DIR = 'logs'
 
 # the report directory, relative to DET's root directory
 REPORT_DIR = 'reports'
 
 # the delay in sec between launches of consecutive parallel items
-# this is used to to limit system loads on actors
+# this is used to to limit actor loads on actors
 PARALLEL_DELAY = 0
 
 # the delay before cancelling synchronizers to avoid resurrection due to

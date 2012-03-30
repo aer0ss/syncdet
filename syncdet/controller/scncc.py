@@ -142,7 +142,7 @@ def parseObject(path, lno, string):
     if not found:
         error(path, lno, "it's not safe to execute a module outside the "\
               "SyncDET directory as SyncDET may not properly propagate the "\
-              "module to remote systems. It's suggested to create symbolic "\
+              "module to remote actors. It's suggested to create symbolic "\
               "links in the SyncDET directory and use them from there.")
     else:
         # remove the local root prefix. +1 is to remove the '/'

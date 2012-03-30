@@ -1,19 +1,19 @@
 #############################################################################
 # Deployment Functions:
-# - to deploy actor case source code to actors
+# - to deploy test case source code to actors
 # - to deploy test case source and scenarios to actors
 #############################################################################
 from multiprocessing import Pool
 import os.path, tarfile
 
 from controller_lib import getRootFolderPath
-import systems
+import actors
 
 # Tuple of src files which must be deployed for actors to run cases
 # - file path relative to syncdet root
 # FIXME Putting file names in the source code are fragile. Use the concept of
 # workspace as proposed by Allen
-ACTOR_PY_FILES = ('systems.py', 'config.py', 'systems_def.py', 'syncdet_lib.py',
+ACTOR_PY_FILES = ('actors.py', 'config.py', 'actors_def.py', 'syncdet_lib.py',
                        'case/syncdet_actor_wrapper.py',
                        'case/syncdet_case_lib.py',
                        'case/syncdet_case_sync.py',
@@ -25,7 +25,7 @@ ACTOR_TAR_PATH = 'actorsrc.tar.gz'
 pool = None
 
 # Deploys the "case/actor" package source code files
-# to all known Systems
+# to all known Actors
 # - assumes all files in ACTOR_PY_FILES exist locally
 def deployActorSrc():
     s_locRoot = getRootFolderPath()
@@ -34,20 +34,20 @@ def deployActorSrc():
     s_tarPath = createTarFile_(s_locRoot, ACTOR_TAR_PATH, ACTOR_PY_FILES)
 
     global pool
-    if not pool: pool = Pool(systems.getSystemCount())
-    # For each system, scp the tar file and extract it
+    if not pool: pool = Pool(actors.getActorCount())
+    # For each actor, scp the tar file and extract it
     pool.map(deployTarFileWrapper,
-           [TarFileDeployer(s_tarPath, '', syst) for syst in systems.systems])
+           [TarFileDeployer(s_tarPath, '', actor) for actor in actors.actors])
 
     # Done with the tar file; locally remove it
     if os.path.exists(s_tarPath): os.remove(s_tarPath)
 
 
-# Deploys the test case directory of source files to the specified systems
+# Deploys the test case directory of source files to the specified actors
 # - relTestDir is relative to SyncDET root directory
 CASE_TAR_PATH = 'casesrc.tar.gz'
-def deployCaseSrc(s_relTestDir, ls_systems):
-    assert len(ls_systems) > 0
+def deployCaseSrc(s_relTestDir, ls_actors):
+    assert len(ls_actors) > 0
     # The following dirname only returns the parent directory if there is
     # no slash at the end of the path.
     if s_relTestDir[-1] == '/': s_relTestDir = s_relTestDir[:-1]
@@ -56,12 +56,12 @@ def deployCaseSrc(s_relTestDir, ls_systems):
                                 CASE_TAR_PATH,
                                 [os.path.basename(s_relTestDir)])
 
-    # For each system, scp the tar file and extract it
+    # For each actor, scp the tar file and extract it
     global pool
-    if not pool: pool = Pool(systems.getSystemCount())
+    if not pool: pool = Pool(actors.getActorCount())
     pool.map(deployTarFileWrapper,
-           [TarFileDeployer(s_tarPath, os.path.dirname(s_relTestDir), syst)
-            for syst in ls_systems])
+           [TarFileDeployer(s_tarPath, os.path.dirname(s_relTestDir), actor)
+            for actor in ls_actors])
 
     # Done with the tar file; locally remove it
     if os.path.exists(s_tarPath): os.remove(s_tarPath)
@@ -71,34 +71,34 @@ def deployCaseSrc(s_relTestDir, ls_systems):
 ############################################################
 
 #class SourceCodeDeployer:
-#    _systems = []
+#    _actors = []
 
 class TarFileDeployer:
     _s_locTar = ''
     # Directory to extract the tarball, relative to SyncDET root
     _s_dirExtract = ''
-    _system = None
-    def __init__(self, s_locTar, s_dirExtract, system):
+    _actor = None
+    def __init__(self, s_locTar, s_dirExtract, actor):
         self._s_locTar = s_locTar
         self._s_dirExtract = s_dirExtract
-        self._system = system
+        self._actor = actor
         assert os.path.exists(self._s_locTar)
-        assert isinstance(self._system, systems.System)
+        assert isinstance(self._actor, actors.Actor)
 
     def deploy(self):
         # Copy over the tar file to the home directory
         s_dstTar = os.path.join('~', os.path.basename(self._s_locTar))
-        self._system.copyTo(self._s_locTar, s_dstTar)
+        self._actor.copyTo(self._s_locTar, s_dstTar)
 
         # Ensure the destination extraction directory exists
         # Then extract the tar file to that directory and remove the tar
-        s_dstdirExtract = os.path.join(self._system.detRoot, self._s_dirExtract)
+        s_dstdirExtract = os.path.join(self._actor.detRoot, self._s_dirExtract)
         cmd_extract = (
                        'mkdir -p {0}; '
                        'tar -xzf {1} -C {0}; '
                        'rm {1};'
                       ).format(s_dstdirExtract, s_dstTar)
-        self._system.execRemoteCmdBlocking(cmd_extract)
+        self._actor.execRemoteCmdBlocking(cmd_extract)
 
 def deployTarFileWrapper(tfd):
     tfd.deploy()

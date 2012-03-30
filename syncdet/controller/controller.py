@@ -1,6 +1,6 @@
 import time, signal, sys, threading, os.path
 
-import config, systems, report, scn, deploy, log
+import config, actors, report, scn, deploy, log
 
 from controller_lib import getRootFolderPath, generateTimeDerivedId
 
@@ -13,7 +13,7 @@ def errorAnalysis(msg):
     sys.exit()
 
 def analyze(module, dir):
-    '''@return: the number of systems to launch, and the case timeout value
+    '''@return: the number of actors to launch, and the case timeout value
     '''
     try:
         sys.path.insert(0, os.path.join(getRootFolderPath(), dir))
@@ -30,13 +30,13 @@ def analyze(module, dir):
         if 'entries' not in spec.keys() and 'default' not in spec.keys():
             raise Exception
 
-        n = systems.getSystemCount()
+        n = actors.getActorCount()
         preferred = 0
         if 'entries' in spec.keys():
             preferred += len(spec['entries'])
-            # number of systems must meet the minimum req.
+            # number of actors must meet the minimum req.
             if (n < preferred):
-                errorAnalysis(module + " requires at least %d systems but " \
+                errorAnalysis(module + " requires at least %d actors but " \
                                "we only have %d." % (preferred, n))
 
         if 'max_add' in spec.keys():
@@ -55,32 +55,32 @@ def analyze(module, dir):
         return n, timeout
     else:
         if not preferred:
-            print "warning: '%s' specifies zero systems to run, please check "\
+            print "warning: '%s' specifies zero actors to run, please check "\
             "its '%s' data structure." % (module, SPEC_NAME)
         return min(n, preferred), timeout
 
 def launchCase(module, dir, instId, verbose):
-    '''@return: the number of systems and a list of systems that didn't finish 
+    '''@return: the number of actors and a list of actors that didn't finish 
     on time'''
 
     n, timeout = analyze(module, dir)
 
-    # Deploy the necessary test case source code to the remote systems
-    deploy.deployCaseSrc(dir, [systems.getSystem(i) for i in range(n)])
+    # Deploy the necessary test case source code to the remote actors
+    deploy.deployCaseSrc(dir, [actors.getActor(i) for i in range(n)])
 
-    pids = {}    # { pid: sysId }
+    pids = {}    # { pid: actorId }
     for i in range(n):
-        system = systems.getSystem(i)
+        actor = actors.getActor(i)
         # the command
-        cmd = 'python {0}/case/{1} '.format(system.detRoot, WRAPPER_NAME)
+        cmd = 'python {0}/case/{1} '.format(actor.detRoot, WRAPPER_NAME)
         # the arguments:
-        # module sysId scenarioId instId sysCount dir(relative to SyncDET root) controllerRoot
+        # module actorId scenarioId instId actorCount dir(relative to SyncDET root) controllerRoot
         cmd += '{0} {1} {2} {3} {4} {5} {6}'.format(module, i,
                                       scn.getScenarioId(),
                                       instId, n, dir, getRootFolderPath())
 
         # execute the remote command
-        pids[system.execRemoteCmdNonBlocking(cmd)] = i
+        pids[actor.execRemoteCmdNonBlocking(cmd)] = i
 
     start = time.time()
     while 1:
@@ -97,7 +97,7 @@ def launchCase(module, dir, instId, verbose):
             break
         time.sleep(1)
 
-    # kill unfinished systems
+    # kill unfinished actors
     for pid in pids.keys():
         if verbose: print 'killing sys %d' % pids[pid]
         # kill the local process first
@@ -127,10 +127,10 @@ def executeCase(module, dir, verbose):
 KILL_CMD = "for i in `ps -eo pid,command | grep '%s' | grep -v grep | " \
             "sed 's/ *\\([0-9]*\\).*/\\1/'`; do kill $i; done"
 
-def killRemoteInstance(sysId, instId, verbose):
+def killRemoteInstance(actorId, instId, verbose):
     # instId uniquely identifies the case instance
     cmd = KILL_CMD % instId
-    systems.getSystem(sysId).execRemoteCmdNonBlocking(cmd)
+    actors.getActor(actorId).execRemoteCmdNonBlocking(cmd)
 
     # don't cancel. let sync GC do the work
     # cancel the synchronizer
@@ -139,7 +139,7 @@ def killRemoteInstance(sysId, instId, verbose):
 
 def killAllRemoteInstances(verbose):
     cmd = KILL_CMD % WRAPPER_NAME
-    for s in systems.systems: s.execRemoteCmdNonBlocking(cmd)
+    for s in actors.actors: s.execRemoteCmdNonBlocking(cmd)
 
 def purgeLogFiles():
-    os.system('rm -rf %s/%s/*' % (getRootFolderPath(), config.LOG_DIR))
+    os.actor('rm -rf %s/%s/*' % (getRootFolderPath(), config.LOG_DIR))

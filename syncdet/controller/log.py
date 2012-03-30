@@ -1,12 +1,12 @@
 import sys, os
-import scn, systems
+import scn, actors
 from controller_lib import getRootFolderPath
 from syncdet_lib import getLogFolderPath, getLogFilePath
 
 def createLogFolders(verify):
     '''Create log folders on both the controller and actors. Although log
     folders on actors can be created lazily when needed, creating it here for
-    all actors simplifies collectAllLogs() (as not all systems will be used for
+    all actors simplifies collectAllLogs() (as not all actors will be used for
     a scenario) and test cases.
     '''
     if verify: return
@@ -21,48 +21,48 @@ def createLogFolders(verify):
             print 'Directory ' + pathCtrlrLogFolder + ' could not be created';
             sys.exit();
 
-    # create log directories on actor systems
-    for system in systems.getSystems():
-        path = getActorLogFolderPath(system)
-        system.execRemoteCmdBlocking('mkdir -p ' + path)
+    # create log directories on actor actors
+    for actor in actors.getActors():
+        path = getActorLogFolderPath(actor)
+        actor.execRemoteCmdBlocking('mkdir -p ' + path)
 
 
 def getControllerLogFolderPath():
-    '''@return: the directory where the controller system stores log files
+    '''@return: the directory where the controller actor stores log files
     locally'''
     return getLogFolderPath(getRootFolderPath(), scn.getScenarioId());
 
-def getControllerLogFilePath(sysId, module, instId):
-    '''@return: the test case log path for the controller system'''
-    return getLogFilePath(getControllerLogFolderPath(), module, instId, sysId)
+def getControllerLogFilePath(actorId, module, instId):
+    '''@return: the test case log path for the controller actor'''
+    return getLogFilePath(getControllerLogFolderPath(), module, instId, actorId)
 
-def getActorLogFolderPath(system):
-    '''@return: the directory where the actor system stores log files
+def getActorLogFolderPath(actor):
+    '''@return: the directory where the actor actor stores log files
     '''
-    return getLogFolderPath(system.detRoot, scn.getScenarioId());
+    return getLogFolderPath(actor.detRoot, scn.getScenarioId());
 
-def getActorLogFilePath(system, sysId, module, instId):
-    '''@return: the test case log path for the controller system'''
-    return getLogFilePath(getActorLogFolderPath(system), module, instId, sysId)
+def getActorLogFilePath(actor, actorId, module, instId):
+    '''@return: the test case log path for the controller actor'''
+    return getLogFilePath(getActorLogFolderPath(actor), module, instId, actorId)
 
-def collectLog(sysId, module, instId):
+def collectLog(actorId, module, instId):
     '''Retrieve the log file of a specific test case instance from a given actor
-    system to the local log directory
+    actor to the local log directory
     '''
 
-    pathCtrlr = getControllerLogFilePath(sysId, module, instId)
-    system = systems.getSystem(sysId)
-    pathActor = getActorLogFilePath(system, sysId, module, instId)
-    system.copyFrom(pathActor, pathCtrlr)
+    pathCtrlr = getControllerLogFilePath(actorId, module, instId)
+    actor = actors.getActor(actorId)
+    pathActor = getActorLogFilePath(actor, actorId, module, instId)
+    actor.copyFrom(pathActor, pathCtrlr)
 
 def collectAllLogs():
     '''Retrieve all the log files under the log folders from all the actors to
     the local log directory
     '''
 
-    for system in systems.getSystems():
+    for actor in actors.getActors():
         pathCtrlr = getControllerLogFolderPath()
-        pathActor = getActorLogFolderPath(system)
+        pathActor = getActorLogFolderPath(actor)
         pathActor = os.path.join(pathActor, "*")
 
-        system.copyFrom(pathActor, pathCtrlr)
+        actor.copyFrom(pathActor, pathCtrlr)

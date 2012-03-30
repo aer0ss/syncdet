@@ -2,9 +2,7 @@
 # the scenario file preprocessor
 #
 
-import tempfile, os, sys
-
-import config
+import tempfile, sys
 
 TAB_SPACE = 8
 
@@ -14,31 +12,31 @@ def preprocessFile(path, tmp, indent, included):
     except Exception, data:
         print data
         sys.exit()
-    
+
     lno = 0
     while 1:
         line = file.readline()
         if not line: break
         lno += 1
-        
+
         # expand tabs into spaces
         line = line.expandtabs(TAB_SPACE)
-        
+
         # remove comments
         list = line.split('#', 1)
         if not len(list[0]): continue
         if list[0].isspace(): continue
         line = list[0]
-        
+
         # calc current indent
         i = 0
         while line[i] == ' ': i += 1
         newindent = indent + i
-        
+
         words = line.split()
         # preprocess directives
         if words[0] == ':include':
-            if len(words) != 2: 
+            if len(words) != 2:
                 raise Exception, "%s:%d syntax error" % (file.name, lno)
             idx = file.name.rfind('/')
             if idx < 0: include = words[1]
@@ -53,8 +51,8 @@ def preprocessFile(path, tmp, indent, included):
             for word in words: tmp.write(word + ' ')
             # output path, line number, and \n
             # we use '|' because it can't appear in paths, numbers, or stmts
-            tmp.write('|%s|%d\n'% (path, lno))
-            
+            tmp.write('|%s|%d\n' % (path, lno))
+
     file.close()
 
 # return a file handle containing the content ready for the next stage

@@ -6,7 +6,7 @@
 #
 # Request Data format:
 #
-#  "len S module.sig.syncId sysId vote timeout sysId1,sysId2...sysIdN"
+#  "len S module.sig.syncId actorId vote timeout actorId1,actorId2...actorIdN"
 #
 #    len:      message length, NOT including itself
 #    S:        the character 'S'
@@ -14,12 +14,12 @@
 #    sig:      instance signature
 #    syncId:   the synchronizer Id within the test case.
 #              caseName and syncId uniquely identify a synchronizer
-#    sysId:    the system Id identifying the sending host
+#    actorId:    the actor Id identifying the sending host
 #    vote:     'y' or 'n'
 #    timeout:  the timeout value. counting starts from the time the
 #              message is received. present but ignored when vote = 'n'.
 #              0: use the default timeout (config.SYNC_TIMEOUT)
-#    sysIdi:   the system Ids the test case want to synchronize with.
+#    actorIdi:   the actor Ids the test case want to synchronize with.
 #              present but ignored when vote = 'n'
 #
 #  "len C sig"

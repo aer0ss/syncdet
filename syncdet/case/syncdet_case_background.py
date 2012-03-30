@@ -1,5 +1,5 @@
 import subprocess
-from case import getLogFilePath, getLogFolderPath, getSystemId
+from case import getLogFilePath, getLogFolderPath, getActorId
 import syncdet_lib
 import os, signal
 
@@ -43,4 +43,4 @@ def stopBackgroundProcess(key):
     os.remove(pathPID)
 
 def getPIDFilePath(key):
-    return syncdet_lib.getPIDFilePath(getLogFolderPath(), key, getSystemId())
+    return syncdet_lib.getPIDFilePath(getLogFolderPath(), key, getActorId())

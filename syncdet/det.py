@@ -6,7 +6,7 @@ import controller.scn
 import controller.report
 import controller.deploy
 import controller.sync_service
-import systems
+import actors
 import config
 
 # argument parsing
@@ -23,8 +23,8 @@ parser.add_option("-c", "--case", dest = "case",
                   " to SyncDET's root directory",
                   metavar = "DIR,CASE")
 
-parser.add_option("-m", "--systems", dest = "systems", type = "int", default = "-1",
-                  help = "the max number of systems to use. use all sytems "\
+parser.add_option("-m", "--actors", dest = "actors", type = "int", default = "-1",
+                  help = "the max number of actors to use. use all sytems "\
                   "otherwise", metavar = "N")
 parser.add_option("-t", "--case-timeout", dest = "casetimeout", type = "int",
                   help = "the case timeout, overwriting config.CASE_TIMEOUT",
@@ -60,11 +60,11 @@ if not len(args):
 else:
     scenarios = args
 
-# initialize the systems, and 
-if options.systems != -1:
-    systems.init(options.verbose, options.systems)
+# initialize the actors, and 
+if options.actors != -1:
+    actors.init(options.verbose, options.actors)
 else:
-    systems.init(options.verbose)
+    actors.init(options.verbose)
 
 # case timeout?
 if options.casetimeout:

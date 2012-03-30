@@ -227,7 +227,7 @@ def execute(glob, scenario, verify, verbose):
         log.collectAllLogs()
 
     except KeyboardInterrupt:
-        # this will also finish the rsh processes on the local system
+        # this will also finish the rsh processes on the local actor
         controller.killAllRemoteInstances(verbose)
 
 def compileSingleCase(case, dir): return scncc.compileSingleCase(case, dir)

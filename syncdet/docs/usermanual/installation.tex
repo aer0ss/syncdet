@@ -3,17 +3,17 @@
 \subsection{System Requirements}
 
 Running SyncDET requires one or more UNIX, Linux, or cygwin systems. 
-The controller (master) system has only been tested for OSX and requires the
+The controller has only been tested for OSX and requires the
 following:
 \begin{enumerate}
 \item Python 2.7+ installed
 \item {\tt git}, {\tt tar}, and {\tt grep}.
 \end{enumerate}
-The requirements for each actor system (slave) follow:
+The requirements for each actor follow:
 \begin{enumerate}
 \item Python 2.6+ installed.
 \item An {\tt ssh} daemon server installed and running; future support can be made for
-{\tt telnet} or {\tt rlogin} if desired. The controller system should be able to login
+{\tt telnet} or {\tt rlogin} if desired. The controller should be able to login
 without entering a password.
 \item Commands {\tt ps}, {\tt grep}, {\tt tar}, and {\tt sed} installed. {\tt ps} must
 support the option {\tt -eo pid,cmd}, which lists all processes with a PID and a
@@ -41,11 +41,11 @@ You must manually configure the actor and controller systems.
 
 \paragraph{Actors} 
 List the hostname or IP address of all systems to be used as actors in \\*
-{\tt [SyncDETRepo]/syncdet/systems\_def.py}. Specifically modify the d\_systems
+{\tt [SyncDETRepo]/syncdet/actor\_def.py}. Specifically modify the d\_actors
 dictionary:
 \begin{verbatim}
-# the dictionary definition of the systems
-d_systems = [
+# the dictionary definition of the actors
+d_actors = [
             { 'address': '192.168.1.16' },
             { 'address': '192.168.1.17' },
             ]

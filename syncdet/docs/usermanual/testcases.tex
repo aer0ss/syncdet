@@ -1,7 +1,7 @@
 \section{Test Cases}
 In this section, we provide further details on writing test cases, the building
 blocks of scenarios. A test case is an ordinary Python script executed
-concurrently by some number of actor systems. Systems are assigned an ID giving
+concurrently by some number of actor systems. Actors are assigned an ID giving
 them a total order. The following sections describe how to specify the
 point-of-entry of the test case, how to write test functions, and the various
 APIs to study.
@@ -59,7 +59,7 @@ scenario see {\tt [SyncDETRoot]/syncdet/case/syncdet\_case\_lib.py}:
 \item get the test case module name, and more.
 \end{itemize}
 
-Optionally, test-case-writers could have access to the systems.System class,
+Optionally, test-case-writers could have access to the systems.Actor class,
 providing methods to scp files/folders to other actor systems. This is not
 officially supported yet, but given any requests, it can be arranged.
 
