@@ -1,7 +1,7 @@
 '''This test case demonstrates how to start a background (daemon) process.'''
 
-from case import startBackgroundProcess
+from syncdet.case import background
 
 def default():
-    startBackgroundProcess(['sleep', '123456'])
+    background.startProcess(['sleep', '123456'])
 spec = { 'default': default }

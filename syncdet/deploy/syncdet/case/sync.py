@@ -1,8 +1,5 @@
 import socket, string
-import param, config
-
-from syncdet_case_lib import getActorId, getActorCount, getInstanceId
-from syncdet_case_lib import getCaseModuleName, OK, FAIL, TIMEOUT
+from .. import param, config, case
 
 # id:      the sync id, can be either numerical or textual, identifying the 
 #          synchronizer within the scope of the instance
@@ -17,10 +14,10 @@ def sync(id, waits = None, timeout = 0, voteYes = True):
 
     if waits == None:
         # list all other actors
-        waits = range(getActorId()) + range(getActorId() + 1,
-                getActorCount())
+        waits = range(case.getActorId()) + range(case.getActorId() + 1,
+                case.getActorCount())
     if not waits:
-        return OK
+        return case.OK
 
     if voteYes: v = ''
     else:       v = 'DENY'
@@ -46,25 +43,25 @@ def sync(id, waits = None, timeout = 0, voteYes = True):
 def syncPrev(pnid, prev = None, timeout = 0, voteYes = True):
 
     if prev == None:
-        if getActorId() == 0: return OK
-        else: prev = getActorId() - 1
+        if case.getActorId() == 0: return case.OK
+        else: prev = case.getActorId() - 1
 
-    id = '{0}.{1}<=>{2}'.format(pnid, prev, getActorId())
+    id = '{0}.{1}<=>{2}'.format(pnid, prev, case.getActorId())
     return sync(id, [prev], timeout, voteYes)
 
 def syncNext(pnid, next = None, timeout = 0, voteYes = True):
 
     if next == None:
-        if getActorId() == getActorCount() - 1: return OK
-        else: next = getActorId() + 1
+        if case.getActorId() == case.getActorCount() - 1: return case.OK
+        else: next = case.getActorId() + 1
 
-    id = '{0}.{1}<=>{2}'.format(pnid, getActorId(), next)
+    id = '{0}.{1}<=>{2}'.format(pnid, case.getActorId(), next)
     return sync(id, [next], timeout, voteYes)
 
 def makeSyncId(id):
     # convert spaces to underscores becuase we use the former as the delimiter
     syncId = string.translate(str(id), string.maketrans(' ', '_'))
-    return "%s.%s.%s" % (getCaseModuleName(), getInstanceId(), syncId)
+    return "%s.%s.%s" % (case.getModuleName(), case.getInstanceId(), syncId)
 
 #  request format:
 #    "len S module.sig.syncId actorId vote timeout actorId1,actorId2...actorIdN"
@@ -78,7 +75,7 @@ def buildRequest(id, waits, v, to):
     for i in range(len(waits)):
         actorIds += str(waits[i])
         if i < len(waits) - 1: actorIds += ','
-    data = " S %s %s %s %d %s" % (makeSyncId(id), getActorId(),
+    data = " S %s %s %s %d %s" % (makeSyncId(id), case.getActorId(),
                                   vote, timeout, actorIds)
     return "%d%s" % (len(data), data)
 
@@ -93,11 +90,11 @@ def parseReply(id, data):
     assert fields[1] == makeSyncId(id)
 
     if fields[2] == 'OK':
-        return OK
+        return case.OK
     elif fields[2] == 'DENIED':
         print "SYNC FAILED"
-        return FAIL
+        return case.FAIL
     else:
         assert fields[2] == 'TIMEOUT'
         print "SYNC TIMEOUT"
-        return TIMEOUT
+        return case.TIMEOUT

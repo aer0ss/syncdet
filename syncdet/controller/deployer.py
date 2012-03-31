@@ -4,22 +4,27 @@
 # - to deploy test case source and scenarios to actors
 #############################################################################
 from multiprocessing import Pool
-import os.path, tarfile
+import os.path, tarfile, lib
 
-from controller_lib import getRootPath
-import actors
+from deploy.syncdet import actors
 
 # Tuple of src files which must be deployed for actors to run cases
 # - file path relative to syncdet root
 # FIXME Putting file names in the source code are fragile. Use the concept of
 # workspace as proposed by Allen
-ACTOR_PY_FILES = ('actors.py', 'param.py', 'config.py', 'syncdet_lib.py',
-                       'case/syncdet_actor_wrapper.py',
-                       'case/syncdet_case_lib.py',
-                       'case/syncdet_case_sync.py',
-                       'case/syncdet_case_background.py',
-                       'case/__init__.py',
-                      )
+ACTOR_PY_FILES = (
+                   'deploy/__init__.py',
+                   'deploy/syncdet_case_launcher.py',
+                   'deploy/syncdet/__init__.py',
+                   'deploy/syncdet/actors.py',
+                   'deploy/syncdet/param.py',
+                   'deploy/syncdet/config.py',
+                   'deploy/syncdet/lib.py',
+                   'deploy/syncdet/case/__init__.py',
+                   'deploy/syncdet/case/case.py',
+                   'deploy/syncdet/case/sync.py',
+                   'deploy/syncdet/case/background.py',
+                  )
 ACTOR_TAR_PATH = 'actorsrc.tar.gz'
 
 pool = None
@@ -28,7 +33,7 @@ pool = None
 # to all known Actors
 # - assumes all files in ACTOR_PY_FILES exist locally
 def deployActorSrc():
-    s_locRoot = getRootPath()
+    s_locRoot = lib.getRootPath()
 
     # Create a tarball of Actor source files
     s_tarPath = createTarFile_(s_locRoot, ACTOR_TAR_PATH, ACTOR_PY_FILES)
@@ -51,7 +56,7 @@ def deployCaseSrc(s_relTestDir, ls_actors):
     # The following dirname only returns the parent directory if there is
     # no slash at the end of the path.
     if s_relTestDir[-1] == '/': s_relTestDir = s_relTestDir[:-1]
-    s_tarPath = createTarFile_(os.path.join(getRootPath(),
+    s_tarPath = createTarFile_(os.path.join(lib.getRootPath(),
                                 os.path.dirname(s_relTestDir)),
                                 CASE_TAR_PATH,
                                 [os.path.basename(s_relTestDir)])
@@ -102,7 +107,6 @@ class TarFileDeployer:
 
 def deployTarFileWrapper(tfd):
     tfd.deploy()
-
 
 # Create a tarball of the files in ls_files
 # - root is the directory in which ls_files should be found

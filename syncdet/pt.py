@@ -2,7 +2,7 @@
 
 import sys, os
 
-import actors
+from deploy.syncdet import actors
 
 def walk():
     cmd = ''

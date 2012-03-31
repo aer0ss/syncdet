@@ -1,10 +1,8 @@
 import time, signal, sys, threading, os.path
 
-import param, actors, report, scn, deploy, log
+from deploy.syncdet import param, actors
 
-from controller_lib import getRootPath, generateTimeDerivedId
-
-WRAPPER_NAME = 'syncdet_actor_wrapper.py'
+import report, scn, deployer, log, lib
 
 SPEC_NAME = 'spec'
 
@@ -16,8 +14,12 @@ def analyze(module, dir):
     '''@return: the number of actors to launch, and the case timeout value
     '''
     try:
-        sys.path.insert(0, os.path.join(getRootPath(), dir))
+        print "TODO remove the following line"
+        sys.path.insert(0, os.path.join(lib.getRootPath(), dir))
+        # simulate PYTHONPATH on actor systems
+        sys.path.insert(0, os.path.join(lib.getRootPath(), "deploy"))
         exec 'import ' + module
+        sys.path.pop(0)
         sys.path.pop(0)
     except ImportError, data:
         errorAnalysis("cannot import module '%s': %s" % (module, data))
@@ -66,17 +68,17 @@ def launchCase(module, dir, instId, verbose):
     n, timeout = analyze(module, dir)
 
     # Deploy the necessary test case source code to the remote actors
-    deploy.deployCaseSrc(dir, [actors.getActor(i) for i in range(n)])
+    deployer.deployCaseSrc(dir, [actors.getActor(i) for i in range(n)])
 
     pids = {}    # { pid: actorId }
     for i in range(n):
         actor = actors.getActor(i)
         # the command
-        cmd = 'python {0}/case/{1} '.format(actor.root, WRAPPER_NAME)
+        cmd = 'python {0}/deploy/syncdet_case_launcher.py '.format(actor.root)
         # the arguments:
-        # module actorId scenarioId instId actorCount dir(relative to SyncDET root) controllerRoot
-        cmd += '{0} {1} {2} {3} {4} {5} {6}'.format(
-                module, i, scn.getScenarioId(), instId, n, dir, getRootPath())
+        # module actorId scenarioId instId actorCount dir(relative to SyncDET root)
+        cmd += '{0} {1} {2} {3} {4} {5}'.format(
+                module, i, scn.getScenarioId(), instId, n, dir)
 
         # execute the remote command
         pids[actor.execRemoteCmdNonBlocking(cmd)] = i
@@ -111,7 +113,7 @@ def makeCaseInstanceId():
     # lock to prevent coincidents on multi-processors
     global s_lock
     s_lock.acquire()
-    ret = generateTimeDerivedId(True)
+    ret = lib.generateTimeDerivedId(True)
     s_lock.release()
     return ret
 
@@ -123,12 +125,12 @@ def executeCase(module, dir, verbose):
         log.collectLog(i, module, instId)
     return report.reportCase(module, instId, n, unfinished)
 
-KILL_CMD = "for i in `ps -eo pid,command | grep '%s' | grep -v grep | " \
+KILL_CMD = "for i in `ps -eo pid,command | grep '{0}' | grep -v grep | " \
             "sed 's/ *\\([0-9]*\\).*/\\1/'`; do kill $i; done"
 
 def killRemoteInstance(actorId, instId, verbose):
     # instId uniquely identifies the case instance
-    cmd = KILL_CMD % instId
+    cmd = KILL_CMD.format(instId)
     actors.getActor(actorId).execRemoteCmdNonBlocking(cmd)
 
     # don't cancel. let sync GC do the work
@@ -137,8 +139,8 @@ def killRemoteInstance(actorId, instId, verbose):
     # sync.cancelSynchronizers(instId)
 
 def killAllRemoteInstances(verbose):
-    cmd = KILL_CMD % WRAPPER_NAME
+    cmd = KILL_CMD.format('syncdet_case_launcher.py')
     for s in actors.actors: s.execRemoteCmdNonBlocking(cmd)
 
 def purgeLogFiles():
-    os.actor('rm -rf %s/%s/*' % (getRootPath(), param.LOG_DIR))
+    os.system('rm -rf {0}/{1}/*'.format(lib.getRootPath(), param.LOG_DIR))

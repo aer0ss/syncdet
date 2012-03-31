@@ -4,10 +4,9 @@ import sys, optparse
 
 import controller.scn
 import controller.report
-import controller.deploy
+import controller.deployer
 import controller.sync_service
-import actors
-import param
+from deploy.syncdet import actors, param
 
 # argument parsing
 
@@ -85,7 +84,7 @@ else:
 controller.sync_service.startService(options.verbose)
 
 if not options.verify:
-    controller.deploy.deployActorSrc()
+    controller.deployer.deployActorSrc()
 
 # launch the scenarios
 for scenario in scenarios:

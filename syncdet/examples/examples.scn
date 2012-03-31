@@ -1,6 +1,6 @@
 :serial
     hello_world
     failed_test
-    sync
+    synchronize
     start_background_process
     stop_background_process

@@ -3,7 +3,7 @@
 #
 
 import sys, os.path
-from controller_lib import getRootPath
+import lib
 
 # actions for each unit
 SERIAL = 0
@@ -32,9 +32,8 @@ class Unit:
 
     def __repr__(self):
         if self.action == SERIAL: act = 'SERIAL'
-        elif self.action == REPEAT: act = 'REPEAT'
         elif self.action == PARALLEL: act = 'PARALLEL'
-        else: act = 'RANDOM'
+        else: act = 'SHUFFLE'
         return '%s,%d(%s)' % (act, self.count, str(self.children))
 
 class Scenario:
@@ -132,7 +131,7 @@ def parseObject(path, lno, string):
     while 1:
         pos = dir[:tail].rfind('/')
         if pos <= 0: break
-        if os.path.samefile(dir[:pos], getRootPath()):
+        if os.path.samefile(dir[:pos], lib.getRootPath()):
             found = True
             break
         tail = pos
@@ -169,9 +168,6 @@ def unit1(path, lno, args):
     # parse the directive
     keys = words[0].split(',')
     if   keys[0] == ':serial':
-        action = SERIAL
-        count = 1
-    elif keys[0] == ':repeat':
         action = SERIAL
         count = 1
     elif keys[0] == ':parallel':

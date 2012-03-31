@@ -1,6 +1,6 @@
 import string, time
 
-import param
+from deploy.syncdet import param
 
 # NOTE: we need to store the socket per request but not per actor because
 #       an actor may fire multiple requests by multiple concurrent test cases
@@ -65,8 +65,11 @@ def processTimeOut():
 
 class Synchronizer:
 
+    @staticmethod
     def OK(): return
+    @staticmethod
     def DENIED(): return
+    @staticmethod
     def TIMEOUT(): return
 
     part = {}    # current participants: { actorId : socket }

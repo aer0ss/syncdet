@@ -1,9 +1,10 @@
 import sys, threading, time, random, os, signal
-import controller_lib, param, scncc, scnpp, controller, log
+from deploy.syncdet import param
+import lib, scncc, scnpp, controller, log
 
 INDENT = 4
 
-s_scenarioId = controller_lib.generateTimeDerivedId(False)
+s_scenarioId = lib.generateTimeDerivedId(False)
 
 def getScenarioId():
     return s_scenarioId

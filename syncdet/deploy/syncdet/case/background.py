@@ -1,11 +1,9 @@
-import subprocess
-from case import getLogFilePath, getLogFolderPath, getActorId
-import syncdet_lib
-import os, signal
+import subprocess, os, signal
+from .. import lib, case
 
-def startBackgroundProcess(cmd, key = None):
+def startProcess(cmd, key = None):
     """Run a command in a separate process, which can be terminated by
-    stopBackgroundProcess() from a process different from the current one.
+    stopProcess() from a process different from the current one.
 
     @param cmd: list of strings representing  a command with arguments.
     e.g. ["/bin/sleep", "5"]
@@ -22,7 +20,7 @@ def startBackgroundProcess(cmd, key = None):
     if key is None: key = cmd[0]
 
     # launch the process
-    with open(getLogFilePath(key), 'a') as f:
+    with open(case.getLogFilePath(key), 'a') as f:
         p = subprocess.Popen(cmd, 0, None, f, f)
 
     # write the pid file
@@ -31,9 +29,9 @@ def startBackgroundProcess(cmd, key = None):
 
     return p
 
-def stopBackgroundProcess(key):
+def stopProcess(key):
     '''Stop a background process specified by the key. The process must be
-    launched by startBackgroundProcess(). The method sends SIGKILL to the
+    launched by startProcess(). The method sends SIGKILL to the
     process and returns immediately.'''
     pathPID = getPIDFilePath(key)
     with open(pathPID) as f:
@@ -43,4 +41,5 @@ def stopBackgroundProcess(key):
     os.remove(pathPID)
 
 def getPIDFilePath(key):
-    return syncdet_lib.getPIDFilePath(getLogFolderPath(), key, getActorId())
+    return lib.getPIDFilePath(case.getLogFolderPath(), key,
+            case.getActorId())

@@ -22,9 +22,8 @@ Scenarios can be as simple or complex as you need; when writing your own SyncDET
 scenario, you may only require the use of one to three test cases.
 
 \subsection{Directives}
-\directiveexec{serial}{count}
 
-\directiveexec{repeat}{count}
+\directiveexec{serial}{count}
 Execute items sequentially. Each item will be executed sequentially count times
 before proceeding to the next item. If count is zero, only the first item will
 be executed, and will be executed infinite times until the program is
@@ -62,7 +61,7 @@ scenarios.
 In this section, we list some typical uses of the directives. To loop over a
 list of items for 10 times:
 \begin{verbatim}
-    :repeat,10
+    :serial,10
         :serial
             item1
             item2
@@ -88,7 +87,7 @@ parallel. We can define a reusable scenario for the first example that will
 abort if any item fails, then execute it:
 \begin{verbatim}
 :scn,nofail firstEx
-    :repeat,10
+    :serial,10
         :serial
             item1
             item2

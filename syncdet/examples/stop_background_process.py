@@ -1,8 +1,8 @@
 '''This test case demonstrates how to stop a background (daemon) process 
-launched by case.startBackgroundProcess().'''
+launched by background.startProcess().'''
 
-from case import stopBackgroundProcess
+from syncdet.case import background
 
 def default():
-    stopBackgroundProcess('sleep')
+    background.stopProcess('sleep')
 spec = { 'default': default }

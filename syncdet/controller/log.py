@@ -1,7 +1,9 @@
 import sys, os
-import scn, actors
-from controller_lib import getRootPath
-from syncdet_lib import getLogFolderPath, getLogFilePath
+import scn, lib
+from deploy.syncdet import actors
+
+import deploy.syncdet.lib
+syncdet_lib = deploy.syncdet.lib
 
 def createLogFolders(verify):
     '''Create log folders on both the controller and actors. Although log
@@ -30,20 +32,23 @@ def createLogFolders(verify):
 def getControllerLogFolderPath():
     '''@return: the directory where the controller actor stores log files
     locally'''
-    return getLogFolderPath(getRootPath(), scn.getScenarioId());
+    return syncdet_lib.getLogFolderPath(lib.getRootPath(),
+            scn.getScenarioId())
 
 def getControllerLogFilePath(actorId, module, instId):
     '''@return: the test case log path for the controller actor'''
-    return getLogFilePath(getControllerLogFolderPath(), module, instId, actorId)
+    return syncdet_lib.getLogFilePath(getControllerLogFolderPath(), module,
+            instId, actorId)
 
 def getActorLogFolderPath(actor):
     '''@return: the directory where the actor actor stores log files
     '''
-    return getLogFolderPath(actor.root, scn.getScenarioId());
+    return syncdet_lib.getLogFolderPath(actor.root, scn.getScenarioId());
 
 def getActorLogFilePath(actor, actorId, module, instId):
     '''@return: the test case log path for the controller actor'''
-    return getLogFilePath(getActorLogFolderPath(actor), module, instId, actorId)
+    return syncdet_lib.getLogFilePath(getActorLogFolderPath(actor), module,
+            instId, actorId)
 
 def collectLog(actorId, module, instId):
     '''Retrieve the log file of a specific test case instance from a given actor

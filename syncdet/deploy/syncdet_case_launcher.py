@@ -1,21 +1,21 @@
+'''This module is saved at the same level of the syncdet directory so that
+PYTHONPATH is naturally set to the syncdet's parent when this module is
+launched. This way, test programs running on actors can refer to syncdet
+modules using 'syncdet.foo.'
+'''
+
 import sys, os.path
 
-# unlike other scripts, we're invoked from the current directory. 
-# we should include the DET root path to let all imports work.
-sys.path.insert(1, os.path.normpath(os.path.join(sys.path[0] , '../')))
-
-import param
-from syncdet_case_lib import getActorId, getLogFilePath, getCaseModuleName, \
-        failTestCase
+from syncdet import param, case
 
 # add the module's parent directory. argv[6] is the directory name relative
 # to SyncDET's path.
 #
 sys.path.insert(1,
-    os.path.normpath(os.path.join(sys.path[0] , '../', sys.argv[6])))
+    os.path.normpath(os.path.join(sys.path[0] , '..', sys.argv[6])))
 
 # import the case module
-exec 'import ' + getCaseModuleName()
+exec 'import ' + case.getModuleName()
 
 class MultipleOutputStreams:
     '''This class duck types the stream interface. It duplicates the input data
@@ -65,11 +65,11 @@ def redirectStdOutAndErr():
     streams = []
 
     if param.CASE_LOG_OUTPUT:
-        path = getLogFilePath()
+        path = case.getLogFilePath()
         streams.append(open(path, 'a'))
 
     if param.CASE_SCREEN_OUTPUT:
-        prefix = param.CASE_OUTPUT_PREFIX.format(getActorId())
+        prefix = param.CASE_OUTPUT_PREFIX.format(case.getActorId())
         stream = PrefixOutputStream(sys.stdout, prefix)
         streams.append(stream)
 
@@ -80,16 +80,16 @@ def main():
 
     try:
         # execute the right entry point
-        spec = eval(getCaseModuleName() + '.spec')
-        if 'entries' in spec.keys() and getActorId() < len(spec['entries']):
-            ret = spec['entries'][getActorId()]()
+        spec = eval(case.getModuleName() + '.spec')
+        if 'entries' in spec.keys() and case.getActorId() < len(spec['entries']):
+            ret = spec['entries'][case.getActorId()]()
         else:
             ret = spec['default']()
         if ret: print 'CASE_OK:', str(ret)
         else:   print 'CASE_OK'
 
     except RuntimeError, data:
-        failTestCase(str(data))
+        case.failTestCase(str(data))
 
 if __name__ == '__main__':
     main()

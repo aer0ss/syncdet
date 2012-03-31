@@ -44,7 +44,7 @@
 #
 
 import socket, select, threading, string
-import config, param
+from deploy.syncdet import param, config
 
 from synchronizer import processTimeOut, processRequest
 
