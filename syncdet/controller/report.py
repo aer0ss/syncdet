@@ -1,7 +1,7 @@
 import threading, scn, os.path
 
 import param, log
-from controller_lib import getRootFolderPath
+from controller_lib import getRootPath
 
 RES_OK = 0
 RES_NOSTART = 1
@@ -15,7 +15,7 @@ def isReportEnabled():
 # static initialization
 #
 if isReportEnabled():
-    s_reportPath = '{0}/{1}/report-{2}.txt'.format(getRootFolderPath(),
+    s_reportPath = '{0}/{1}/report-{2}.txt'.format(getRootPath(),
            param.REPORT_DIR, scn.getScenarioId())
     d = os.path.dirname(s_reportPath)
     if not os.path.exists(d): os.mkdir(d)

@@ -6,7 +6,7 @@
 from multiprocessing import Pool
 import os.path, tarfile
 
-from controller_lib import getRootFolderPath
+from controller_lib import getRootPath
 import actors
 
 # Tuple of src files which must be deployed for actors to run cases
@@ -28,7 +28,7 @@ pool = None
 # to all known Actors
 # - assumes all files in ACTOR_PY_FILES exist locally
 def deployActorSrc():
-    s_locRoot = getRootFolderPath()
+    s_locRoot = getRootPath()
 
     # Create a tarball of Actor source files
     s_tarPath = createTarFile_(s_locRoot, ACTOR_TAR_PATH, ACTOR_PY_FILES)
@@ -51,7 +51,7 @@ def deployCaseSrc(s_relTestDir, ls_actors):
     # The following dirname only returns the parent directory if there is
     # no slash at the end of the path.
     if s_relTestDir[-1] == '/': s_relTestDir = s_relTestDir[:-1]
-    s_tarPath = createTarFile_(os.path.join(getRootFolderPath(),
+    s_tarPath = createTarFile_(os.path.join(getRootPath(),
                                 os.path.dirname(s_relTestDir)),
                                 CASE_TAR_PATH,
                                 [os.path.basename(s_relTestDir)])

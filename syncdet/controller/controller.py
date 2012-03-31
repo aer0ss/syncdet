@@ -2,7 +2,7 @@ import time, signal, sys, threading, os.path
 
 import param, actors, report, scn, deploy, log
 
-from controller_lib import getRootFolderPath, generateTimeDerivedId
+from controller_lib import getRootPath, generateTimeDerivedId
 
 WRAPPER_NAME = 'syncdet_actor_wrapper.py'
 
@@ -16,7 +16,7 @@ def analyze(module, dir):
     '''@return: the number of actors to launch, and the case timeout value
     '''
     try:
-        sys.path.insert(0, os.path.join(getRootFolderPath(), dir))
+        sys.path.insert(0, os.path.join(getRootPath(), dir))
         exec 'import ' + module
         sys.path.pop(0)
     except ImportError, data:
@@ -75,9 +75,8 @@ def launchCase(module, dir, instId, verbose):
         cmd = 'python {0}/case/{1} '.format(actor.root, WRAPPER_NAME)
         # the arguments:
         # module actorId scenarioId instId actorCount dir(relative to SyncDET root) controllerRoot
-        cmd += '{0} {1} {2} {3} {4} {5} {6}'.format(module, i,
-                                      scn.getScenarioId(),
-                                      instId, n, dir, getRootFolderPath())
+        cmd += '{0} {1} {2} {3} {4} {5} {6}'.format(
+                module, i, scn.getScenarioId(), instId, n, dir, getRootPath())
 
         # execute the remote command
         pids[actor.execRemoteCmdNonBlocking(cmd)] = i
@@ -142,4 +141,4 @@ def killAllRemoteInstances(verbose):
     for s in actors.actors: s.execRemoteCmdNonBlocking(cmd)
 
 def purgeLogFiles():
-    os.actor('rm -rf %s/%s/*' % (getRootFolderPath(), param.LOG_DIR))
+    os.actor('rm -rf %s/%s/*' % (getRootPath(), param.LOG_DIR))

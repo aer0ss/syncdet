@@ -2,7 +2,7 @@ import sys, os.path, datetime, time
 
 s_pathRoot = os.path.realpath(os.path.expanduser(sys.path[0]))
 
-def getRootFolderPath(): return s_pathRoot
+def getRootPath(): return s_pathRoot
 
 def generateTimeDerivedId(includeMSec):
     '''Generate a string based on the current time. the string can be used as

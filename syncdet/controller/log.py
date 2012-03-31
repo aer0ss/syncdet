@@ -1,6 +1,6 @@
 import sys, os
 import scn, actors
-from controller_lib import getRootFolderPath
+from controller_lib import getRootPath
 from syncdet_lib import getLogFolderPath, getLogFilePath
 
 def createLogFolders(verify):
@@ -30,7 +30,7 @@ def createLogFolders(verify):
 def getControllerLogFolderPath():
     '''@return: the directory where the controller actor stores log files
     locally'''
-    return getLogFolderPath(getRootFolderPath(), scn.getScenarioId());
+    return getLogFolderPath(getRootPath(), scn.getScenarioId());
 
 def getControllerLogFilePath(actorId, module, instId):
     '''@return: the test case log path for the controller actor'''
