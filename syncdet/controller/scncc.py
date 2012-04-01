@@ -2,8 +2,7 @@
 # the scenario file compiler
 #
 
-import sys, os.path
-import lib
+import sys
 
 # actions for each unit
 SERIAL = 0
@@ -11,17 +10,15 @@ PARALLEL = 1
 SHUFFLE = 2
 
 class Object:
-    name = None     # the name of the object
-    dir = None      # the directory where the object lives in (only useful
-                    # to module names). It's a relative path relative to
-                    # the SyncDET root directory
+    # name of the object
+    name = None
 
-    def __init__(self, name, dir):
+    def __init__(self, name):
         self.name = name
-        self.dir = dir
 
 class Unit:
-    children = []    # contains Unit objects or Object objects
+    # contains Unit objects or Object objects
+    children = []
     action = None
     count = None
 
@@ -120,32 +117,7 @@ def parseObject(path, lno, string):
     words = string.split()
     if len(words) != 1: error(path, lno, 'syntax error')
     validSymbol(path, lno, words[0])
-
-    # get the parent dir of path
-    dir = os.path.join(os.getcwd(), os.path.dirname(path))
-
-    # see if the dir is a sub-dir of the local root. Because of aliases,
-    # we can't determine it in a simpler way.
-    found = False
-    tail = len(dir)
-    while 1:
-        pos = dir[:tail].rfind('/')
-        if pos <= 0: break
-        if os.path.samefile(dir[:pos], lib.getRootPath()):
-            found = True
-            break
-        tail = pos
-
-    # prevent from referencing 'external' modules
-    #
-    if not found:
-        error(path, lno, "it's not safe to execute a module outside the "\
-              "SyncDET directory as SyncDET may not properly propagate the "\
-              "module to remote actors. It's suggested to create symbolic "\
-              "links in the SyncDET directory and use them from there.")
-    else:
-        # remove the local root prefix. +1 is to remove the '/'
-        return Object(string, dir[pos + 1:])
+    return Object(string)
 
 def group1(path, lno, args):
     if (len(args['words'])) != 2: error(path, lno)
@@ -317,12 +289,12 @@ def compile(file, path):
     glob.parent = None
     return glob
 
-# compile a single case. dir is the parent directory of the case
+# compile a single case
 #
-def compileSingleCase(case, dir):
+def compileSingleCase(case):
     glob = Scenario('global', None, False)
     unit = Unit(SERIAL, 1)
-    obj = Object(case, dir)
+    obj = Object(case)
 
     unit.children.append(obj)
     glob.unit = unit

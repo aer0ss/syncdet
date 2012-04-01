@@ -1,6 +1,6 @@
 :serial
-    hello_world
-    failed_test
-    synchronize
-    start_background_process
-    stop_background_process
+    examples.hello_world
+    examples.failed_test
+    examples.synchronize
+    examples.start_background_process
+    examples.stop_background_process

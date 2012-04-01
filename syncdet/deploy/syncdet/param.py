@@ -35,6 +35,9 @@ LOG_DIR = 'logs'
 # the report directory, relative to DET's root directory
 REPORT_DIR = 'reports'
 
+# the parent folder name under which deployment folders are copied to the actors 
+DEPLOY_DIR = 'deploy'
+
 # the delay in sec between launches of consecutive parallel items
 # this is used to to limit actor loads on actors
 PARALLEL_DELAY = 0

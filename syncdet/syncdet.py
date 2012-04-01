@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, optparse
+import sys, optparse, os
 
 import controller.scn
 import controller.report
@@ -10,17 +10,15 @@ from deploy.syncdet import actors, param
 
 # argument parsing
 
-usage = "usage: %prog [options] scenario"
+usage = "usage: %prog [options] deployment_folders..."
 parser = optparse.OptionParser(usage)
 
-parser.add_option("-f", "--scenario", dest = "scnfile", default = "default.scn",
+parser.add_option("-s", "--scenario", dest = "scnfile",
                   help = "specify the scenario file. default.scn is the default",
                   metavar = "FILE")
 parser.add_option("-c", "--case", dest = "case",
-                  help = "specify a single case, CASE, to run. Change the Python"\
-                  " root directory to DIR before running. DIR must be relative"\
-                  " to SyncDET's root directory",
-                  metavar = "DIR,CASE")
+                  help = "specify a single case, CASE, to run",
+                  metavar = "CASE")
 
 parser.add_option("-m", "--actors", dest = "actors", type = "int", default = "-1",
                   help = "the max number of actors to use. use all sytems "\
@@ -36,7 +34,7 @@ parser.add_option("-e", "--verify", dest = "verify", action = "store_true",
                   help = "print but not actually run the cases")
 
 parser.add_option("--clobber", dest = "clobber", action = "store_true",
-                  help = "kill all remaning remote sessions and quit")
+                  help = "kill all remaining remote sessions and quit")
 parser.add_option("--purge-log", dest = "purge", action = "store_true",
                   default = False,
                   help = "empty the log directory and then quit")
@@ -53,13 +51,17 @@ if options.clobber:
     controller.killAllRemoteInstances(options.verbose)
     sys.exit()
 
-# find out the scenario
-if not len(args):
-    scenarios = ['']
-else:
-    scenarios = args
+# parse deploy folders
+if len(args) < 1:
+    print 'Please specify at least one deployment folder. Use --help for usage.'
+    sys.exit()
 
-# initialize the actors, and 
+# add SyncDET's internal deployment folder to the deployment folder list
+deployFolders = list(args)
+deployFolders.append(os.path.join(sys.path[0], 'deploy'))
+controller.setDeployFolders(deployFolders)
+
+# initialize the actors
 if options.actors != -1:
     actors.init(options.verbose, options.actors)
 else:
@@ -72,23 +74,22 @@ if options.casetimeout:
 # compile the scenario file
 # is a single case specified?
 if options.case:
-    items = options.case.split(',')
-    if len(items) != 2:
-        parser.print_help()
-        sys.exit()
-    scn = controller.scn.compileSingleCase(items[1], items[0])
-else:
+    scn = controller.scn.compileSingleCase(options.case)
+elif options.scnfile:
     scn = controller.scn.compile(options.scnfile)
+else:
+    print "Either a scenario file or a test case must be specified." \
+            " Use --help for usage."
+    sys.exit()
 
 # launch the sync service
 controller.sync_service.startService(options.verbose)
 
 if not options.verify:
-    controller.deployer.deployActorSrc()
+    controller.deployer.deploy()
 
-# launch the scenarios
-for scenario in scenarios:
-    controller.scn.execute(scn, scenario, options.verify, options.verbose)
+# launch the global scenario
+controller.scn.execute(scn, '', options.verify, options.verbose)
 
 if not options.verify and controller.report.getReportPath():
     print 'the report is at', controller.report.getReportPath()

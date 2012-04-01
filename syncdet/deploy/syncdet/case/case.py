@@ -6,24 +6,24 @@ OK = 0
 FAIL = 1
 TIMEOUT = 2
 
-s_actorId = None
-s_actorCount = None
+_actorId = None
+_actorCount = None
 
 # return the Actor ID of this local actor
 # (actor IDs form a total order)
 #
 def getActorId():
-    global s_actorId
-    if not s_actorId: s_actorId = int(sys.argv[2])
-    return s_actorId
+    global _actorId
+    if not _actorId: _actorId = int(sys.argv[2])
+    return _actorId
 
 # return the number of actors that are running this case
 # it is NOT the total number of actors
 #
 def getActorCount():
-    global s_actorCount
-    if not s_actorCount: s_actorCount = int(sys.argv[5])
-    return s_actorCount
+    global _actorCount
+    if not _actorCount: _actorCount = int(sys.argv[5])
+    return _actorCount
 
 # return the test case module name
 #
@@ -44,7 +44,7 @@ def getScenarioId():
 # return a reference to instance of actors.Actor for this machine
 #
 def getLocalActor():
-    if not actors.actors:
+    if not actors.getActors():
         actors.init(False, getActorCount())
     return actors.getActor(getActorId())
 

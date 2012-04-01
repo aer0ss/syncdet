@@ -95,7 +95,7 @@ def executeBasicItem(scn, bi, verify, show, verbose, ind, index):
         # it's a module
         if show: print ind2space(ind) + bi.name + ' %d' % index
         if verify: return
-        ret = controller.executeCase(bi.name, bi.dir, verbose)
+        ret = controller.executeCase(bi.name, verbose)
         if not ret and scn.nofail:
             print ">>>>>> Force to quit because of 'nofail'. It may generate "\
                     "some exceptions. Please ignore."
@@ -231,7 +231,7 @@ def execute(glob, scenario, verify, verbose):
         # this will also finish the rsh processes on the local actor
         controller.killAllRemoteInstances(verbose)
 
-def compileSingleCase(case, dir): return scncc.compileSingleCase(case, dir)
+def compileSingleCase(case): return scncc.compileSingleCase(case)
 
 def compile(path):
     tmp = scnpp.preprocess(path)

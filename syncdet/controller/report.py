@@ -1,5 +1,6 @@
-import threading, scn, os.path
+import threading, os.path
 
+import scn
 from deploy.syncdet import param
 import lib, log
 

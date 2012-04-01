@@ -7,31 +7,31 @@
 import os, sys, subprocess
 import config
 
-# Global definition of list of actors
-actors = [];
+# a list of Actor objects
+_actors = [];
 
 def getActors():
-    return actors
+    return _actors
 
 def getActorCount():
-    assert len(actors) > 0
-    return len(actors)
+    assert len(_actors) > 0
+    return len(_actors)
 
 def getActor(actorId):
-    return actors[actorId]
+    return _actors[actorId]
 
-# Initialize the global list of actors with 
+# Initialize the global list of actors with
 # - the max permissable number of actors
 # - whether to display verbose msgs
 #
 def init(verbose, maxNumActors = None):
-    global actors
+    global _actors
     # Static initialization from config.py
     for d_actor in config.d_actors:
-        actors.append(Actor(d_actor, verbose))
+        _actors.append(Actor(d_actor, verbose))
 
-    if maxNumActors and maxNumActors < len(actors):
-        actors = actors[:maxNumActors]
+    if maxNumActors and maxNumActors < len(_actors):
+        _actors = _actors[:maxNumActors]
 
 # Class definition of a Actor
 class Actor:
@@ -64,6 +64,39 @@ class Actor:
         cmd = self._copyTo
         self._copy(cmd, src, dst)
 
+    def rsync(self, srcs, dst, additionalFolderLevel):
+        '''Rsync the src folder from the local system (the controller) to the
+        dst folder on the actor.
+        @param srcs: the list of source folders on the controller
+        @param dst: the destination folder on the actor
+        @param additionalFolderLevel: type: boolean. When True, an additional
+        folder level is created at the destination. For more detail, see
+        rsync(1)'s section on the trailing slash.
+        '''
+        cmd = [
+            'rsync',
+            '-a', # archive mode
+            '-z', # compression
+            '--exclude', '*.pyc', # exlude
+            '-e', self.rsh, # login method
+        ]
+
+        # specify sources
+        for src in srcs:
+            # remove trailing slash if any
+            src = os.path.normpath(src)
+            if not additionalFolderLevel: src += os.sep
+            cmd.append(src)
+
+        # specify destination
+        cmd.append(self.login + '@' + self.address + ':' + dst)
+
+        try:
+            self._runLocalCmd(cmd)
+        except subprocess.CalledProcessError, _:
+            self.execRemoteCmdBlocking('mkdir -p ' + self.root)
+            self._runLocalCmd(cmd)
+
     def execRemoteCmdBlocking(self, cmd):
         '''@param cmd: the string contains both the command to execute and its
         arguemts, e.g., 'ls -l'
@@ -81,33 +114,32 @@ class Actor:
     # return the result of os.spawnvp, according to mode. cmd is a string
     #
     def _executeRemoteCmd(self, mode, cmd):
-        args = [
+        cmdLocal = [
                self.rsh,
                self.login + '@' + self.address,
                cmd
                ]
-        if self._verbose:
-            print 'cmd[{}]'.format(self.address),
-            for arg in args: print arg,
-            print
-        return os.spawnvp(mode, args[0], args)
+        if self._verbose: print cmdLocal
+        return os.spawnvp(mode, cmdLocal[0], cmdLocal)
 
 
     def _copy(self, cmd, src, dst):
         cmd = [s.replace('%src', src).replace('%dst', dst) for s in cmd]
 
         try:
-            if self._verbose:
-                print ' '.join(cmd)
-                subprocess.check_call(cmd)
-            else:
-                with open(os.devnull, 'w') as fstdout:
-                    subprocess.check_call(cmd, stdout = fstdout)
+            self._runLocalCmd(cmd)
         except subprocess.CalledProcessError, e:
             if self._verbose:
                 s_warning = ('<Actor._copy> {0}'
-                             'see http://support.attachmate.com/techdocs/2116.html'
-                            ).format(e)
+                        'see http://support.attachmate.com/techdocs/2116.html'
+                        ).format(e)
                 print s_warning
                 sys.exit(-1)
 
+    def _runLocalCmd(self, cmd):
+        if self._verbose:
+            print cmd
+            subprocess.check_call(cmd)
+        else:
+            with open(os.devnull, 'w') as fnull:
+                subprocess.check_call(cmd, stdout = fnull, stderr = fnull)

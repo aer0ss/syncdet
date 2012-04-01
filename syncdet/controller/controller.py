@@ -2,33 +2,48 @@ import time, signal, sys, threading, os.path
 
 from deploy.syncdet import param, actors
 
-import report, scn, deployer, log, lib
+import report, scn, log, lib
 
-SPEC_NAME = 'spec'
+_SPEC_NAME = 'spec'
+
+_LAUNCHER_PY = 'syncdet_case_launcher.py'
+
+_deployFolders = None
+
+def setDeployFolders(folders):
+    global _deployFolders # I hate globals
+    _deployFolders = folders
+
+def getDeployFolders():
+    global _deployFolders # I still hate globals
+    return _deployFolders
 
 def errorAnalysis(msg):
-    print 'error:', msg
+    print 'Error found by test code analyzer:', msg
     sys.exit()
 
-def analyze(module, dir):
+def analyze(module):
     '''@return: the number of actors to launch, and the case timeout value
     '''
-    try:
-        print "TODO remove the following line"
-        sys.path.insert(0, os.path.join(lib.getRootPath(), dir))
-        # simulate PYTHONPATH on actor systems
-        sys.path.insert(0, os.path.join(lib.getRootPath(), "deploy"))
-        exec 'import ' + module
-        sys.path.pop(0)
-        sys.path.pop(0)
-    except ImportError, data:
-        errorAnalysis("cannot import module '%s': %s" % (module, data))
 
-    if SPEC_NAME not in eval(module + '.__dict__'):
-        errorAnalysis("module '%s' has no '%s' defined" % (module, SPEC_NAME))
+    # simulate PYTHONPATH on actor systems
+    for f in getDeployFolders(): sys.path.insert(0, f)
 
     try:
-        spec = eval(module + '.' + SPEC_NAME)
+        __import__(module)
+    except ImportError, e:
+        errorAnalysis("cannot import module '{0}': {1}".format(module, e))
+    finally:
+        del sys.path[ : len(getDeployFolders())]
+
+    namespace = sys.modules[module].__dict__
+
+    if _SPEC_NAME not in namespace:
+        errorAnalysis("module '{0}' has no '{1}' defined"
+                .format(module, _SPEC_NAME))
+
+    try:
+        spec = namespace[_SPEC_NAME]
         if 'entries' not in spec.keys() and 'default' not in spec.keys():
             raise Exception
 
@@ -51,34 +66,31 @@ def analyze(module, dir):
         else:
             timeout = param.CASE_TIMEOUT
     except Exception:
-        errorAnalysis(module + " has an invalid '" + SPEC_NAME + "' structure.")
+        errorAnalysis(module + " has an invalid " + _SPEC_NAME + " structure.")
 
     if preferred == -1:
         return n, timeout
     else:
         if not preferred:
             print "warning: '%s' specifies zero actors to run, please check "\
-            "its '%s' data structure." % (module, SPEC_NAME)
+            "its '%s' data structure." % (module, _SPEC_NAME)
         return min(n, preferred), timeout
 
-def launchCase(module, dir, instId, verbose):
-    '''@return: the number of actors and a list of actors that didn't finish 
+def launchCase(module, instId, verbose):
+    '''@return: the number of actors and a list of actors that didn't finish
     on time'''
 
-    n, timeout = analyze(module, dir)
-
-    # Deploy the necessary test case source code to the remote actors
-    deployer.deployCaseSrc(dir, [actors.getActor(i) for i in range(n)])
+    n, timeout = analyze(module)
 
     pids = {}    # { pid: actorId }
     for i in range(n):
         actor = actors.getActor(i)
         # the command
-        cmd = 'python {0}/deploy/syncdet_case_launcher.py '.format(actor.root)
+        cmd = 'python {0}/deploy/{1} '.format(actor.root, _LAUNCHER_PY)
         # the arguments:
-        # module actorId scenarioId instId actorCount dir(relative to SyncDET root)
-        cmd += '{0} {1} {2} {3} {4} {5}'.format(
-                module, i, scn.getScenarioId(), instId, n, dir)
+        # module actorId scenarioId instId actorCount
+        cmd += '{0} {1} {2} {3} {4}'.format(
+                module, i, scn.getScenarioId(), instId, n)
 
         # execute the remote command
         pids[actor.execRemoteCmdNonBlocking(cmd)] = i
@@ -117,10 +129,10 @@ def makeCaseInstanceId():
     s_lock.release()
     return ret
 
-def executeCase(module, dir, verbose):
+def executeCase(module, verbose):
     '''@return: False if the case failed'''
     instId = makeCaseInstanceId()
-    n, unfinished = launchCase(module, dir, instId, verbose)
+    n, unfinished = launchCase(module, instId, verbose)
     for i in range(n):
         log.collectLog(i, module, instId)
     return report.reportCase(module, instId, n, unfinished)
@@ -139,8 +151,8 @@ def killRemoteInstance(actorId, instId, verbose):
     # sync.cancelSynchronizers(instId)
 
 def killAllRemoteInstances(verbose):
-    cmd = KILL_CMD.format('syncdet_case_launcher.py')
-    for s in actors.actors: s.execRemoteCmdNonBlocking(cmd)
+    cmd = KILL_CMD.format(_LAUNCHER_PY)
+    for s in actors.getActors(): s.execRemoteCmdNonBlocking(cmd)
 
 def purgeLogFiles():
     os.system('rm -rf {0}/{1}/*'.format(lib.getRootPath(), param.LOG_DIR))

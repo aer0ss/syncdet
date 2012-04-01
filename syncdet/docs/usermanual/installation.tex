@@ -64,14 +64,15 @@ d_actors = [
             ]
 \end{verbatim}
 
-\subsection{Running the Demo Scenario}
+\subsection{Running the Demo}
+
+To run the entire scenario:
 \begin{verbatim}
-$ cd [SyncDETRepo]/syncdet
-$ ./det.py -f default.scn
+$ cd syncdet
+$ ./syncdet.py examples/deploy -s examples/examples.scn
 \end{verbatim}
 
-or simply
-
+Or, to run a single test case:
 \begin{verbatim}
-$ ./det.py
+$ ./syncdet.py examples/deploy -c examples.hello_world
 \end{verbatim}

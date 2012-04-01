@@ -4,18 +4,11 @@ launched. This way, test programs running on actors can refer to syncdet
 modules using 'syncdet.foo.'
 '''
 
-import sys, os.path
+import sys
 
 from syncdet import param, case
 
-# add the module's parent directory. argv[6] is the directory name relative
-# to SyncDET's path.
-#
-sys.path.insert(1,
-    os.path.normpath(os.path.join(sys.path[0] , '..', sys.argv[6])))
-
-# import the case module
-exec 'import ' + case.getModuleName()
+__import__(case.getModuleName())
 
 class MultipleOutputStreams:
     '''This class duck types the stream interface. It duplicates the input data
@@ -80,7 +73,7 @@ def main():
 
     try:
         # execute the right entry point
-        spec = eval(case.getModuleName() + '.spec')
+        spec = sys.modules[case.getModuleName()].spec
         if 'entries' in spec.keys() and case.getActorId() < len(spec['entries']):
             ret = spec['entries'][case.getActorId()]()
         else:
