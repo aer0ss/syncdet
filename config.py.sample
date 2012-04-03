@@ -32,7 +32,7 @@ d_actors = [
 actorDefaults = {
            'rsh':     'ssh',
            'login':   'aerofstest',
-           'root':    '~/atf/syncdet',
+           'root':    '~/syncdet',
            }
 
 # fill in the defaults

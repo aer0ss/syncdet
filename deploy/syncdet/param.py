@@ -35,8 +35,13 @@ LOG_DIR = 'logs'
 # the report directory, relative to DET's root directory
 REPORT_DIR = 'reports'
 
-# the parent folder name under which deployment folders are copied to the actors 
+# the folder name under which deployment folders are copied to actors.
+# see case.getDeploymentFolderPath() for details.
 DEPLOY_DIR = 'deploy'
+
+# the folder name under which user data are stored on actors.
+# see case.getUserDataFolderPath() for details.
+USER_DATA_DIR = 'user_data'
 
 # the delay in sec between launches of consecutive parallel items
 # this is used to to limit actor loads on actors

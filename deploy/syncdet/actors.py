@@ -64,29 +64,24 @@ class Actor:
         cmd = self._copyTo
         self._copy(cmd, src, dst)
 
-    def rsync(self, srcs, dst, additionalFolderLevel):
+    def rsync(self, srcs, dst):
         '''Rsync the src folder from the local system (the controller) to the
-        dst folder on the actor.
+        dst folder on the actor, using rsync's option --relative. See rsync(1)
+        for detail. Also see deployer.getDeploymentFolderRsyncRoot().
         @param srcs: the list of source folders on the controller
         @param dst: the destination folder on the actor
-        @param additionalFolderLevel: type: boolean. When True, an additional
-        folder level is created at the destination. For more detail, see
-        rsync(1)'s section on the trailing slash.
         '''
         cmd = [
             'rsync',
-            '-a', # archive mode
-            '-z', # compression
+            '--archive',
+            '--compress',
+            '--relative',
             '--exclude', '*.pyc', # exlude
-            '-e', self.rsh, # login method
+            '--rsh', self.rsh, # login method
         ]
 
         # specify sources
-        for src in srcs:
-            # remove trailing slash if any
-            src = os.path.normpath(src)
-            if not additionalFolderLevel: src += os.sep
-            cmd.append(src)
+        cmd.extend(srcs)
 
         # specify destination
         cmd.append(self.login + '@' + self.address + ':' + dst)

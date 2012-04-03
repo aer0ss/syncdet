@@ -56,10 +56,10 @@ if len(args) < 1:
     print 'Please specify at least one deployment folder. Use --help for usage.'
     sys.exit()
 
-# add SyncDET's internal deployment folder to the deployment folder list
+# add SyncDET's internal deployment folder to the deployment folder list.
 deployFolders = list(args)
 deployFolders.append(os.path.join(sys.path[0], 'deploy'))
-controller.setDeployFolders(deployFolders)
+controller.deployer.setDeployFolders(deployFolders)
 
 # initialize the actors
 if options.actors != -1:

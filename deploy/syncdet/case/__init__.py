@@ -3,7 +3,7 @@ controller.
 '''
 import sys, os.path
 
-from .. import actors, lib
+from .. import actors, lib, param
 
 OK = 0
 FAIL = 1
@@ -44,17 +44,26 @@ def getInstanceId():
 def getScenarioId():
     return sys.argv[3]
 
-# return a reference to instance of actors.Actor for this machine
-#
 def getLocalActor():
+    '''Return the actors.Actor object corresponding to this machine'''
     if not actors.getActors():
         actors.init(False, getActorCount())
     return actors.getActor(getActorId())
 
-# return the SyncDET root on this local actor
-#
 def getRootPath():
+    '''Return the SyncDET root on this local actor'''
     return os.path.normpath(os.path.expanduser(getLocalActor().root))
+
+def getDeploymentFolderPath():
+    '''Return the deployment folder path on this local actor. SyncDET may remove
+    this folder before or after running a scenario without notice.'''
+    return os.path.join(getRootPath(), param.DEPLOY_DIR)
+
+def getUserDataFolderPath():
+    '''Return the user data folder path on this local actor. Test cases can use
+    this folder to save arbitrary data. SyncDET or the actor's OS never removes
+    this folder unless the user explicitly does so.'''
+    return os.path.join(getRootPath(), param.USER_DATA_DIR)
 
 def getLogFolderPath():
     '''Return the log folder path of the calling test case.

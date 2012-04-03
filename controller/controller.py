@@ -1,25 +1,15 @@
-import time, signal, sys, threading, os.path
+import time, signal, sys, threading, os, traceback
 
 from deploy.syncdet import param, actors
 
-import report, scn, log, lib
+import report, scn, log, lib, deployer
 
 _SPEC_NAME = 'spec'
 
 _LAUNCHER_PY = 'syncdet_case_launcher.py'
 
-_deployFolders = None
-
-def setDeployFolders(folders):
-    global _deployFolders # I hate globals
-    _deployFolders = folders
-
-def getDeployFolders():
-    global _deployFolders # I still hate globals
-    return _deployFolders
-
 def errorAnalysis(msg):
-    print 'Error found by test code analyzer:', msg
+    print 'Test code error:', msg
     sys.exit()
 
 def analyze(module):
@@ -27,14 +17,17 @@ def analyze(module):
     '''
 
     # simulate PYTHONPATH on actor systems
-    for f in getDeployFolders(): sys.path.insert(0, f)
+    localRoots = deployer.getDeployFolderLocalRoots()
+    for f in localRoots: sys.path.insert(0, f)
 
     try:
         __import__(module)
-    except ImportError, e:
-        errorAnalysis("cannot import module '{0}': {1}".format(module, e))
+    except ImportError:
+        traceback.print_exc()
+        errorAnalysis("cannot import module '{0}'. See above for the backtrace."
+                .format(module))
     finally:
-        del sys.path[ : len(getDeployFolders())]
+        del sys.path[ : len(localRoots)]
 
     namespace = sys.modules[module].__dict__
 

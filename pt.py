@@ -5,16 +5,16 @@ import sys, os
 from deploy.syncdet import actors
 
 def walk():
+    actors.init(False)
     cmd = ''
     for i in sys.argv[2:]: cmd += i + ' '
-    for i in range(len(actors.actors)):
-        actor = actors.actors[i]
+    for actor in actors.getActors():
         args = [
-               actor['rsh'],
-               actor['login'] + '@' + actor['address'],
+               actor.rsh,
+               actor.login + '@' + actor.address,
                cmd
                ]
-        print '==============', actor['address'], '================'
+        print '==============', actor.address, '================'
         os.spawnvp(os.P_WAIT, args[0], args)
 
 ##########################################################
