@@ -1,7 +1,5 @@
-# Compiled source #
-###################
+logs
+reports
+config.py
 *.pyc
-
-# OS generated files #
-######################
-.DS_Store*
+.DS_Store
