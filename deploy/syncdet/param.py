@@ -3,7 +3,7 @@
 #
 
 # can cases use the console screen as stdout and stderr?
-CASE_SCREEN_OUTPUT = True
+CASE_SCREEN_OUTPUT = False
 
 # log case outputs?
 CASE_LOG_OUTPUT = True

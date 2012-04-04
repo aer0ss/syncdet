@@ -76,6 +76,7 @@ class Actor:
             '--archive',
             '--compress',
             '--relative',
+            '--copy-unsafe-links',
             '--exclude', '*.pyc', # exlude
             '--rsh', self.rsh, # login method
         ]

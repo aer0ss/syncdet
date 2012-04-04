@@ -8,7 +8,7 @@ except ImportError:
     print 'Couldn\'t load config.py. Did you forget to "cp ' + os.path.join(sys.path[0],
             'config.py.sample') + ' ' + os.path.join(sys.path[0], 'deploy', 'syncdet', 
             'config.py') + '" and modify its content?'
-    sys.exit(0)
+    sys.exit(1)
 
 import controller.scn
 import controller.report

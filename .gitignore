@@ -1,5 +1,4 @@
 logs
 reports
-config.py
 *.pyc
 .DS_Store
