@@ -19,10 +19,10 @@ def assertFalse(cond, msg = 'condition must be false'):
 
 def assertEqual(expected, actual):
     assertTrue(expected == actual,
-               ('{0} and {1} were expected to be equal, but are not'
+               ('"{0}" and "{1}" were expected to be equal, but are not'
                ).format(str(expected), str(actual)))
 
 def assertNotEqual(first, second):
     assertFalse(first == second,
-               ('{0} and {1} were expected to be not equal, but are'
+               ('"{0}" and "{1}" were expected to be not equal, but are'
                ).format(str(first), str(second)))
