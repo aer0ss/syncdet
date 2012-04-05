@@ -44,6 +44,11 @@ def getInstanceId():
 def getScenarioId():
     return sys.argv[3]
 
+def getInstanceUniqueString():
+    '''Return a unique string defined by the test case and scenario'''
+    return '{0}.{1}.{2}'.format(getScenarioId(), getModuleName(),
+                                getInstanceId())
+
 def getLocalActor():
     '''Return the actors.Actor object corresponding to this machine'''
     if not actors.getActors():
