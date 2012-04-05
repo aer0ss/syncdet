@@ -2,5 +2,8 @@
     examples.hello_world
     examples.failed_test
     examples.synchronize
+    background_examples()
+
+:group background_examples
     examples.start_background_process
     examples.stop_background_process

@@ -51,10 +51,11 @@ name}{\tt ()} from within a scenario file. With {\tt nofail}, the entire
 scenario is stopped if any item fails, otherwise a failed item is skipped and
 the next item started.
 
-%\directivemarkup[name]{group}
-
 \directivemarkup[path]{include} Link to scenario file {\it path} for defined
 scenarios.
+
+\directivemarkup[name]{group} Define a group of test cases to which scenarios or
+other groups can refer by {\it name}{\tt ()}.
 
 \subsection{Use of Directives}
 
