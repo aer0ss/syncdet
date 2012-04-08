@@ -39,8 +39,8 @@ $ tar -xvf syncdet-ubuntu1110_32.tar.bz2 -C <parent directory of VM>
 \subsection{Systems Configuration}
 First, create a configuration file from the template:
 \begin{verbatim}
-$ cd syncdet
-$ cp config.py.sample deploy/syncdet/config.py
+$ sudo mkdir /etc/syncdet
+$ cp syncdet/config.py.sample /etc/syncdet/config.py
 \end{verbatim}
 
 Second, edit the configuration file for the controller and actors. 

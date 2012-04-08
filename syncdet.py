@@ -5,9 +5,10 @@ import sys, optparse, os, os.path
 try:
     import deploy.syncdet.config
 except ImportError:
-    print 'Couldn\'t load config.py. Did you forget to "cp ' + os.path.join(sys.path[0],
-            'config.py.sample') + ' ' + os.path.join(sys.path[0], 'deploy', 'syncdet', 
-            'config.py') + '" and modify its content?'
+    print 'Couldn\'t load config.py. Did you "cp ' + \
+            os.path.join(sys.path[0], 'config.py.sample') + ' ' + \
+            os.sep + os.path.join('etc', 'syncdet', 'config.py') + \
+            '" and modify its content?'
     sys.exit(1)
 
 import controller.scn
