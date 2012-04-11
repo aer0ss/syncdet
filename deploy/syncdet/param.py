@@ -35,6 +35,11 @@ LOG_DIR = 'logs'
 # the report directory, relative to DET's root directory
 REPORT_DIR = 'reports'
 
+# the directory containing the background PID files, relative to DET's root
+# directory. These files record the PID of the processes launched from
+# background.start_process()
+BKGND_PID_DIR = 'background'
+
 # the folder name under which deployment folders are copied to actors.
 # see case.getDeploymentFolderPath() for details.
 DEPLOY_DIR = 'deploy'

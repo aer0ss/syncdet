@@ -73,12 +73,12 @@ def getUserDataFolderPath():
 def getLogFolderPath():
     '''Return the log folder path of the calling test case.
     Each scenario has a unique log folder path.'''
-    return lib.getLogFolderPath(getRootPath(), getScenarioId())
+    return lib.get_log_folder_path(getRootPath(), getScenarioId())
 
 def getLogFilePath(suffix = ''):
     '''Return the log file path of the calling test case.
     Each test case instance has a unique log folder path.'''
-    return lib.getLogFilePath(getLogFolderPath(), getModuleName(),
+    return lib.get_log_file_path(getLogFolderPath(), getModuleName(),
             getInstanceId(), getActorId(), suffix)
 
 def failTestCase(msg = ""):

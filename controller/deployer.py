@@ -1,4 +1,5 @@
 import os.path, multiprocessing
+import sys
 
 from deploy.syncdet import actors, param
 
@@ -46,11 +47,16 @@ def deploy():
     folders to deploy.
     '''
     print "deploying...",
+    sys.stdout.flush()
 
     pool = multiprocessing.Pool()
     pool.map(_rsync, actors.getActors())
 
     print "done"
+    # We need a flush here or output from test cases would mythically appear
+    # before "done".
+    sys.stdout.flush()
+
 
 def _rsync(actor):
     '''@param actor: type: actors.Actor'''

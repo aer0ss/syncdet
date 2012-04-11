@@ -32,22 +32,22 @@ def createLogFolders(verify):
 def getControllerLogFolderPath():
     '''@return: the directory where the controller actor stores log files
     locally'''
-    return common_lib.getLogFolderPath(lib.getRootPath(),
+    return common_lib.get_log_folder_path(lib.getRootPath(),
             scn.getScenarioId())
 
 def getControllerLogFilePath(actorId, module, instId):
     '''@return: the test case log path for the controller actor'''
-    return common_lib.getLogFilePath(getControllerLogFolderPath(), module,
+    return common_lib.get_log_file_path(getControllerLogFolderPath(), module,
             instId, actorId)
 
 def getActorLogFolderPath(actor):
     '''@return: the directory where the actor actor stores log files
     '''
-    return common_lib.getLogFolderPath(actor.root, scn.getScenarioId());
+    return common_lib.get_log_folder_path(actor.root, scn.getScenarioId());
 
 def getActorLogFilePath(actor, actorId, module, instId):
     '''@return: the test case log path for the controller actor'''
-    return common_lib.getLogFilePath(getActorLogFolderPath(actor), module,
+    return common_lib.get_log_file_path(getActorLogFolderPath(actor), module,
             instId, actorId)
 
 def collectLog(actorId, module, instId):
