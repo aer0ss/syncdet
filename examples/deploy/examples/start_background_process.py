@@ -1,4 +1,6 @@
-'''This test case demonstrates how to start a background (daemon) process.'''
+"""
+This test case demonstrates how to start a background (daemon) process.
+"""
 
 from syncdet.case import background
 

@@ -65,12 +65,13 @@ class Actor:
         self._copy(cmd, src, dst)
 
     def rsync(self, srcs, dst):
-        '''Rsync the src folder from the local system (the controller) to the
+        """
+        Rsync the src folder from the local system (the controller) to the
         dst folder on the actor, using rsync's option --relative. See rsync(1)
         for detail. Also see deployer.getDeploymentFolderRsyncRoot().
         @param srcs: the list of source folders on the controller
         @param dst: the destination folder on the actor
-        '''
+        """
         cmd = [
             'rsync',
             '--archive',
@@ -94,17 +95,17 @@ class Actor:
             self._runLocalCmd(cmd)
 
     def execRemoteCmdBlocking(self, cmd):
-        '''@param cmd: the string contains both the command to execute and its
+        """@param cmd: the string contains both the command to execute and its
         arguemts, e.g., 'ls -l'
-        '''
+        """
         return self._executeRemoteCmd(os.P_WAIT, cmd)
 
     # return the pid of the local proxy process. cmd is a string
     #
     def execRemoteCmdNonBlocking(self, cmd):
-        '''@param cmd: the string contains both the command to execute and its
+        """@param cmd: the string contains both the command to execute and its
         arguemts, e.g., 'ls -l'
-        '''
+        """
         return self._executeRemoteCmd(os.P_NOWAIT, cmd)
 
     # return the result of os.spawnvp, according to mode. cmd is a string

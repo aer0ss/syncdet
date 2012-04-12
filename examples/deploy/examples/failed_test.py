@@ -1,4 +1,6 @@
-'''This test case demonstrates how to fail a test.'''
+"""
+This test case demonstrates how to fail a test.
+"""
 
 def fail():
     # raise any exception in the main thread to fail the test

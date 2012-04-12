@@ -13,8 +13,9 @@ def errorAnalysis(msg):
     sys.exit()
 
 def analyze(module):
-    '''@return: the number of actors to launch, and the case timeout value
-    '''
+    """
+    @return: the number of actors to launch, and the case timeout value
+    """
 
     # simulate PYTHONPATH on actor systems
     localRoots = deployer.getDeployFolderLocalRoots()
@@ -70,8 +71,9 @@ def analyze(module):
         return min(n, preferred), timeout
 
 def launchCase(module, instId, verbose):
-    '''@return: the number of actors and a list of actors that didn't finish
-    on time'''
+    """
+    @return: the number of actors and a list of actors that didn't finish on time
+	"""
 
     n, timeout = analyze(module)
 
@@ -123,7 +125,9 @@ def makeCaseInstanceId():
     return ret
 
 def executeCase(module, verbose):
-    '''@return: False if the case failed'''
+    """
+    @return: False if the case failed
+    """
     instId = makeCaseInstanceId()
     n, unfinished = launchCase(module, instId, verbose)
     for i in range(n):

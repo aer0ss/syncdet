@@ -1,4 +1,6 @@
-'''This test case demonstrates how to use sync primitives.'''
+"""
+This test case demonstrates how to use sync primitives.
+"""
 
 from syncdet.case import sync
 

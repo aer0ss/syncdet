@@ -17,7 +17,8 @@ def setDeployFolders(folders):
         _localRoots.append(localRoot)
 
 def _normalizePath(path):
-    '''Return normalized paths to satisfy rsync's syntax. Specifically, this
+    """
+    Return normalized paths to satisfy rsync's syntax. Specifically, this
     method adds '/./' to the end of the path if this string is not found in the
     path. Also returned is the local root, which equals path[:pos], where pos
     is the position the substring '/./' starts, or the end of path if the
@@ -25,7 +26,7 @@ def _normalizePath(path):
 
     Given '/foo/./bar', the method returns ['/foo/./bar', '/foo'].
     Given '/foo/bar', the method returns ['/foo/bar/./', '/foo'].
-    '''
+    """
     slashDotSlash = os.sep + '.' + os.sep
 
     pos = path.find(slashDotSlash)
@@ -35,17 +36,19 @@ def _normalizePath(path):
         return path + slashDotSlash, path
 
 def getDeployFolderLocalRoots():
-    '''Return the list of local roots of the deploy folders passed into
+    """
+    Return the list of local roots of the deploy folders passed into
     method setDeployFolders(). See _normalizePath() for the definition of local
     roots.
-    '''
+    """
     return _localRoots
 
 def deploy():
-    '''Deploy all the deployment folders.
+    """
+    Deploy all the deployment folders.
     @param deployFolders: type a list of strings. specifies the user-defined
     folders to deploy.
-    '''
+    """
     print "deploying...",
     sys.stdout.flush()
 
@@ -59,6 +62,8 @@ def deploy():
 
 
 def _rsync(actor):
-    '''@param actor: type: actors.Actor'''
+    """
+    @param actor: type: actors.Actor
+    """
     dst = os.path.join(actor.root, param.DEPLOY_DIR)
     actor.rsync(_normalizedPaths, dst)

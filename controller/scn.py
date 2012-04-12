@@ -82,7 +82,9 @@ class ThdExecBasicItem(threading.Thread):
                     self.verbose, self.ind, self.index)
 
 def executeBasicItem(scn, bi, verify, show, verbose, ind, index):
-    '''@param bi: type: scncc.Unit. Refers to a basic item.'''
+    """
+    @param bi: type: scncc.Unit. Refers to a basic item.
+    """
     ind = ind + INDENT
     if isinstance(bi, scncc.Scenario):
         # it's a scenario

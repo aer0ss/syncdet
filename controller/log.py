@@ -6,11 +6,12 @@ import deploy.syncdet.lib
 common_lib = deploy.syncdet.lib
 
 def createLogFolders(verify):
-    '''Create log folders on both the controller and actors. Although log
+    """
+    Create log folders on both the controller and actors. Although log
     folders on actors can be created lazily when needed, creating it here for
     all actors simplifies collectAllLogs() (as not all actors will be used for
     a scenario) and test cases.
-    '''
+    """
     if verify: return
 
     # create the log folder regardless of whether logging is enabled, to ensure
@@ -30,30 +31,36 @@ def createLogFolders(verify):
 
 
 def getControllerLogFolderPath():
-    '''@return: the directory where the controller actor stores log files
-    locally'''
+    """
+    @return: the directory where the controller actor stores log files locally
+    """
     return common_lib.get_log_folder_path(lib.getRootPath(),
             scn.getScenarioId())
 
 def getControllerLogFilePath(actorId, module, instId):
-    '''@return: the test case log path for the controller actor'''
+    """
+    @return: the test case log path for the controller actor
+    """
     return common_lib.get_log_file_path(getControllerLogFolderPath(), module,
             instId, actorId)
 
 def getActorLogFolderPath(actor):
-    '''@return: the directory where the actor actor stores log files
-    '''
+    """
+    @return: the directory where the actor actor stores log files
+    """
     return common_lib.get_log_folder_path(actor.root, scn.getScenarioId());
 
 def getActorLogFilePath(actor, actorId, module, instId):
-    '''@return: the test case log path for the controller actor'''
+    """
+    @return: the test case log path for the controller actor"""
     return common_lib.get_log_file_path(getActorLogFolderPath(actor), module,
             instId, actorId)
 
 def collectLog(actorId, module, instId):
-    '''Retrieve the log file of a specific test case instance from a given actor
+    """
+    Retrieve the log file of a specific test case instance from a given actor
     actor to the local log directory
-    '''
+    """
 
     pathCtrlr = getControllerLogFilePath(actorId, module, instId)
     actor = actors.getActor(actorId)
@@ -61,9 +68,10 @@ def collectLog(actorId, module, instId):
     actor.copyFrom(pathActor, pathCtrlr)
 
 def collectAllLogs():
-    '''Retrieve all the log files under the log folders from all the actors to
+    """
+    Retrieve all the log files under the log folders from all the actors to
     the local log directory
-    '''
+    """
 
     for actor in actors.getActors():
         pathCtrlr = getControllerLogFolderPath()

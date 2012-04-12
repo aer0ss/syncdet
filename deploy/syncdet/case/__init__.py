@@ -1,6 +1,7 @@
-'''This package contains modules that are available only to actors but not the
+"""
+This package contains modules that are available only to actors but not the
 controller.
-'''
+"""
 import sys, os.path
 
 from .. import actors, lib, param
@@ -45,45 +46,60 @@ def getScenarioId():
     return sys.argv[3]
 
 def getInstanceUniqueString():
-    '''Return a unique string defined by the test case and scenario'''
+    """
+    Return a unique string defined by the test case and scenario
+    """
     return '{0}.{1}.{2}'.format(getScenarioId(), getModuleName(),
                                 getInstanceId())
 
 def getLocalActor():
-    '''Return the actors.Actor object corresponding to this machine'''
+    """
+    Return the actors.Actor object corresponding to this machine
+    """
     if not actors.getActors():
         actors.init(False, getActorCount())
     return actors.getActor(getActorId())
 
 def getRootPath():
-    '''Return the SyncDET root on this local actor'''
+    """
+    Return the SyncDET root on this local actor
+    """
     return os.path.normpath(os.path.expanduser(getLocalActor().root))
 
 def getDeploymentFolderPath():
-    '''Return the deployment folder path on this local actor. SyncDET may remove
-    this folder before or after running a scenario without notice.'''
+    """
+    Return the deployment folder path on this local actor. SyncDET may remove
+    this folder before or after running a scenario without notice.
+    """
     return os.path.join(getRootPath(), param.DEPLOY_DIR)
 
 def getUserDataFolderPath():
-    '''Return the user data folder path on this local actor. Test cases can use
+    """
+    Return the user data folder path on this local actor. Test cases can use
     this folder to save arbitrary data. SyncDET or the actor's OS never removes
-    this folder unless the user explicitly does so.'''
+    this folder unless the user explicitly does so.
+    """
     return os.path.join(getRootPath(), param.USER_DATA_DIR)
 
 def getLogFolderPath():
-    '''Return the log folder path of the calling test case.
-    Each scenario has a unique log folder path.'''
+    """
+    Return the log folder path of the calling test case.
+    Each scenario has a unique log folder path.
+    """
     return lib.get_log_folder_path(getRootPath(), getScenarioId())
 
 def getLogFilePath(suffix = ''):
-    '''Return the log file path of the calling test case.
-    Each test case instance has a unique log folder path.'''
+    """
+    Return the log file path of the calling test case.
+    Each test case instance has a unique log folder path.
+    """
     return lib.get_log_file_path(getLogFolderPath(), getModuleName(),
             getInstanceId(), getActorId(), suffix)
 
 def failTestCase(msg = ""):
-    '''Call this method to fail a test case. An optional message can be provided
+    """
+    Call this method to fail a test case. An optional message can be provided
     to describe the failure. The message will be recorded in the test report.
-    '''
+    """
     print 'CASE_FAILED: {0}'.format(msg)
     sys.exit()

@@ -1,10 +1,10 @@
-'''
+"""
 This module provides methods to assert correct behaviour of a test.
 
 The methods are similar in signature to JUnit's Assert methods
 and Python's unittest.TestCase methods. If needed, extend this API
 with those methods in unittest.TestCase.
-'''
+"""
 
 class _Failure(Exception): pass
 

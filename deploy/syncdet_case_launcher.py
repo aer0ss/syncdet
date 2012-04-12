@@ -1,8 +1,9 @@
-'''This module is saved at the same level of the syncdet directory so that
+"""
+This module is saved at the same level of the syncdet directory so that
 PYTHONPATH is naturally set to the syncdet's parent when this module is
 launched. This way, test programs running on actors can refer to syncdet
 modules using 'syncdet.foo.'
-'''
+"""
 
 import sys
 
@@ -11,9 +12,10 @@ from syncdet import param, case
 __import__(case.getModuleName())
 
 class MultipleOutputStreams:
-    '''This class duck types the stream interface. It duplicates the input data
-    to zero or more stream objects 
-    '''
+    """
+    This class duck types the stream interface. It duplicates the input data
+    to zero or more stream objects
+    """
     streams = None
 
     def __init__(self, streams):
@@ -23,15 +25,23 @@ class MultipleOutputStreams:
         for stream in self.streams:
             stream.write(data)
 
+        # flush on every write. without this:
+        #   1. "ant syncdet" would buffer console output instead of giving
+        #       immediate feedback
+        #   2. on test case timeout, test output would not be recorded in the
+        #       log file.
+        self.flush()
+
     def flush(self):
         for stream in self.streams:
             stream.flush()
 
 
 class PrefixOutputStream:
-    '''This class duck types the stream interface. It is a decorator of another
+    """
+    This class duck types the stream interface. It is a decorator of another
     stream object, adding a prefix string to each line of input data.
-    '''
+    """
 
     f = None
     prefix = None

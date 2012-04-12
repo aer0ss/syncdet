@@ -37,11 +37,12 @@ def start_process(cmd, key = None):
     return p
 
 def stop_process(key, ignore_kill_error = False):
-    '''Stop a background process specified by the key. The process must be
+    """
+    Stop a background process specified by the key. The process must be
     launched by start_process(). The method sends SIGKILL to the
     process and returns immediately.
     @param ignore_kill_error whether or not to ignore errors during kill()
-    '''
+    """
     path_pid = _get_pid_file_path(key)
     pid = _read_pid_file(path_pid)
     try:
@@ -51,14 +52,18 @@ def stop_process(key, ignore_kill_error = False):
     os.remove(path_pid)
 
 def _read_pid_file(path_pid):
-    '''Return the PID written in the file. Return None if the file is empty'''
+    """
+    Return the PID written in the file. Return None if the file is empty
+    """
     with open(path_pid) as f:
         for line in f:
             pid = int(line)
             return pid
 
 def _get_pid_file_path(key):
-    '''Return the PID file path and create the parent folder if not found'''
+    """
+    Return the PID file path and create the parent folder if not found
+    """
     path = lib.get_background_pid_file_path(case.getRootPath(), key)
     parent = os.path.dirname(path)
     if not os.path.exists(parent): os.makedirs(parent)
