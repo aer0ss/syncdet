@@ -46,23 +46,17 @@ def getDeployFolderLocalRoots():
 def deploy():
     """
     Deploy all the deployment folders.
-    @param deployFolders: type a list of strings. specifies the user-defined
-    folders to deploy.
     """
     print "deploying..."
-    sys.stdout.flush()
 
     pool = multiprocessing.Pool()
     pool.map(_rsync, actors.getActors())
 
     print "done"
-    # We need a flush here or output from test cases would mythically appear
-    # before "done".
-    sys.stdout.flush()
 
 def _rsync(actor):
     """
-    @param actor: type: actors.Actor
+    @param actor type: actors.Actor
     """
     dst = os.path.join(actor.root, param.DEPLOY_DIR)
     actor.rsync(_normalizedPaths, dst)

@@ -11,7 +11,7 @@ from syncdet import param, case
 
 __import__(case.getModuleName())
 
-class MultipleOutputStreams:
+class _MultipleOutputStreams:
     """
     This class duck types the stream interface. It duplicates the input data
     to zero or more stream objects
@@ -27,7 +27,7 @@ class MultipleOutputStreams:
 
         # flush on every write. without this:
         #   1. "ant syncdet" would buffer console output instead of giving
-        #       immediate feedback
+        #       immediate feedback. also see syncdet.py
         #   2. on test case timeout, test output would not be recorded in the
         #       log file.
         self.flush()
@@ -37,7 +37,7 @@ class MultipleOutputStreams:
             stream.flush()
 
 
-class PrefixOutputStream:
+class _PrefixOutputStream:
     """
     This class duck types the stream interface. It is a decorator of another
     stream object, adding a prefix string to each line of input data.
@@ -72,7 +72,7 @@ class PrefixOutputStream:
     def flush(self):
         self.f.flush()
 
-def redirectStdOutAndErr():
+def _redirectStdOutAndErr():
     streams = []
 
     if param.CASE_LOG_OUTPUT:
@@ -81,13 +81,13 @@ def redirectStdOutAndErr():
 
     if param.CASE_SCREEN_OUTPUT:
         prefix = param.CASE_OUTPUT_PREFIX.format(case.getActorId())
-        stream = PrefixOutputStream(sys.stdout, prefix)
+        stream = _PrefixOutputStream(sys.stdout, prefix)
         streams.append(stream)
 
-    sys.stdout = sys.stderr = MultipleOutputStreams(streams)
+    sys.stdout = sys.stderr = _MultipleOutputStreams(streams)
 
 def main():
-    redirectStdOutAndErr()
+    _redirectStdOutAndErr()
 
     try:
         # execute the right entry point
