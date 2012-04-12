@@ -17,7 +17,8 @@ def get_log_file_path(pathLogFolder, module, instId, actorId, suffix = ''):
     Return the log file path
     """
     if suffix is not '': suffix = '-' + suffix;
-    name = '{0}-{1}-{2}{3}.log'.format(module, instId, actorId, suffix)
+    unique = get_instance_unique_string(module, instId)
+    name = unique + '-{0}{1}.log'.format(actorId, suffix)
     return os.path.join(pathLogFolder, name)
 
 def get_background_pid_file_path(root, key):
@@ -26,3 +27,10 @@ def get_background_pid_file_path(root, key):
     background.start_process()
     """
     return os.path.join(root, param.BKGND_PID_DIR, '{0}.pid'.format(key))
+
+def get_instance_unique_string(module, instId):
+    """
+    Return a string unique for every test case instance
+    """
+    return '{0}-{1}'.format(module, instId)
+

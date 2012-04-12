@@ -49,7 +49,7 @@ def deploy():
     @param deployFolders: type a list of strings. specifies the user-defined
     folders to deploy.
     """
-    print "deploying...",
+    print "deploying..."
     sys.stdout.flush()
 
     pool = multiprocessing.Pool()
@@ -59,7 +59,6 @@ def deploy():
     # We need a flush here or output from test cases would mythically appear
     # before "done".
     sys.stdout.flush()
-
 
 def _rsync(actor):
     """

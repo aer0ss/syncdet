@@ -47,10 +47,9 @@ def getScenarioId():
 
 def getInstanceUniqueString():
     """
-    Return a unique string defined by the test case and scenario
+    Return a string unique for every test case instance
     """
-    return '{0}.{1}.{2}'.format(getScenarioId(), getModuleName(),
-                                getInstanceId())
+    return lib.get_instance_unique_string(getModuleName(), getInstanceId())
 
 def getLocalActor():
     """
