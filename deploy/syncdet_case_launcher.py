@@ -23,6 +23,11 @@ class MultipleOutputStreams:
         for stream in self.streams:
             stream.write(data)
 
+    def flush(self):
+        for stream in self.streams:
+            stream.flush()
+
+
 class PrefixOutputStream:
     '''This class duck types the stream interface. It is a decorator of another
     stream object, adding a prefix string to each line of input data.
@@ -53,6 +58,9 @@ class PrefixOutputStream:
                 self.newline = 1
                 # if the '\n' is the last char
                 if end == len(data) - 1: return
+
+    def flush(self):
+        self.f.flush()
 
 def redirectStdOutAndErr():
     streams = []
