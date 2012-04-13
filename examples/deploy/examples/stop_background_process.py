@@ -6,5 +6,5 @@ launched by background.startProcess().
 from syncdet.case import background
 
 def default():
-    background.stopProcess('sleep')
+    background.stop_process('sleep')
 spec = { 'default': default }
