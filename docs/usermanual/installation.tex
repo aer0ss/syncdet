@@ -37,15 +37,15 @@ $ tar -xvf syncdet-ubuntu1110_32.tar.bz2 -C <parent directory of VM>
 \end{verbatim}
 
 \subsection{Systems Configuration}
-First, create a configuration file from the template:
+On the controller system, first create a configuration file from the template:
 \begin{verbatim}
 $ sudo mkdir /etc/syncdet
 $ cp syncdet/config.py.sample /etc/syncdet/config.py
 \end{verbatim}
 
-Second, edit the configuration file for the controller and actors. 
+Second, edit the configuration file to describe the controller and actors.
 
-\paragraph{Controller} 
+\paragraph{Controller}
 You need to specify the hostname of the localhost from which you will launch
 SyncDET (the localhost will be the controller):
 \begin{verbatim}
