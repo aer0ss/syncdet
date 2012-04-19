@@ -13,7 +13,7 @@ def setDeployFolders(folders):
     _localRoots = []
     for folder in folders:
         path, localRoot = _normalizePath(folder)
-        assert os.path.exists(path), "deploy path %s does not exist" % path
+        assert os.path.exists(path), "deploy path {} does not exist".format(path)
         _normalizedPaths.append(path)
         _localRoots.append(localRoot)
 
