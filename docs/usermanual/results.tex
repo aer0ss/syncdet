@@ -1,0 +1,16 @@
+\section{Viewing Reports and Logs}
+
+\subsection{Reports}
+At the end of running a scenario, SyncDET will generate reports for each test
+case and scenario that was run on remote actors. The location of these reports
+is displayed at the end of the SyncDET test run. These reports typically
+contain information on the status of the test. If a test failed, the report
+indicates why (timeout, exception, etc.).
+
+\subsection{Logs}
+Any test case that emits output will have that output collected and copied
+to the controller in the form of a log. The log directory is located at
+{\tt [SyncDETRoot]/logs/}. Inside this directory, each scenario that was
+previously run will generate a folder with a timestamp representing that
+scenario. A symlink {\tt latest} will point to the log folder of the latest
+scenario test run.

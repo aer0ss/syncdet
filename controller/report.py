@@ -16,7 +16,7 @@ def isReportEnabled():
 # static initialization
 #
 if isReportEnabled():
-    s_reportPath = '{0}/{1}/report-{2}.txt'.format(lib.getRootPath(),
+    s_reportPath = '{0}/{1}/report-{2}.txt'.format(lib.root_path(),
            param.REPORT_DIR, scn.getScenarioId())
     d = os.path.dirname(s_reportPath)
     if not os.path.exists(d): os.mkdir(d)
@@ -42,7 +42,7 @@ def reportCase(module, caseInstId, n, unfinished):
             continue
 
         try:
-            logpath = log.getControllerLogFilePath(i, module, caseInstId)
+            logpath = log.controller_scenario_log_file(i, module, caseInstId)
             f = open(logpath, 'r')
         except IOError:
             results.append([RES_NOSTART, 'please check e.g. actors.py'])
@@ -86,7 +86,7 @@ def reportCase(module, caseInstId, n, unfinished):
     if not s_reportFile:
         s_reportFile = open(s_reportPath, 'w')
 
-    logpath = log.getControllerLogFilePath(0, module, caseInstId)
+    logpath = log.controller_scenario_log_file(0, module, caseInstId)
 
     if okay:
         s_reportFile.write('OK     %s\t%s\n' % (module, logpath))

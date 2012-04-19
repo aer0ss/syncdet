@@ -49,7 +49,7 @@ def getInstanceUniqueString():
     """
     Return a string unique for every test case instance
     """
-    return lib.get_instance_unique_string(getModuleName(), getInstanceId())
+    return lib.instance_unique_string(getModuleName(), getInstanceId())
 
 def getLocalActor():
     """
@@ -59,7 +59,7 @@ def getLocalActor():
         actors.init(False, getActorCount())
     return actors.getActor(getActorId())
 
-def getRootPath():
+def root_path():
     """
     Return the SyncDET root on this local actor
     """
@@ -70,7 +70,7 @@ def getDeploymentFolderPath():
     Return the deployment folder path on this local actor. SyncDET may remove
     this folder before or after running a scenario without notice.
     """
-    return os.path.join(getRootPath(), param.DEPLOY_DIR)
+    return os.path.join(root_path(), param.DEPLOY_DIR)
 
 def getUserDataFolderPath():
     """
@@ -78,21 +78,21 @@ def getUserDataFolderPath():
     this folder to save arbitrary data. SyncDET or the actor's OS never removes
     this folder unless the user explicitly does so.
     """
-    return os.path.join(getRootPath(), param.USER_DATA_DIR)
+    return os.path.join(root_path(), param.USER_DATA_DIR)
 
 def getLogFolderPath():
     """
     Return the log folder path of the calling test case.
     Each scenario has a unique log folder path.
     """
-    return lib.get_log_folder_path(getRootPath(), getScenarioId())
+    return lib.scenario_log_folder(root_path(), getScenarioId())
 
 def getLogFilePath(suffix = ''):
     """
     Return the log file path of the calling test case.
     Each test case instance has a unique log folder path.
     """
-    return lib.get_log_file_path(getLogFolderPath(), getModuleName(),
+    return lib.scenario_log_file(getLogFolderPath(), getModuleName(),
             getInstanceId(), getActorId(), suffix)
 
 def failTestCase(msg = ""):

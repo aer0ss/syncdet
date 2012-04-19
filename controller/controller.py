@@ -120,7 +120,7 @@ def makeCaseInstanceId():
     # lock to prevent coincidents on multi-processors
     global s_lock
     s_lock.acquire()
-    ret = lib.generateTimeDerivedId(True)
+    ret = lib.generate_time_derived_id(True)
     s_lock.release()
     return ret
 
@@ -131,7 +131,7 @@ def executeCase(module, verbose):
     instId = makeCaseInstanceId()
     n, unfinished = launchCase(module, instId, verbose)
     for i in range(n):
-        log.collectLog(i, module, instId)
+        log.collect_log(i, module, instId)
     return report.reportCase(module, instId, n, unfinished)
 
 KILL_CMD = "for i in `ps -eo pid,command | grep '{0}' | grep -v grep | " \
@@ -152,4 +152,4 @@ def killAllRemoteInstances(verbose):
     for s in actors.getActors(): s.execRemoteCmdNonBlocking(cmd)
 
 def purgeLogFiles():
-    os.system('rm -rf {0}/{1}/*'.format(lib.getRootPath(), param.LOG_DIR))
+    os.system('rm -rf {0}/{1}/*'.format(lib.root_path(), param.LOG_DIR))
