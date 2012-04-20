@@ -64,7 +64,7 @@ def _get_pid_file_path(key):
     """
     Return the PID file path and create the parent folder if not found
     """
-    path = lib.get_background_pid_file_path(case.getRootPath(), key)
+    path = lib.background_pid_file(case.root_path(), key)
     parent = os.path.dirname(path)
     if not os.path.exists(parent): os.makedirs(parent)
     return path

@@ -5,7 +5,8 @@ SRC = paper.tex \
       scenario.tex \
       testcases.tex \
       aft.tex \
-      installation.tex
+      installation.tex \
+      results.tex
 
 BIB =
 FIGS =

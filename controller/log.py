@@ -1,11 +1,13 @@
 import sys, os
 import scn, lib
-from deploy.syncdet import actors
+from deploy.syncdet import actors, param
 
 import deploy.syncdet.lib
 common_lib = deploy.syncdet.lib
 
-def createLogFolders(verify):
+_LATEST_LOG_FOLDER_SYMLINK = 'latest'
+
+def create_log_folders(verify):
     """
     Create log folders on both the controller and actors. Although log
     folders on actors can be created lazily when needed, creating it here for
@@ -16,7 +18,7 @@ def createLogFolders(verify):
 
     # create the log folder regardless of whether logging is enabled, to ensure
     # scenario instances are unique
-    pathCtrlrLogFolder = getControllerLogFolderPath()
+    pathCtrlrLogFolder = controller_scenario_log_folder()
     try:
         os.makedirs(pathCtrlrLogFolder)
     except OSError:
@@ -24,58 +26,73 @@ def createLogFolders(verify):
             print 'Directory ' + pathCtrlrLogFolder + ' could not be created';
             sys.exit();
 
+    # Create a symlink to the new log folder created above. This is for
+    # convenience. The symlink will live in the controller logs folder with
+    # the name 'latest'
+    try:
+        link = os.path.join(common_lib.log_root(lib.root_path()),
+                _LATEST_LOG_FOLDER_SYMLINK)
+
+        if os.path.exists(link):
+            os.unlink(link)
+
+        os.symlink(scn.getScenarioId(), link)
+    except OSError:
+        # Just output the error, but don't fail
+        print "Couldn't create log folder symlink"
+
     # create log directories on actor actors
     for actor in actors.getActors():
-        path = getActorLogFolderPath(actor)
+        path = actor_scenario_log_folder(actor)
         actor.execRemoteCmdBlocking('mkdir -p ' + path)
 
 
-def getControllerLogFolderPath():
+def controller_scenario_log_folder():
     """
     @return: the directory where the controller actor stores log files locally
     """
-    return common_lib.get_log_folder_path(lib.getRootPath(),
+    return common_lib.scenario_log_folder(lib.root_path(),
             scn.getScenarioId())
 
-def getControllerLogFilePath(actorId, module, instId):
+def controller_scenario_log_file(actorId, module, instId):
     """
     @return: the test case log path for the controller actor
     """
-    return common_lib.get_log_file_path(getControllerLogFolderPath(), module,
+    return common_lib.scenario_log_file(controller_scenario_log_folder(), module,
             instId, actorId)
 
-def getActorLogFolderPath(actor):
+def actor_scenario_log_folder(actor):
     """
     @return: the directory where the actor actor stores log files
     """
-    return common_lib.get_log_folder_path(actor.root, scn.getScenarioId());
+    return common_lib.scenario_log_folder(actor.root, scn.getScenarioId());
 
-def getActorLogFilePath(actor, actorId, module, instId):
+def actor_scenario_log_file(actor, actorId, module, instId):
     """
     @return: the test case log path for the controller actor"""
-    return common_lib.get_log_file_path(getActorLogFolderPath(actor), module,
+    return common_lib.scenario_log_file(actor_scenario_log_folder(actor), module,
             instId, actorId)
 
-def collectLog(actorId, module, instId):
+def collect_log(actorId, module, instId):
     """
     Retrieve the log file of a specific test case instance from a given actor
     actor to the local log directory
     """
 
-    pathCtrlr = getControllerLogFilePath(actorId, module, instId)
+    pathCtrlr = controller_scenario_log_file(actorId, module, instId)
     actor = actors.getActor(actorId)
-    pathActor = getActorLogFilePath(actor, actorId, module, instId)
+    pathActor = actor_scenario_log_file(actor, actorId, module, instId)
     actor.copyFrom(pathActor, pathCtrlr)
 
-def collectAllLogs():
+def collect_all_logs():
     """
     Retrieve all the log files under the log folders from all the actors to
     the local log directory
     """
 
     for actor in actors.getActors():
-        pathCtrlr = getControllerLogFolderPath()
-        pathActor = getActorLogFolderPath(actor)
+        pathCtrlr = controller_scenario_log_folder()
+        pathActor = actor_scenario_log_folder(actor)
         pathActor = os.path.join(pathActor, "*")
 
         actor.copyFrom(pathActor, pathCtrlr)
