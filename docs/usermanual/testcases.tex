@@ -7,7 +7,8 @@ point-of-entry of the test case, how to write test functions, and the various
 APIs to study.
 
 \subsection{Sample Code}
-For examples, see {\tt hello\_world.py} and {\tt sync.py} in the demo code.
+For examples, see {\tt hello\_world.py} and {\tt synchronize.py} in the
+examples deployment directory.
 
 \subsection{The {\tt spec} data structure}
 Every test case python script must define a global dictionary, {\tt spec}, which
@@ -35,6 +36,7 @@ At least one of {\tt entries} or {\tt default} are required, and {\tt timeout}
 is entirely optional, with the default specified in {\tt config.py}
 
 \subsection{How test failures are detected}
+{\bf TODO this is outdated but is mostly still true. See assertion.py}
 A test case is considered a failure and will be reported, in any of the following situations:
 
 \begin{itemize}
@@ -46,15 +48,15 @@ in config.py for details.)
 
 Therefore, the simplest way to fail a test case is to raise an arbitrary exception.
 
-\subsection{Test Case API: {\tt import case}} 
+\subsection{Test Case API: {\tt import case}}
 
 This section briefly describes the general SyncDET API for writing test cases.
- 
+
 For functions to get information about the currently executing test case or
-scenario see {\tt [SyncDETRoot]/syncdet/case/syncdet\_case\_lib.py}:
+scenario see {\tt [SyncDETRoot]/deploy/syncdet/case/\_\_init\_\_.py}:
 \begin{itemize}
-\item get the local system ID, 
-\item get the total number of systems executing the given test case, 
+\item get the local actor ID,
+\item get the total number of actors executing the given test case,
 \item get the local SyncDET root (on the actor)
 \item get the test case module name, and more.
 \end{itemize}
@@ -66,11 +68,11 @@ officially supported yet, but given any requests, it can be arranged.
 \subsubsection{Synchronization API}
 
 Three functions of interest are defined in \\*
-{\tt [SyncDETRoot]/syncdet/case/syncdet\_case\_sync.py}:
+{\tt [SyncDETRoot]/deploy/syncdet/case/sync.py}:
 \begin{itemize}
-\item {\tt case.sync(...)}, a barrier across all systems
-\item {\tt case.syncPrev(...)}, a barrier shared with this system and the previous
-\item {\tt case.syncNext(...)}, a barrier shared with this system and the next
+\item {\tt sync(...)}, a barrier across all systems
+\item {\tt sync\_prev(...)}, a barrier shared with this system and the previous
+\item {\tt sync\_next(...)}, a barrier shared with this system and the next
 \end{itemize}
 This API is also accessed through the {\tt case} module.
 
