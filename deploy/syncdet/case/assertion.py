@@ -26,3 +26,49 @@ def assertNotEqual(first, second):
     assertFalse(first == second,
                ('"{0}" and "{1}" were expected to be not equal, but are'
                ).format(str(first), str(second)))
+
+# Using the decorator is not recommended since it can only decorating the entire
+# test function, instead of specifying which exact function under test is
+# expected to raise.
+#
+#def expect(ex):
+#    """
+#    A decorator that expects a particular exception type raised from the
+#    decorated function, otherwise fails the test. Usage:
+#
+#        @except(ExFoo)
+#        def function(arg1, arg2):
+#            ...
+#    """
+#    def wrap(func):
+#        def wrapper(*args, **kwargs):
+#            try:
+#                func(*args, **kwargs)
+#            except ex:
+#                pass
+#            else:
+#                fail("exception " + ex.__name__ + " is expected")
+#        return wrapper
+#    return wrap
+
+def expect_exception(func, ex):
+    """
+    A function wrapper that expects a particular exception type raised from the
+    decorated function, otherwise fails the test. Usage:
+
+        def foo(arg1, arg2):
+            ...
+
+        expect_exception(foo, ExFoo)(arg1, arg2)
+
+    @param ex the excetion type the caller expect
+    """
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except ex:
+            pass
+        else:
+            fail("exception " + ex.__name__ + " is expected")
+    return wrapper
+
