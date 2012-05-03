@@ -27,7 +27,7 @@ def assertNotEqual(first, second):
                ('"{0}" and "{1}" were expected to be not equal, but are'
                ).format(str(first), str(second)))
 
-# Using the decorator is not recommended since it can only decorating the entire
+# Using the decorator is not recommended since it can only decorate the entire
 # test function, instead of specifying which exact function under test is
 # expected to raise.
 #
