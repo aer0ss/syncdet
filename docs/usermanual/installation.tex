@@ -2,22 +2,22 @@
 
 \subsection{System Requirements}
 
-Running SyncDET requires one or more UNIX, Linux, or cygwin systems. 
+Running SyncDET requires one or more UNIX, Linux, or cygwin systems.
 The controller has only been tested for OSX and requires the
 following:
 \begin{enumerate}
 \item Python 2.7+ installed
-\item {\tt git}, {\tt tar}, and {\tt grep}.
+\item {\tt git}, {\tt tar}, {\tt rsync}, and {\tt grep}.
 \end{enumerate}
 The requirements for each actor follow:
 \begin{enumerate}
 \item Python 2.6+ installed.
-\item An {\tt ssh} daemon server installed and running; future support can be made for
-{\tt telnet} or {\tt rlogin} if desired. The controller should be able to login
-without entering a password.
-\item Commands {\tt ps}, {\tt grep}, {\tt tar}, and {\tt sed} installed. {\tt ps} must
-support the option {\tt -eo pid,cmd}, which lists all processes with a PID and a
-command line per row.
+\item An {\tt ssh} daemon server installed and running; future support can be
+made for {\tt telnet} or {\tt rlogin} if desired. The controller should be able
+to login without entering a password.
+\item Commands {\tt ps}, {\tt grep}, {\tt tar}, {\tt rsync}, and {\tt sed}
+installed. {\tt ps} must support the option {\tt -eo pid,cmd}, which lists all
+processes with a PID and a command line per row.
 \end{enumerate}
 
 \subsection{Acquiring Source Code}
