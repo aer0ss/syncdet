@@ -2,7 +2,7 @@
 This package contains modules that are available only to actors but not the
 controller.
 """
-import sys, os.path
+import sys, os.path, zlib
 
 from .. import actors, lib, param
 
@@ -50,6 +50,13 @@ def getInstanceUniqueString():
     Return a string unique for every test case instance
     """
     return lib.instance_unique_string(getModuleName(), getInstanceId())
+
+def instance_unique_hash32():
+    """
+    Return a 32 bit hash of the instance unique string
+    Good for consistent seeding of PRNG across actors
+    """
+    return zlib.adler32(getInstanceUniqueString())
 
 def getLocalActor():
     """
