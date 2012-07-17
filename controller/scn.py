@@ -6,7 +6,7 @@ INDENT = 4
 
 s_scenarioId = lib.generate_time_derived_id(False)
 
-def getScenarioId():
+def scenario_id():
     return s_scenarioId
 
 # resolve a list of items and return a list of basic items
@@ -14,15 +14,15 @@ def getScenarioId():
 # NOTE: we resolve names here but not in compile time is to avoid
 #       complaint about forward references.
 #
-def itemsToBasicItems(scn, items):
+def items_to_basic_items(scn, items):
     list = []
     for item in items:
-        list.extend(resolveReference(scn, item))
+        list.extend(resolve_reference(scn, item))
     return list
 
 # given one item, return a list of basic items
 #
-def resolveReference(scn, item, list = None):
+def resolve_reference(scn, item, list = None):
     if list == None: list = []
 
     if isinstance(item, scncc.Unit):
@@ -42,9 +42,9 @@ def resolveReference(scn, item, list = None):
         elif name[:pos] in scn.groups.keys():
             # it refers to a Group oject
             for member in scn.groups[name[:pos]]:
-                resolveReference(scn, member, list)
+                resolve_reference(scn, member, list)
         elif scn.parent:
-            resolveReference(scn.parent, item, list)
+            resolve_reference(scn.parent, item, list)
         else:
             print "error: no group or scenario named '%s' is found" % item
             sys.exit()
@@ -78,26 +78,26 @@ class ThdExecBasicItem(threading.Thread):
         self.setDaemon(True)
 
     def run(self):
-        executeBasicItem(self.scn, self.item, self.verify, self.show,
+        execute_basic_item(self.scn, self.item, self.verify, self.show,
                     self.verbose, self.ind, self.index)
 
-def executeBasicItem(scn, bi, verify, show, verbose, ind, index):
+def execute_basic_item(scn, bi, verify, show, verbose, ind, index):
     """
     @param bi: type: scncc.Unit. Refers to a basic item.
     """
     ind = ind + INDENT
     if isinstance(bi, scncc.Scenario):
         # it's a scenario
-        executeUnit(bi, bi.unit, verify, show, verbose, ind)
+        execute_unit(bi, bi.unit, verify, show, verbose, ind)
     elif isinstance(bi, scncc.Unit):
         # it's a unit
-        executeUnit(scn, bi, verify, show, verbose, ind)
+        execute_unit(scn, bi, verify, show, verbose, ind)
     else:
         assert isinstance(bi, scncc.Object)
         # it's a module
         if show: print ind2space(ind) + bi.name + ' %d' % index
         if verify: return
-        ret = controller.executeCase(bi.name, verbose)
+        ret = controller.execute_case(bi.name, verbose)
         if not ret and scn.nofail:
             print ">>>>>> Force to quit because of 'nofail'. It may generate "\
                     "some exceptions. Please ignore."
@@ -106,25 +106,25 @@ def executeBasicItem(scn, bi, verify, show, verbose, ind, index):
             # in case the signal is lost
             sys.exit()
 
-def executeUnit(scn, unit, verify, show, verbose, ind):
+def execute_unit(scn, unit, verify, show, verbose, ind):
     if unit.action == scncc.SERIAL:
         if show: print ind2space(ind) + 'SERIAL,' + str(unit.count)
-        basicItems = itemsToBasicItems(scn, unit.children)
+        basicItems = items_to_basic_items(scn, unit.children)
         for bi in basicItems:
             if unit.count == 0:
                 i = 0
                 while 1:
-                    executeBasicItem(scn, bi, verify, show, verbose, ind, i)
+                    execute_basic_item(scn, bi, verify, show, verbose, ind, i)
                     i += 1
             else:
                 for i in xrange(unit.count):
-                    executeBasicItem(scn, bi, verify, show, verbose, ind, i)
+                    execute_basic_item(scn, bi, verify, show, verbose, ind, i)
 
     elif unit.action == scncc.PARALLEL:
         if show: print ind2space(ind) + 'PARALLEL,' + str(unit.count)
         assert unit.count != 0
 
-        basicItems = itemsToBasicItems(scn, unit.children)
+        basicItems = items_to_basic_items(scn, unit.children)
         thds = []
         for bi in basicItems:
             for i in xrange(unit.count):
@@ -144,7 +144,7 @@ def executeUnit(scn, unit, verify, show, verbose, ind):
         # we use a separate randomizer per shuffle because of multi-threading
         rand = random.Random()
 
-        basicItems = itemsToBasicItems(scn, unit.children)
+        basicItems = items_to_basic_items(scn, unit.children)
         if unit.count == 0: count = len(basicItems)
         else: count = unit.count
 
@@ -157,14 +157,14 @@ def executeUnit(scn, unit, verify, show, verbose, ind):
                 remains.extend(basicItems)
                 refill += 1
             luck = rand.randint(0, len(remains) - 1)
-            executeBasicItem(scn, remains.pop(luck), verify, show, verbose, ind, refill)
+            execute_basic_item(scn, remains.pop(luck), verify, show, verbose, ind, refill)
             i += 1
 
 # this's a naive way to prevent reference recursion
 #
-def executeUnitSafe(scn, unit, verify, show, verbose, ind):
+def execute_unit_safe(scn, unit, verify, show, verbose, ind):
     try:
-        executeUnit(scn, unit, verify, show, verbose, ind)
+        execute_unit(scn, unit, verify, show, verbose, ind)
     except RuntimeError:
         print 'error: recursive referencing exists in the scenario file.'
 
@@ -192,7 +192,7 @@ def execute(glob, scenario, verify, verbose):
             ocUnit.children = glob.opening
             oldnf = glob.nofail
             glob.nofail = True
-            executeUnitSafe(glob, ocUnit, verify, show, verbose, INDENT)
+            execute_unit_safe(glob, ocUnit, verify, show, verbose, INDENT)
             glob.nofail = oldnf
 
         if scn != glob:
@@ -204,25 +204,25 @@ def execute(glob, scenario, verify, verbose):
             ocUnit.children = scn.opening
             oldnf = scn.nofail
             scn.nofail = True
-            executeUnitSafe(scn, ocUnit, verify, show, verbose, INDENT * 2)
+            execute_unit_safe(scn, ocUnit, verify, show, verbose, INDENT * 2)
             scn.nofail = oldnf
 
         # scenario body
         if scn != glob: ind = INDENT
         else: ind = 0
-        executeUnitSafe(scn, scn.unit, verify, show, verbose, ind)
+        execute_unit_safe(scn, scn.unit, verify, show, verbose, ind)
 
         # scneario closing
         if scn != glob and scn.closing:
             if verify or verbose: print ind2space(INDENT) + 'CLOSING'
             ocUnit.children = scn.closing
-            executeUnitSafe(scn, ocUnit, verify, show, verbose, INDENT * 2)
+            execute_unit_safe(scn, ocUnit, verify, show, verbose, INDENT * 2)
 
         # global closing
         if glob.closing:
             if verify or verbose: print 'CLOSING'
             ocUnit.children = glob.closing
-            executeUnitSafe(glob, ocUnit, verify, show, verbose, INDENT)
+            execute_unit_safe(glob, ocUnit, verify, show, verbose, INDENT)
 
         # even though we collect case-specific log files after each test case,
         # there might be more log files to collect (e.g. the ones generated by
@@ -231,9 +231,9 @@ def execute(glob, scenario, verify, verbose):
 
     except KeyboardInterrupt:
         # this will also finish the rsh processes on the local actor
-        controller.killAllRemoteInstances(verbose)
+        controller.kill_all_remote_instances(verbose)
 
-def compileSingleCase(case): return scncc.compileSingleCase(case)
+def compile_single_case(case): return scncc.compile_single_case(case)
 
 def compile(path):
     tmp = scnpp.preprocess(path)

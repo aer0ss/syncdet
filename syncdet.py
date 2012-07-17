@@ -75,12 +75,12 @@ def main():
 
     # purge?
     if options.purge:
-        controller.purgeLogFiles()
+        controller.purge_log_files()
         sys.exit()
 
     # clobber?
     if options.clobber:
-        controller.killAllRemoteInstances(options.verbose)
+        controller.kill_all_remote_instances(options.verbose)
         sys.exit()
 
     # parse deploy folders
@@ -91,7 +91,7 @@ def main():
     # add SyncDET's internal deployment folder to the deployment folder list.
     deployFolders = list(args)
     deployFolders.append(os.path.join(sys.path[0], 'deploy'))
-    controller.deployer.setDeployFolders(deployFolders)
+    controller.deployer.set_deploy_folders(deployFolders)
 
     # initialize the actors
     if options.actors != -1:
@@ -106,7 +106,7 @@ def main():
     # compile the scenario file
     # is a single case specified?
     if options.case:
-        scn = controller.scn.compileSingleCase(options.case)
+        scn = controller.scn.compile_single_case(options.case)
     elif options.scnfile:
         scn = controller.scn.compile(options.scnfile)
     else:
@@ -115,7 +115,7 @@ def main():
         sys.exit()
 
     # launch the sync service
-    controller.sync_service.startService(options.verbose)
+    controller.sync_service.start_service(options.verbose)
 
     if not options.verify:
         controller.deployer.deploy()
@@ -123,8 +123,8 @@ def main():
     # launch the global scenario
     controller.scn.execute(scn, '', options.verify, options.verbose)
 
-    if not options.verify and controller.report.getReportPath():
-        print 'the report is at', controller.report.getReportPath()
+    if not options.verify and controller.report.report_path():
+        print 'the report is at', controller.report.report_path()
 
 if __name__ == '__main__':
     main()

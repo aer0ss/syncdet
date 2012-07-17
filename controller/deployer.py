@@ -6,18 +6,18 @@ from deploy.syncdet import actors, param
 global _normalizedPaths # I hate globals
 global _localRoots
 
-def setDeployFolders(folders):
+def set_deploy_folders(folders):
     global _normalizedPaths
     _normalizedPaths = []
     global _localRoots
     _localRoots = []
     for folder in folders:
-        path, localRoot = _normalizePath(folder)
+        path, localRoot = _normalize_path(folder)
         assert os.path.exists(path), "deploy path {} does not exist".format(path)
         _normalizedPaths.append(path)
         _localRoots.append(localRoot)
 
-def _normalizePath(path):
+def _normalize_path(path):
     """
     Return normalized paths to satisfy rsync's syntax. Specifically, this
     method adds '/./' to the end of the path if this string is not found in the
@@ -40,7 +40,7 @@ def _normalizePath(path):
     else:
         return path + slashDotSlash, path
 
-def getDeployFolderLocalRoots():
+def deploy_folder_local_roots():
     """
     Return the list of local roots of the deploy folders passed into
     method setDeployFolders(). See _normalizePath() for the definition of local
@@ -55,7 +55,7 @@ def deploy():
     print "deploying..."
 
     pool = multiprocessing.Pool()
-    pool.map(_rsync, actors.getActors())
+    pool.map(_rsync, actors.actor_list())
 
     print "done"
 

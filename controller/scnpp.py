@@ -6,7 +6,7 @@ import tempfile, sys
 
 TAB_SPACE = 8
 
-def preprocessFile(path, tmp, indent, included):
+def preprocess_file(path, tmp, indent, included):
     try:
         file = open(path, 'r')
     except Exception, data:
@@ -43,7 +43,7 @@ def preprocessFile(path, tmp, indent, included):
             else: include = file.name[:idx + 1] + words[1]
             if not include in included:
                 included.append(include)
-                preprocessFile(include, tmp, newindent, included)
+                preprocess_file(include, tmp, newindent, included)
         else:
             # output indent
             tmp.write(' ' * newindent)
@@ -66,7 +66,7 @@ def preprocessFile(path, tmp, indent, included):
 #
 def preprocess(path):
     tmp = tempfile.TemporaryFile()
-    preprocessFile(path, tmp, 0, [path])
+    preprocess_file(path, tmp, 0, [path])
     tmp.seek(0)
     return tmp
 

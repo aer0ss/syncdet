@@ -9,7 +9,7 @@ import sys
 
 from syncdet import param, case
 
-__import__(case.getModuleName())
+__import__(case.module_name())
 
 class _MultipleOutputStreams:
     """
@@ -72,35 +72,35 @@ class _PrefixOutputStream:
     def flush(self):
         self.f.flush()
 
-def _redirectStdOutAndErr():
+def _redirect_stdout_and_stderr():
     streams = []
 
     if param.CASE_LOG_OUTPUT:
-        path = case.getLogFilePath()
+        path = case.log_file_path()
         streams.append(open(path, 'a'))
 
     if param.CASE_SCREEN_OUTPUT:
-        prefix = param.CASE_OUTPUT_PREFIX.format(case.getActorId())
+        prefix = param.CASE_OUTPUT_PREFIX.format(case.actor_id())
         stream = _PrefixOutputStream(sys.stdout, prefix)
         streams.append(stream)
 
     sys.stdout = sys.stderr = _MultipleOutputStreams(streams)
 
 def main():
-    _redirectStdOutAndErr()
+    _redirect_stdout_and_stderr()
 
     try:
         # execute the right entry point
-        spec = sys.modules[case.getModuleName()].spec
-        if 'entries' in spec.keys() and case.getActorId() < len(spec['entries']):
-            ret = spec['entries'][case.getActorId()]()
+        spec = sys.modules[case.module_name()].spec
+        if 'entries' in spec.keys() and case.actor_id() < len(spec['entries']):
+            ret = spec['entries'][case.actor_id()]()
         else:
             ret = spec['default']()
         if ret: print 'CASE_OK:', str(ret)
         else:   print 'CASE_OK'
 
     except RuntimeError, data:
-        case.failTestCase(str(data))
+        case.fail_test_case(str(data))
 
 if __name__ == '__main__':
     main()

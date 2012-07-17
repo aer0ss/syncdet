@@ -78,7 +78,7 @@ def error(path, lno, msg = 'syntax error'):
 
 # return True if the current block continues. False if it ends
 #
-def analyzeIndent(file, path, lno, line, stack, canIndent):
+def analyze_indent(file, path, lno, line, stack, canIndent):
     ind = 0
     while line[ind] == ' ': ind += 1
 
@@ -103,7 +103,7 @@ def analyzeIndent(file, path, lno, line, stack, canIndent):
         else:
             error(path, lno, 'confusing indent')
 
-def validSymbol(path, lno, word):
+def valid_symbol(path, lno, word):
     # check ':'
     if word.find(':') != -1:
         error(path, lno, "cannot use ':' for non-directives")
@@ -116,16 +116,16 @@ def validSymbol(path, lno, word):
 
 # return an Object instance identifying a module, a group, or a scenario
 #
-def parseObject(path, lno, string):
+def parse_object(path, lno, string):
     words = string.split()
     if len(words) != 1: error(path, lno, 'syntax error')
-    validSymbol(path, lno, words[0])
+    valid_symbol(path, lno, words[0])
     return Object(string)
 
 def group1(path, lno, args):
     if (len(args['words'])) != 2: error(path, lno)
     group = args['words'][1]
-    validSymbol(path, lno, group)
+    valid_symbol(path, lno, group)
     scn = args['scn']
     if group in scn.groups.keys():
         error(path, lno, "group '%s' already defined" % group)
@@ -135,7 +135,7 @@ def group1(path, lno, args):
     scn.groups[group] = args['group'] = []
 
 def group2(file, path, lno, stack, line, args):
-    args['group'].append(parseObject(path, lno, line))
+    args['group'].append(parse_object(path, lno, line))
 
 def unit1(path, lno, args):
     words = args['words']
@@ -168,7 +168,7 @@ def unit1(path, lno, args):
     # add the single object if any
     if len(words) > 2: error(path, lno)
     if len(words) == 2:
-        unit.children.append(parseObject(path, lno, words[1]))
+        unit.children.append(parse_object(path, lno, words[1]))
         args['singular'] = True
 
 def unit2(file, path, lno, stack, line, args):
@@ -180,7 +180,7 @@ def unit2(file, path, lno, stack, line, args):
         parser(file, path, lno, stack, unit1, unit2,
                words = line.split(), parent = unit)
     else:
-        unit.children.append(parseObject(path, lno, line))
+        unit.children.append(parse_object(path, lno, line))
 
 def openClose1(path, lno, args):
     words = args['words']
@@ -195,7 +195,7 @@ def openClose1(path, lno, args):
         scn.closing = args['openclose'] = []
 
     if (len(words)) == 2:
-        args['openclose'].append(parseObject(path, lno, words[1]))
+        args['openclose'].append(parse_object(path, lno, words[1]))
         args['singular'] = True
 
 
@@ -203,12 +203,12 @@ def openClose2(file, path, lno, stack, line, args):
     if 'singular' in args.keys():
         error(path, lno, 'singular form of the previous directive '
                             'disallows multiple cases')
-    args['openclose'].append(parseObject(path, lno, line))
+    args['openclose'].append(parse_object(path, lno, line))
 
 def scn1(path, lno, args):
     words = args['words']
     if (len(words)) != 2: error(path, lno)
-    validSymbol(path, lno, words[1])
+    valid_symbol(path, lno, words[1])
     parent = args['parent']
     if words[1] in parent.children.keys():
         error(path, lno, "scenario '%s' already defined" % words[1])
@@ -266,7 +266,7 @@ def parser(file, path, lno, stack, cbPreamble, cbIteration, **args):
         path, lno = parts[-2], int(parts[-1])
         if len(parts) != 3: error(path, lno, "can't have '|'")
 
-        if not analyzeIndent(file, path, lno, parts[0], stack, start):
+        if not analyze_indent(file, path, lno, parts[0], stack, start):
             # -1 is the '.' after the line number
             file.seek(-len(line), 1)
             break
@@ -294,7 +294,7 @@ def compile(file, path):
 
 # compile a single case
 #
-def compileSingleCase(case):
+def compile_single_case(case):
     glob = Scenario('global', None, False)
     unit = Unit(SERIAL, 1)
     obj = Object(case)

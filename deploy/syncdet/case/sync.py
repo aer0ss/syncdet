@@ -1,7 +1,7 @@
 import socket, string
 from .. import param, config, case
 
-# id:      the sync id, can be either numerical or textual, identifying the 
+# id:      the sync id, can be either numerical or textual, identifying the
 #          synchronizer within the scope of the instance
 # voteYes: False: vote no. it will cause the synchronization to fail
 # timeout: 0: use the default, system-wide timeout (param.SYNC_TIMEOUT)
@@ -11,11 +11,10 @@ from .. import param, config, case
 # return:  OK, FAIL, or TIMEOUT
 #
 def sync(id, waits = None, timeout = 0, voteYes = True):
-
     if waits == None:
         # list all other actors
-        waits = range(case.getActorId()) + range(case.getActorId() + 1,
-                case.getActorCount())
+        waits = range(case.actor_id()) + range(case.actor_id() + 1,
+                case.actor_count())
     if not waits:
         return case.OK
 
@@ -43,26 +42,26 @@ def sync(id, waits = None, timeout = 0, voteYes = True):
 def sync_prev(pnid, prev = None, timeout = 0, voteYes = True):
 
     if prev == None:
-        if case.getActorId() == 0: return case.OK
-        else: prev = case.getActorId() - 1
+        if case.actor_id() == 0: return case.OK
+        else: prev = case.actor_id() - 1
 
-    id = '{0}.{1}<=>{2}'.format(pnid, prev, case.getActorId())
+    id = '{0}.{1}<=>{2}'.format(pnid, prev, case.actor_id())
     return sync(id, [prev], timeout, voteYes)
 
 def sync_next(pnid, next = None, timeout = 0, voteYes = True):
 
     if next == None:
-        if case.getActorId() == case.getActorCount() - 1: return case.OK
-        else: next = case.getActorId() + 1
+        if case.actor_id() == case.actor_count() - 1: return case.OK
+        else: next = case.actor_id() + 1
 
-    id = '{0}.{1}<=>{2}'.format(pnid, case.getActorId(), next)
+    id = '{0}.{1}<=>{2}'.format(pnid, case.actor_id(), next)
     return sync(id, [next], timeout, voteYes)
 
 def _make_sync_id(id):
     # convert spaces to underscores becuase we use the former as the delimiter
     syncId = string.translate(str(id), string.maketrans(' ', '_'))
-    return "{0}.{1}.{2}".format(case.getModuleName(),
-                                case.getInstanceId(),
+    return "{0}.{1}.{2}".format(case.module_name(),
+                                case.instance_id(),
                                 syncId)
 
 #  request format:
@@ -77,7 +76,7 @@ def _build_request(id, waits, v, to):
     for i in range(len(waits)):
         actorIds += str(waits[i])
         if i < len(waits) - 1: actorIds += ','
-    data = " S {0} {1} {2} {3} {4}".format(_make_sync_id(id), case.getActorId(),
+    data = " S {0} {1} {2} {3} {4}".format(_make_sync_id(id), case.actor_id(),
                                            vote, timeout, actorIds)
     return "{0}{1}".format(len(data), data)
 

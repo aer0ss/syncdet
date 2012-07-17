@@ -16,7 +16,7 @@ s_syncs = {}    # all pending synchronizers. { id: Synchronizer }
 # fields[5]: timeout
 # fields[6]: actorId1,actorId2...actorIdN
 #
-def processRequest(socket, fields):
+def process_request(socket, fields):
     # identifier or sig
     id = fields[2]
 
@@ -24,7 +24,7 @@ def processRequest(socket, fields):
     type = fields[1]
     assert type == 'S' or type == 'C'
     if type == 'C':
-        processCancelRequest(id)
+        process_cancel_request(id)
     else:
         # actorId
         actorId = int(fields[3])
@@ -37,9 +37,9 @@ def processRequest(socket, fields):
         fieldsWait = string.split(fields[6], ',')
         waits = []
         for wait in fieldsWait: waits.append(int(wait))
-        processSyncRequest(socket, id, actorId, vote, timeout, waits)
+        process_sync_request(socket, id, actorId, vote, timeout, waits)
 
-def processCancelRequest(id):
+def process_cancel_request(id):
     global s_syncs
     if id == 'all':
         s_syncs = {}
@@ -47,21 +47,21 @@ def processCancelRequest(id):
         for syncId in s_syncs.keys():
             if syncId.find(id) >= 0: del s_syncs[syncId]
 
-def processSyncRequest(socket, id, actorId, vote, timeout, waits):
+def process_sync_request(socket, id, actorId, vote, timeout, waits):
     global s_syncs
     # create the synchronizer if not exists
     if id not in s_syncs.keys():
         s_syncs[id] = Synchronizer(id)
 
-    s_syncs[id].addParticipant(socket, actorId, vote, timeout, waits)
-    if s_syncs[id].isDone(): del s_syncs[id]
+    s_syncs[id].add_participant(socket, actorId, vote, timeout, waits)
+    if s_syncs[id].is_done(): del s_syncs[id]
 
-def processTimeOut():
+def process_timeout():
     global s_syncs
     now = time.time()
     for id in s_syncs.keys():
-        s_syncs[id].checkTimeOut(now)
-        if s_syncs[id].isDone(): del s_syncs[id]
+        s_syncs[id].check_timeout(now)
+        if s_syncs[id].is_done(): del s_syncs[id]
 
 class Synchronizer:
 
@@ -86,7 +86,7 @@ class Synchronizer:
         self.timeout = 0
 
     # vote: 1 yes, 0 no
-    def addParticipant(self, socket, actorId, vote, timeout, waits):
+    def add_participant(self, socket, actorId, vote, timeout, waits):
         # remove from expected
         if actorId in self.expect: self.expect.remove(actorId)
 
@@ -102,9 +102,9 @@ class Synchronizer:
 
         if self.result == self.OK:
             if vote:
-                if self.isDone():
+                if self.is_done():
                     # bingle !
-                    self.replyAllParticipants()
+                    self.reply_all_participants()
                 else:
                     # recalculate timeout
                     if not timeout: timeout = param.SYNC_TIMEOUT
@@ -113,18 +113,18 @@ class Synchronizer:
             else:
                 # darn. the sync denied
                 self.result = self.DENIED
-                self.replyAllParticipants()
+                self.reply_all_participants()
         else:
             # sync has already failed. reply non-OK
             self.reply(actorId)
 
     # are we done (i.e. the object can be deleted) ?
-    def isDone(self): return not len(self.expect)
+    def is_done(self): return not len(self.expect)
 
-    def checkTimeOut(self, now):
+    def check_timeout(self, now):
         if self.result != self.OK or now < self.timeout: return
         self.result = self.TIMEOUT
-        self.replyAllParticipants()
+        self.reply_all_participants()
 
     def reply(self, actorId):
         if not self.part[actorId]: return
@@ -138,5 +138,5 @@ class Synchronizer:
         # can send only one reply per participant
         self.part[actorId] = None
 
-    def replyAllParticipants(self):
+    def reply_all_participants(self):
         for actorId in self.part.keys(): self.reply(actorId)

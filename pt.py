@@ -8,7 +8,7 @@ def walk():
     actors.init(False)
     cmd = ''
     for i in sys.argv[2:]: cmd += i + ' '
-    for actor in actors.getActors():
+    for actor in actors.actor_list():
         args = [
                actor.rsh,
                actor.login + '@' + actor.address,

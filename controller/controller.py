@@ -8,7 +8,7 @@ _SPEC_NAME = 'spec'
 
 _LAUNCHER_PY = 'syncdet_case_launcher.py'
 
-def errorAnalysis(msg):
+def error_analysis(msg):
     print 'Test code error:', msg
     sys.exit()
 
@@ -18,14 +18,14 @@ def analyze(module):
     """
 
     # simulate PYTHONPATH on actor systems
-    localRoots = deployer.getDeployFolderLocalRoots()
+    localRoots = deployer.deploy_folder_local_roots()
     for f in localRoots: sys.path.insert(0, f)
 
     try:
         __import__(module)
     except ImportError:
         traceback.print_exc()
-        errorAnalysis("cannot import module '{0}'. See above for the backtrace."
+        error_analysis("cannot import module '{0}'. See above for the backtrace."
                 .format(module))
     finally:
         del sys.path[ : len(localRoots)]
@@ -33,7 +33,7 @@ def analyze(module):
     namespace = sys.modules[module].__dict__
 
     if _SPEC_NAME not in namespace:
-        errorAnalysis("module '{0}' has no '{1}' defined"
+        error_analysis("module '{0}' has no '{1}' defined"
                 .format(module, _SPEC_NAME))
 
     try:
@@ -41,13 +41,13 @@ def analyze(module):
         if 'entries' not in spec.keys() and 'default' not in spec.keys():
             raise Exception
 
-        n = actors.getActorCount()
+        n = actors.actor_count()
         preferred = 0
         if 'entries' in spec.keys():
             preferred += len(spec['entries'])
             # number of actors must meet the minimum req.
             if (n < preferred):
-                errorAnalysis(module + " requires at least %d actors but " \
+                error_analysis(module + " requires at least %d actors but " \
                                "we only have %d." % (preferred, n))
 
         if 'max_add' in spec.keys():
@@ -60,7 +60,7 @@ def analyze(module):
         else:
             timeout = param.CASE_TIMEOUT
     except Exception:
-        errorAnalysis(module + " has an invalid " + _SPEC_NAME + " structure.")
+        error_analysis(module + " has an invalid " + _SPEC_NAME + " structure.")
 
     if preferred == -1:
         return n, timeout
@@ -70,7 +70,7 @@ def analyze(module):
             "its '%s' data structure." % (module, _SPEC_NAME)
         return min(n, preferred), timeout
 
-def launchCase(module, instId, verbose):
+def launch_case(module, instId, verbose):
     """
     @return: the number of actors and a list of actors that didn't finish on time
 	"""
@@ -79,16 +79,16 @@ def launchCase(module, instId, verbose):
 
     pids = {}    # { pid: actorId }
     for i in range(n):
-        actor = actors.getActor(i)
+        actor = actors.actor(i)
         # the command
         cmd = 'python {0}/deploy/{1} '.format(actor.root, _LAUNCHER_PY)
         # the arguments:
         # module actorId scenarioId instId actorCount
         cmd += '{0} {1} {2} {3} {4}'.format(
-                module, i, scn.getScenarioId(), instId, n)
+                module, i, scn.scenario_id(), instId, n)
 
         # execute the remote command
-        pids[actor.execRemoteCmdNonBlocking(cmd)] = i
+        pids[actor.exec_remote_cmd_non_blocking(cmd)] = i
 
     start = time.time()
     while 1:
@@ -110,13 +110,13 @@ def launchCase(module, instId, verbose):
         if verbose: print 'killing sys %d' % pids[pid]
         # kill the local process first
         os.kill(pid, signal.SIGKILL)
-        killRemoteInstance(pids[pid], instId, verbose)
+        kill_remote_instance(pids[pid], instId, verbose)
 
     return n, pids.values()
 
 s_lock = threading.Lock()
 
-def makeCaseInstanceId():
+def make_case_instance_id():
     # lock to prevent coincidents on multi-processors
     global s_lock
     s_lock.acquire()
@@ -124,32 +124,32 @@ def makeCaseInstanceId():
     s_lock.release()
     return ret
 
-def executeCase(module, verbose):
+def execute_case(module, verbose):
     """
     @return: False if the case failed
     """
-    instId = makeCaseInstanceId()
-    n, unfinished = launchCase(module, instId, verbose)
+    instId = make_case_instance_id()
+    n, unfinished = launch_case(module, instId, verbose)
     for i in range(n):
         log.collect_log(i, module, instId)
-    return report.reportCase(module, instId, n, unfinished)
+    return report.report_case(module, instId, n, unfinished)
 
 KILL_CMD = "for i in `ps -eo pid,command | grep '{0}' | grep -v grep | " \
             "sed 's/ *\\([0-9]*\\).*/\\1/'`; do kill $i; done"
 
-def killRemoteInstance(actorId, instId, verbose):
+def kill_remote_instance(actorId, instId, verbose):
     # instId uniquely identifies the case instance
     cmd = KILL_CMD.format(instId)
-    actors.getActor(actorId).execRemoteCmdNonBlocking(cmd)
+    actors.actor(actorId).exec_remote_cmd_non_blocking(cmd)
 
     # don't cancel. let sync GC do the work
     # cancel the synchronizer
     # time.sleep(param.SYNC_CANCEL_DELAY)
     # sync.cancelSynchronizers(instId)
 
-def killAllRemoteInstances(verbose):
+def kill_all_remote_instances(verbose):
     cmd = KILL_CMD.format(_LAUNCHER_PY)
-    for s in actors.getActors(): s.execRemoteCmdNonBlocking(cmd)
+    for s in actors.actor_list(): s.exec_remote_cmd_non_blocking(cmd)
 
-def purgeLogFiles():
+def purge_log_files():
     os.system('rm -rf {0}/{1}/*'.format(lib.root_path(), param.LOG_DIR))

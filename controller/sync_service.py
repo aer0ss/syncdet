@@ -10,7 +10,7 @@
 #
 #    len:      message length, NOT including itself
 #    S:        the character 'S'
-#    module:   case module name 
+#    module:   case module name
 #    sig:      instance signature
 #    syncId:   the synchronizer Id within the test case.
 #              caseName and syncId uniquely identify a synchronizer
@@ -32,23 +32,23 @@
 #  "len module.sig.syncId result"
 #
 #    len:      message length, NOT including itself
-#    module:   case module name 
+#    module:   case module name
 #    sig:      instance signature
 #    syncId:   the synchronizer Id within the test case
 #    result:   'OK' or 'DENIED' or 'TIMEOUT'
 #
 
 #
-# the only two functions the controller can call is startService() and 
+# the only two functions the controller can call is startService() and
 # cancel() as the sync service runs in another thread
 #
 
 import socket, select, threading, string
 from deploy.syncdet import param, config
 
-from synchronizer import processTimeOut, processRequest
+from synchronizer import process_timeout, process_request
 
-def startService(verbose):
+def start_service(verbose):
     sListen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sListen.bind(('', param.SYNC_SERVICE_PORT))
     sListen.listen(param.SYNC_SERVICE_BACKLOG)
@@ -75,7 +75,7 @@ class ThdSyncService(threading.Thread):
             ssIn, _, _ = select.select(ssRead, (), (), 1)
 
             # time out
-            if not ssIn: processTimeOut()
+            if not ssIn: process_timeout()
 
             # process socket input
             for s in ssIn:
@@ -87,16 +87,16 @@ class ThdSyncService(threading.Thread):
                 else:
                     data = s.recv(1024)
                     if len(data):
-                        parsePacket(s, data, self._verbose)
+                        parse_packet(s, data, self._verbose)
                     else:
                         s.close()
-                        finiSocket(s)
+                        fini_socket(s)
                         ssRead.remove(s)
 
 # stores data buffers that are incomplete. indexed by sockets
 s_pendings = {}
 
-def parsePacket(socket, data, verbose):
+def parse_packet(socket, data, verbose):
     global s_pendings
     # complete the buffer if we have data previously received
     if socket in s_pendings.keys():
@@ -117,13 +117,13 @@ def parsePacket(socket, data, verbose):
         s_pendings[socket] = data[length:]
         fields = string.split(data[:length])
     if verbose: print 'sync request:', fields
-    processRequest(socket, fields)
+    process_request(socket, fields)
 
-def finiSocket(socket):
+def fini_socket(socket):
     global s_pendings
     if socket in s_pendings: del s_pendings[socket]
 
-def cancelSynchronizers(signature = 'all'):
+def cancel_synchronizers(signature = 'all'):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((config.controllerAddress, param.SYNC_SERVICE_PORT))
 

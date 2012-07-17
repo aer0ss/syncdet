@@ -10,14 +10,14 @@ import config
 # a list of Actor objects
 _actors = [];
 
-def getActors():
+def actor_list():
     return _actors
 
-def getActorCount():
+def actor_count():
     assert len(_actors) > 0
     return len(_actors)
 
-def getActor(actorId):
+def actor(actorId):
     return _actors[actorId]
 
 # Initialize the global list of actors with
@@ -39,8 +39,8 @@ class Actor:
     login = ''
     root = ''
     address = ''
-    _copyFrom = ['scp', '-r', '%login@%host:%src', '%dst']
-    _copyTo = ['scp', '-r', '%src', '%login@%host:%dst']
+    _copy_from = ['scp', '-r', '%login@%host:%src', '%dst']
+    _copy_to = ['scp', '-r', '%src', '%login@%host:%dst']
     _verbose = False # Verbose output?
 
     def __init__(self, d_actor, verbose):
@@ -50,18 +50,18 @@ class Actor:
         for elem in d_actor.keys():
             self.__dict__[elem] = d_actor[elem]
 
-        self._copyFrom, self._copyTo = (
+        self._copy_from, self._copy_to = (
                [s.replace('%host', self.address).replace('%login', self.login)
                  for s in copyList]
-                 for copyList in (self._copyFrom, self._copyTo)
+                 for copyList in (self._copy_from, self._copy_to)
             )
 
-    def copyFrom(self, src, dst):
-        cmd = self._copyFrom
+    def copy_from(self, src, dst):
+        cmd = self._copy_from
         self._copy(cmd, src, dst)
 
-    def copyTo(self, src, dst):
-        cmd = self._copyTo
+    def copy_to(self, src, dst):
+        cmd = self._copy_to
         self._copy(cmd, src, dst)
 
     def rsync(self, srcs, dst):
@@ -89,28 +89,28 @@ class Actor:
         cmd.append(self.login + '@' + self.address + ':' + dst)
 
         try:
-            self._runLocalCmd(cmd)
+            self._run_local_cmd(cmd)
         except subprocess.CalledProcessError, _:
-            self.execRemoteCmdBlocking('mkdir -p ' + self.root)
-            self._runLocalCmd(cmd)
+            self.exec_remote_cmd_blocking('mkdir -p ' + self.root)
+            self._run_local_cmd(cmd)
 
-    def execRemoteCmdBlocking(self, cmd):
+    def exec_remote_cmd_blocking(self, cmd):
         """@param cmd: the string contains both the command to execute and its
         arguemts, e.g., 'ls -l'
         """
-        return self._executeRemoteCmd(os.P_WAIT, cmd)
+        return self._execute_remote_cmd(os.P_WAIT, cmd)
 
     # return the pid of the local proxy process. cmd is a string
     #
-    def execRemoteCmdNonBlocking(self, cmd):
+    def exec_remote_cmd_non_blocking(self, cmd):
         """@param cmd: the string contains both the command to execute and its
         arguemts, e.g., 'ls -l'
         """
-        return self._executeRemoteCmd(os.P_NOWAIT, cmd)
+        return self._execute_remote_cmd(os.P_NOWAIT, cmd)
 
     # return the result of os.spawnvp, according to mode. cmd is a string
     #
-    def _executeRemoteCmd(self, mode, cmd):
+    def _execute_remote_cmd(self, mode, cmd):
         cmdLocal = [
                self.rsh,
                self.login + '@' + self.address,
@@ -124,7 +124,7 @@ class Actor:
         cmd = [s.replace('%src', src).replace('%dst', dst) for s in cmd]
 
         try:
-            self._runLocalCmd(cmd)
+            self._run_local_cmd(cmd)
         except subprocess.CalledProcessError, e:
             if self._verbose:
                 s_warning = ('<Actor._copy> {0}'
@@ -133,7 +133,7 @@ class Actor:
                 print s_warning
                 sys.exit(-1)
 
-    def _runLocalCmd(self, cmd):
+    def _run_local_cmd(self, cmd):
         if self._verbose:
             print cmd
             subprocess.check_call(cmd)

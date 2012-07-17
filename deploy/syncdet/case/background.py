@@ -28,7 +28,7 @@ def start_process(cmd, key = None):
                 .format(key, pid))
 
     # launch the process
-    with open(case.getLogFilePath(key), 'a') as f:
+    with open(case.log_file_path(key), 'a') as f:
         p = subprocess.Popen(cmd, 0, None, f, f)
 
     # write the pid file

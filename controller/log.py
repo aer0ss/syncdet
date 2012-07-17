@@ -36,15 +36,15 @@ def create_log_folders(verify):
         if os.path.exists(link):
             os.unlink(link)
 
-        os.symlink(scn.getScenarioId(), link)
+        os.symlink(scn.scenario_id(), link)
     except OSError:
         # Just output the error, but don't fail
         print "Couldn't create log folder symlink"
 
     # create log directories on actor actors
-    for actor in actors.getActors():
+    for actor in actors.actor_list():
         path = actor_scenario_log_folder(actor)
-        actor.execRemoteCmdBlocking('mkdir -p ' + path)
+        actor.exec_remote_cmd_blocking('mkdir -p ' + path)
 
 
 def controller_scenario_log_folder():
@@ -52,7 +52,7 @@ def controller_scenario_log_folder():
     @return: the directory where the controller actor stores log files locally
     """
     return common_lib.scenario_log_folder(lib.root_path(),
-            scn.getScenarioId())
+            scn.scenario_id())
 
 def controller_scenario_log_file(actorId, module, instId):
     """
@@ -65,7 +65,7 @@ def actor_scenario_log_folder(actor):
     """
     @return: the directory where the actor actor stores log files
     """
-    return common_lib.scenario_log_folder(actor.root, scn.getScenarioId());
+    return common_lib.scenario_log_folder(actor.root, scn.scenario_id());
 
 def actor_scenario_log_file(actor, actorId, module, instId):
     """
@@ -80,9 +80,9 @@ def collect_log(actorId, module, instId):
     """
 
     pathCtrlr = controller_scenario_log_file(actorId, module, instId)
-    actor = actors.getActor(actorId)
+    actor = actors.actor(actorId)
     pathActor = actor_scenario_log_file(actor, actorId, module, instId)
-    actor.copyFrom(pathActor, pathCtrlr)
+    actor.copy_from(pathActor, pathCtrlr)
 
 def collect_all_logs():
     """
@@ -90,9 +90,9 @@ def collect_all_logs():
     the local log directory
     """
 
-    for actor in actors.getActors():
+    for actor in actors.actor_list():
         pathCtrlr = controller_scenario_log_folder()
         pathActor = actor_scenario_log_folder(actor)
         pathActor = os.path.join(pathActor, "*")
 
-        actor.copyFrom(pathActor, pathCtrlr)
+        actor.copy_from(pathActor, pathCtrlr)

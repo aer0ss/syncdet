@@ -10,30 +10,30 @@ RES_FAIL = 2
 RES_TERM = 3
 RES_TIMEOUT = 4
 
-def isReportEnabled():
+def is_report_enabled():
     return param.CASE_LOG_OUTPUT and param.CASE_REPORT
 
 # static initialization
 #
-if isReportEnabled():
+if is_report_enabled():
     s_reportPath = '{0}/{1}/report-{2}.txt'.format(lib.root_path(),
-           param.REPORT_DIR, scn.getScenarioId())
+           param.REPORT_DIR, scn.scenario_id())
     d = os.path.dirname(s_reportPath)
     if not os.path.exists(d): os.mkdir(d)
     s_reportFile = None    # open the file only when generating the report
     s_lock = threading.Lock()
 
 # return '' if reporting is not enabled
-def getReportPath():
-    if not isReportEnabled(): return ''
+def report_path():
+    if not is_report_enabled(): return ''
     global s_reportPath
     return s_reportPath
 
 # return False if the case failed
 # TODO: synchronization
 #
-def reportCase(module, caseInstId, n, unfinished):
-    if not isReportEnabled(): return True
+def report_case(module, caseInstId, n, unfinished):
+    if not is_report_enabled(): return True
 
     results = []    # [[RES_*, explanation]]
     for i in range(n):
@@ -92,7 +92,7 @@ def reportCase(module, caseInstId, n, unfinished):
         s_reportFile.write('OK     %s\t%s\n' % (module, logpath))
     else:
         s_reportFile.write('FAILED %s\t%s\n' % (module, logpath))
-        print 'failed. see report', getReportPath()
+        print 'failed. see report', report_path()
 
     if not okay or text:
         for i in range(n):
