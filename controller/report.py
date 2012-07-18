@@ -92,7 +92,7 @@ def report_case(module, caseInstId, n, unfinished):
         s_reportFile.write('OK     %s\t%s\n' % (module, logpath))
     else:
         s_reportFile.write('FAILED %s\t%s\n' % (module, logpath))
-        print 'failed. see report', report_path()
+        print 'FAILED. see report', report_path()
 
     if not okay or text:
         for i in range(n):
