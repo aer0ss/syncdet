@@ -1,6 +1,14 @@
 import socket, string
 from .. import param, config, case
 
+class ExSyncFail(Exception):
+    def __str__(self):
+        return "SYNC FAILED"
+
+class ExSyncTimeout(Exception):
+    def __str__(self):
+        return "SYNC TIMEOUT"
+
 # id:      the sync id, can be either numerical or textual, identifying the
 #          synchronizer within the scope of the instance
 # voteYes: False: vote no. it will cause the synchronization to fail
@@ -8,7 +16,7 @@ from .. import param, config, case
 # waits:   a list of actorId's to synchronize with. Passing None will
 #          sync with ALL other instances
 #
-# return:  OK, FAIL, or TIMEOUT
+# raise:   ExSyncFail, ExSyncTimeout
 #
 def sync(id, waits = None, timeout = 0, voteYes = True):
     if waits == None:
@@ -16,7 +24,7 @@ def sync(id, waits = None, timeout = 0, voteYes = True):
         waits = range(case.actor_id()) + range(case.actor_id() + 1,
                 case.actor_count())
     if not waits:
-        return case.OK
+        return
 
     if voteYes: v = ''
     else:       v = 'DENY'
@@ -91,11 +99,9 @@ def _parse_reply(id, data):
     assert fields[1] == _make_sync_id(id)
 
     if fields[2] == 'OK':
-        return case.OK
+        return
     elif fields[2] == 'DENIED':
-        print "SYNC FAILED"
-        return case.FAIL
+        raise ExSyncFailed
     else:
         assert fields[2] == 'TIMEOUT'
-        print "SYNC TIMEOUT"
-        return case.TIMEOUT
+        raise ExSyncTimeout
