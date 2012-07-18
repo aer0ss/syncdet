@@ -5,7 +5,7 @@ launched. This way, test programs running on actors can refer to syncdet
 modules using 'syncdet.foo.'
 """
 
-import sys
+import sys, traceback
 
 from syncdet import param, case
 
@@ -99,7 +99,8 @@ def main():
         if ret: print 'CASE_OK:', str(ret)
         else:   print 'CASE_OK'
 
-    except RuntimeError, data:
+    except Exception as data:
+        traceback.print_exc()
         case.fail_test_case(str(data))
 
 if __name__ == '__main__':
