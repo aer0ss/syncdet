@@ -3,7 +3,7 @@
 #
 # An actor must have at least the following attributes.
 # More custom attributes can be defined and be retrieved by case modules
-# through case.getActor() or getLocalActor().
+# through case.local_actor()
 #
 # rsh:         the command to remotely login to the actor. we will use the
 #              following format to invoke commands on the remote actor:

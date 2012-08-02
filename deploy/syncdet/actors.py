@@ -8,7 +8,7 @@ import os, sys, subprocess
 import config
 
 # a list of Actor objects
-_actors = [];
+_actors = []
 
 def actor_list():
     return _actors
