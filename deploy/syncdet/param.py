@@ -29,6 +29,10 @@ SYNC_SERVICE_BACKLOG = 1000
 # the prefix for case output. {0} will be replaced by the actor id
 CASE_OUTPUT_PREFIX = '{0}| '
 
+# The name of the config file on the actor systems. This is a standard name that
+# all actors will look for.
+CONFIG_FILE_NAME = 'config.yaml'
+
 # the log file directory on each actor, relative to DET's root directory
 LOG_DIR = 'logs'
 

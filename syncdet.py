@@ -1,21 +1,11 @@
 #!/usr/bin/env python
 
 import sys, optparse, os, os.path
-
-try:
-    import deploy.syncdet.config
-except ImportError:
-    print 'Couldn\'t load config.py. Did you "cp ' + \
-            os.path.join(sys.path[0], 'config.py.sample') + ' ' + \
-            os.sep + os.path.join('etc', 'syncdet', 'config.py') + \
-            '" and modify its content?'
-    sys.exit(1)
-
 import controller.scn
 import controller.report
 import controller.deployer
 import controller.sync_service
-from deploy.syncdet import actors, param
+from deploy.syncdet import config, actors, param
 
 class FlushingOutputStream:
     """
@@ -51,6 +41,10 @@ def main():
     parser.add_option("-c", "--case", dest = "case",
                       help = "specify a single case, CASE, to run",
                       metavar = "CASE")
+    parser.add_option("--config", dest="config",
+                      help = "the YAML configuration file to use. Defaults to "\
+                      "/etc/syncdet/config.yaml",
+                      default = "/etc/syncdet/config.yaml")
 
     parser.add_option("-m", "--actors", dest = "actors", type = "int", default = "-1",
                       help = "the max number of actors to use. use all sytems "\
@@ -73,6 +67,14 @@ def main():
 
     options, args = parser.parse_args()
 
+    # load the configuration file
+    try:
+        config.load(os.path.expanduser(options.config))
+    except IOError as e:
+        # For prettier errors relating to missing config file
+        print e
+        sys.exit(1)
+
     # purge?
     if options.purge:
         controller.purge_log_files()
@@ -89,9 +91,8 @@ def main():
         sys.exit()
 
     # add SyncDET's internal deployment folder to the deployment folder list.
-    deployFolders = list(args)
-    deployFolders.append(os.path.join(sys.path[0], 'deploy'))
-    controller.deployer.set_deploy_folders(deployFolders)
+    deploy_folders = list(args)
+    deploy_folders.append(os.path.join(sys.path[0], 'deploy'))
 
     # initialize the actors
     if options.actors != -1:
@@ -118,7 +119,7 @@ def main():
     controller.sync_service.start_service(options.verbose)
 
     if not options.verify:
-        controller.deployer.deploy()
+        controller.deployer.deploy(deploy_folders, options.config)
 
     # launch the global scenario
     controller.scn.execute(scn, '', options.verify, options.verbose)

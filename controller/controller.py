@@ -18,7 +18,7 @@ def analyze(module):
     """
 
     # simulate PYTHONPATH on actor systems
-    localRoots = deployer.deploy_folder_local_roots()
+    localRoots = deployer.actor_deploy_folder_roots()
     for f in localRoots: sys.path.insert(0, f)
 
     try:

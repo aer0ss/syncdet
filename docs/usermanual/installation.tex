@@ -8,6 +8,7 @@ following:
 \begin{enumerate}
 \item Python 2.7+ installed
 \item {\tt git}, {\tt tar}, {\tt rsync}, and {\tt grep}.
+\item PyYaml, can be installed with {\tt pip install PyYaml}.
 \end{enumerate}
 The requirements for each actor follow:
 \begin{enumerate}
@@ -18,6 +19,7 @@ to login without entering a password.
 \item Commands {\tt ps}, {\tt grep}, {\tt tar}, {\tt rsync}, and {\tt sed}
 installed. {\tt ps} must support the option {\tt -eo pid,cmd}, which lists all
 processes with a PID and a command line per row.
+\item PyYaml, can be installed with {\tt pip install PyYaml}.
 \end{enumerate}
 
 \subsection{Acquiring Source Code}
@@ -40,28 +42,38 @@ $ tar -xvf syncdet-ubuntu1110_32.tar.bz2 -C <parent directory of VM>
 On the controller system, first create a configuration file from the template:
 \begin{verbatim}
 $ sudo mkdir /etc/syncdet
-$ cp syncdet/config.py.sample /etc/syncdet/config.py
+$ cp syncdet/config.yaml.sample /etc/syncdet/config.yaml
 \end{verbatim}
 
-Second, edit the configuration file to describe the controller and actors.
+\textbf{NOTE} The above specified directory is simply a default path SyncDET checks for the
+configuration file. You can specify your own configuration file path
+by launching SyncDET with the \verb+--config+ flag as such:
+\begin{verbatim}
+$ syncdet.py --config=path/to/config.yaml
+\end{verbatim}
+
+Second, edit the configuration file to describe the controller and actors. The file is
+in the YAML format. The sample config file should show enough syntax to get you started.
+For more information, see the YAML 1.1 spec at \verb+http://www.yaml.org/+.
 
 \paragraph{Controller}
 You need to specify the hostname of the localhost from which you will launch
 SyncDET (the localhost will be the controller):
 \begin{verbatim}
 # the IP address or host name of the controller
-controllerAddress = "192.168.1.15"
+controller_address: 192.168.1.15
 \end{verbatim}
 This is necessary because actors connect back to the controller for certain tasks.
 
-\paragraph{Actors} 
+\paragraph{Actors}
 List the hostname or IP address of all systems to be used as actors:
 \begin{verbatim}
 # the dictionary definition of the actors
-d_actors = [
-            { 'address': '192.168.1.16' },
-            { 'address': '192.168.1.17' },
-            ]
+actors:
+    -
+        address: 192.168.1.16
+    -
+        address: 192.168.1.17
 \end{verbatim}
 
 \subsection{Running the Demo}

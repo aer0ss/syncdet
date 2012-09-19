@@ -31,7 +31,7 @@ def sync(id, waits = None, timeout = 0, voteYes = True):
     print "SYNC '{0}' {1}".format(id, v)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((config.controllerAddress, param.SYNC_SERVICE_PORT))
+    s.connect((config.get().controller_address, param.SYNC_SERVICE_PORT))
     data = _build_request(id, waits, voteYes, timeout)
     s.send(data)
     # BUGBUG: we don't consider partial receiving now

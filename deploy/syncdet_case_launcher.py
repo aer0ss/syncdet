@@ -5,9 +5,11 @@ launched. This way, test programs running on actors can refer to syncdet
 modules using 'syncdet.foo.'
 """
 
-import sys, traceback
+import sys
+import os
+import traceback
 
-from syncdet import param, case
+from syncdet import config, param, case
 
 __import__(case.module_name())
 
@@ -87,6 +89,15 @@ def _redirect_stdout_and_stderr():
     sys.stdout = sys.stderr = _MultipleOutputStreams(streams)
 
 def main():
+    # Load the configuration file. Since this script
+    # is launched on the actor system, the configuration
+    # file is already deployed to a well known location, which is
+    # under the same directory as this script.
+    # This must be the first step as _redirect_stdout_and_stderr()
+    # uses configuration settings
+    config_path = os.path.join(os.path.dirname(__file__), param.CONFIG_FILE_NAME)
+    config.load(config_path)
+
     _redirect_stdout_and_stderr()
 
     try:

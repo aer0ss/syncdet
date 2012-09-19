@@ -27,7 +27,7 @@ def actor(actorId):
 def init(verbose, maxNumActors = None):
     global _actors
     # Static initialization from config.py
-    for d_actor in config.d_actors:
+    for d_actor in config.get().actors:
         _actors.append(Actor(d_actor, verbose))
 
     if maxNumActors and maxNumActors < len(_actors):
@@ -68,7 +68,7 @@ class Actor:
         """
         Rsync the src folder from the local system (the controller) to the
         dst folder on the actor, using rsync's option --relative. See rsync(1)
-        for detail. Also see deployer.getDeploymentFolderRsyncRoot().
+        for detail.
         @param srcs: the list of source folders on the controller
         @param dst: the destination folder on the actor
         """

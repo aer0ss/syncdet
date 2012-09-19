@@ -1,0 +1,31 @@
+controller_address: # put your IP address or hostname here
+                    # (this should identify the machine from which you're launching tests)
+
+# These are default values. If the actors below do not define some of these fields,
+# those fields will be added to the actors using the values defined here.
+actor_defaults:
+    rsh: ssh
+    login: aerofstest
+    root: ~/syncdet
+
+    # For running installation of AeroFS client
+    aero_userid: user@aerofs.com
+    aero_password: password
+
+# Actor definitions. Feel free to document the details of each system.
+# These are not used by syncdet, but they may be helpful for debugging
+# problems that are machine specific.
+actors:
+    -
+        address: 192.168.1.109
+        details:
+            os: linux32
+            distro: Ubuntu 12.04.1 LTS
+            java: OpenJDK 1.6.0_24 IcedTea6 1.11.4
+    #-
+    #    address: 192.168.1.113
+    #    login: other_user
+    #    aero_userid: safetynet+1@aerofs.com
+    #    details:
+    #       os: Windows 7 x64
+    #       java: Java 1.7.0_05
