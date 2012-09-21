@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
-import sys, os
+import sys
+import os
+import optparse
 
-from deploy.syncdet import actors
+from deploy.syncdet import actors, config
 
-def walk():
+def walk(walk_args):
     actors.init(False)
-    cmd = ''
-    for i in sys.argv[2:]: cmd += i + ' '
+    cmd = ' '.join(walk_args)
     for actor in actors.actor_list():
         args = [
                actor.rsh,
@@ -19,19 +20,35 @@ def walk():
 
 ##########################################################
 
-def usage():
-    print 'py: SyncDET PowerTools'
-    print
-    print '    %s <tool> [<options>]' % sys.argv[0]
-    print
-    print 'TOOLS:'
-    print '    walk <cmd>: run <cmd> on each actor'
-    print
+if __name__ == '__main__':
+    usage_str = ('py: SyncDET PowerTools\n'
+                '    {} [option] <tool> [<args>]\n'
+                '\n'
+                'TOOLS:\n'
+                '    walk <cmd>: run <cmd> on each actor').format(sys.argv[0])
 
-    sys.exit()
+    parser = optparse.OptionParser(usage_str)
 
-if len(sys.argv) < 2: usage()
+    parser.add_option('--config', dest='config',
+                      help = 'the YAML configuration file to use. Defaults to '\
+                      '/etc/syncdet/config.yaml',
+                      default = '/etc/syncdet/config.yaml')
 
-if sys.argv[1] == 'walk': walk()
-else: usage()
+    options, args = parser.parse_args()
 
+    try:
+        config.load(os.path.expanduser(options.config))
+    except IOError as e:
+        # For prettier errors relating to missing config file
+        print e
+        sys.exit(1)
+
+    if len(args) < 1:
+        print usage_str
+        sys.exit(1)
+
+    if args[0] == 'walk':
+        walk(args[1:])
+    else:
+        print usage_str
+        sys.exit(1)
