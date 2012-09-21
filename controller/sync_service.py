@@ -50,6 +50,8 @@ from synchronizer import process_timeout, process_request
 
 def start_service(verbose):
     sListen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Allow service to rebind the socket quickly when restarted after crash or ^C
+    sListen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sListen.bind(('', param.SYNC_SERVICE_PORT))
     sListen.listen(param.SYNC_SERVICE_BACKLOG)
 

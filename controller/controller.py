@@ -74,7 +74,7 @@ def launch_case(module, instId, verbose, team_city_output_enabled):
     """
     @return: the number of actors, a list of actors that didn't finish on time,
              and whether or not a soft timeout occurred
-	"""
+    """
 
     n, timeout = analyze(module)
 
@@ -152,8 +152,12 @@ def execute_case(module, verbose, team_city_output_enabled):
         print "##teamcity[testFinished name='" + module + "']"
     return result
 
-KILL_CMD = "for i in `ps -eo pid,command | grep '{0}' | grep -v grep | " \
-            "sed 's/ *\\([0-9]*\\).*/\\1/'`; do kill $i; done"
+KILL_CMD = "for i in `{0}`; do kill $i; done".format(
+        " | ".join([ "ps -{0}".format("eo pid,command" if not "cygwin" in sys.platform else "e"),
+                     "grep '{0}'",
+                     "grep -v grep",
+                     "sed 's/ *\\([0-9]*\\).*/\\1/'"])
+        )
 
 def kill_remote_instance(actorId, instId, verbose):
     # instId uniquely identifies the case instance

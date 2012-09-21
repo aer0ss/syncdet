@@ -134,7 +134,13 @@ class Synchronizer:
         else: m = 'TIMEOUT'
         data = " %s %s" % (self.id, m)
 
-        self.part[actorId].send("%d%s" % (len(data), data))
+        try:
+            self.part[actorId].send("{0}{1}".format(len(data), data))
+        except socket.error as e:
+            if e.errno == socket.errno.EBADF:
+                print "socket to actor {0} was lost".format(actorId)
+            else:
+                raise e
         # can send only one reply per participant
         self.part[actorId] = None
 
