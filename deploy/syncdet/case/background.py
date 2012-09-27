@@ -2,7 +2,7 @@ import subprocess, os, signal
 from .. import lib, case
 import sys
 
-def start_process(cmd, key = None):
+def start_process(cmd, key = None, env = None):
     """Run a command in a separate process, which can be terminated by
     stop_process() from a process different from the current one.
 
@@ -29,7 +29,7 @@ def start_process(cmd, key = None):
 
     # launch the process
     with open(case.log_file_path(key), 'a') as f:
-        p = subprocess.Popen(cmd, 0, None, f, f)
+        p = subprocess.Popen(cmd, 0, None, f, f, env=env)
 
     # write the pid file
     with open(path_pid, 'w') as f: f.write(str(p.pid))

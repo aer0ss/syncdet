@@ -11,6 +11,8 @@ actor_defaults:
     # For running installation of AeroFS client
     aero_userid: user@aerofs.com
     aero_password: password
+    aero_app_root: /home/aerofstest/syncdet/deploy/approot/
+    aero_rt_root: /home/aerofstest/syncdet/user_data/rtroot/
 
 # Actor definitions. Feel free to document the details of each system.
 # These are not used by syncdet, but they may be helpful for debugging
