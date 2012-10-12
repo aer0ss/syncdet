@@ -127,5 +127,11 @@ def main():
     if not options.verify and controller.report.report_path():
         print 'the report is at', controller.report.report_path()
 
+    with open(controller.report.report_path()) as f:
+        if "FAILED" in f.read():
+            return 1
+        else:
+            return 0
+
 if __name__ == '__main__':
-    main()
+    exit(main())
