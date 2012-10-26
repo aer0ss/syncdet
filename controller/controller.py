@@ -146,7 +146,7 @@ def execute_case(module, verbose, team_city_output_enabled):
     result = report.report_case(module, instId, n, unfinished)
     if team_city_output_enabled:
         if soft_timeout_reached:
-            print "##teamCity[message text='soft timeout reached on {0}' status='WARNING']".format(module)
+            print "##teamcity[message text='soft timeout reached on {0}' status='WARNING']".format(module)
         if not result:
             print "##teamcity[testFailed name='" + module + "' message='failure' details='see the syncdet log under Artifacts for more information']"
         print "##teamcity[testFinished name='" + module + "']"
