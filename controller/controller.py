@@ -70,9 +70,10 @@ def analyze(module):
             "its '%s' data structure." % (module, _SPEC_NAME)
         return min(n, preferred), timeout
 
-def launch_case(module, instId, verbose):
+def launch_case(module, instId, verbose, team_city_output_enabled):
     """
-    @return: the number of actors and a list of actors that didn't finish on time
+    @return: the number of actors, a list of actors that didn't finish on time,
+             and whether or not a soft timeout occurred
 	"""
 
     n, timeout = analyze(module)
@@ -91,6 +92,7 @@ def launch_case(module, instId, verbose):
         pids[actor.exec_remote_cmd_non_blocking(cmd)] = i
 
     start = time.time()
+    soft_timeout_reached = False
     while 1:
         # iterate all pids that we're waiting
         for pid in pids.keys():
@@ -100,7 +102,10 @@ def launch_case(module, instId, verbose):
             if verbose: print 'sys %d finished' % pids[pid]
             del pids[pid]
         if not pids: break
-        if time.time() - start > timeout:
+        if time.time() - start > timeout and not soft_timeout_reached:
+            if verbose: print "%s reached soft timeout" % module
+            soft_timeout_reached = True
+        if time.time() - start > param.CASE_HARD_TIMEOUT:
             if verbose: print '%s timed out' % module
             break
         time.sleep(1)
@@ -112,7 +117,7 @@ def launch_case(module, instId, verbose):
         os.kill(pid, signal.SIGKILL)
         kill_remote_instance(pids[pid], instId, verbose)
 
-    return n, pids.values()
+    return (n, pids.values(), soft_timeout_reached)
 
 s_lock = threading.Lock()
 
@@ -124,15 +129,28 @@ def make_case_instance_id():
     s_lock.release()
     return ret
 
-def execute_case(module, verbose):
+def execute_case(module, verbose, team_city_output_enabled):
     """
     @return: False if the case failed
     """
+
+    if team_city_output_enabled:
+        print "##teamcity[testStarted name='" + module + "']"
+
     instId = make_case_instance_id()
-    n, unfinished = launch_case(module, instId, verbose)
+    n, unfinished, soft_timeout_reached = launch_case(module, instId, verbose, team_city_output_enabled)
     for i in range(n):
         log.collect_log(i, module, instId)
-    return report.report_case(module, instId, n, unfinished)
+        filename = log.controller_scenario_log_file(i, module, instId)
+
+    result = report.report_case(module, instId, n, unfinished)
+    if team_city_output_enabled:
+        if soft_timeout_reached:
+            print "##teamCity[message text='soft timeout reached on {0}' status='WARNING']".format(module)
+        if not result:
+            print "##teamcity[testFailed name='" + module + "' message='failure' details='see the syncdet log under Artifacts for more information']"
+        print "##teamcity[testFinished name='" + module + "']"
+    return result
 
 KILL_CMD = "for i in `ps -eo pid,command | grep '{0}' | grep -v grep | " \
             "sed 's/ *\\([0-9]*\\).*/\\1/'`; do kill $i; done"

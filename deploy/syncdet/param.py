@@ -16,6 +16,11 @@ CASE_REPORT = True
 # overwritten by command line option '-t' or spec['timeout']
 CASE_TIMEOUT = 60
 
+# the default hard timeout for controller waiting for a case to finish. in sec.
+# until this point, a case can continue to make progress and a message will be printed
+# stating there was a soft timeout
+CASE_HARD_TIMEOUT = 180
+
 # the default timeout for synchronizers. in sec.
 # overwritten by sync()'s timeout parameter
 SYNC_TIMEOUT = CASE_TIMEOUT

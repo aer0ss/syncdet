@@ -6,6 +6,7 @@ import controller.report
 import controller.deployer
 import controller.sync_service
 from deploy.syncdet import config, actors, param
+from controller import log
 
 class FlushingOutputStream:
     """
@@ -64,6 +65,10 @@ def main():
     parser.add_option("--purge-log", dest = "purge", action = "store_true",
                       default = False,
                       help = "empty the log directory and then quit")
+    parser.add_option("--team-city", dest = "team_city", action = "store_true",
+                      help = "Enable teamcity output (used to gather statistics)")
+    parser.add_option("--tar-user-data", dest = "tar_user_data", action = "store_true",
+                      help = "capture user_data dir in tar package")
 
     options, args = parser.parse_args()
 
@@ -122,16 +127,29 @@ def main():
         controller.deployer.deploy(deploy_folders, options.config)
 
     # launch the global scenario
-    controller.scn.execute(scn, '', options.verify, options.verbose)
+    controller.scn.execute(scn, '', options.verify, options.verbose, options.team_city)
 
     if not options.verify and controller.report.report_path():
         print 'the report is at', controller.report.report_path()
 
+    # copy daemon logs and publish (don't use team city if specified because this isn't really a test)
+    if options.tar_user_data:
+        tar_user_data_scn = controller.scn.compile_single_case("syncdet.case.tar_user_data")
+        controller.scn.execute(tar_user_data_scn, '', options.verify, options.verbose, False)
+
+        for id,actor in enumerate(actors.actor_list()):
+            log.collect_user_data(id)
+            if options.team_city:
+                print "##teamcity[publishArtifacts '" + log.get_user_data_tar_path(id) + "']"
+
+    if options.team_city:
+        print "##teamcity[publishArtifacts '" + controller.report.report_path() + "']"
+
     with open(controller.report.report_path()) as f:
         if "FAILED" in f.read():
-            return 1
+            return(1)
         else:
-            return 0
+            return(0)
 
 if __name__ == '__main__':
     exit(main())
