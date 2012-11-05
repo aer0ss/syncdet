@@ -28,6 +28,9 @@ SYNC_TIMEOUT = CASE_TIMEOUT
 # the listening port for the sync service
 SYNC_SERVICE_PORT = 2985
 
+# the listening address for the sync service
+SYNC_SERVICE_ADDRESS = "localhost"
+
 # the backlog length for the sync service
 SYNC_SERVICE_BACKLOG = 1000
 

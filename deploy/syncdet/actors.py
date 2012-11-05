@@ -6,6 +6,7 @@
 # To view or change attributes of particular actors, see actorsdef.py
 import os, sys, subprocess
 import config
+import param
 
 # a list of Actor objects
 _actors = []
@@ -114,6 +115,7 @@ class Actor:
         cmdLocal = [
                self.rsh,
                self.login + '@' + self.address,
+               "-R{0}:localhost:{0}".format(param.SYNC_SERVICE_PORT),
                cmd
                ]
         if self._verbose: print cmdLocal

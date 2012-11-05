@@ -127,7 +127,7 @@ def fini_socket(socket):
 
 def cancel_synchronizers(signature = 'all'):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((config.get().controller_address, param.SYNC_SERVICE_PORT))
+    s.connect((param.SYNC_SERVICE_ADDRESS, param.SYNC_SERVICE_PORT))
 
     data = " C %s" % signature
     s.send("%d%s" % (len(data), data))

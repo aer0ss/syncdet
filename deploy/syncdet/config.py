@@ -53,8 +53,6 @@ def get():
 class _Config(object):
     def __init__(self, data):
         """
-        Creates a Config object that contains the controller's network address and the
-        actor specifications.
+        Creates a Config object that contains the actor specifications.
         """
-        self.controller_address = data["controller_address"]
         self.actors = data["actors"]

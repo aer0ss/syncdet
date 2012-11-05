@@ -52,18 +52,9 @@ by launching SyncDET with the \verb+--config+ flag as such:
 $ syncdet.py --config=path/to/config.yaml
 \end{verbatim}
 
-Second, edit the configuration file to describe the controller and actors. The file is
+Second, edit the configuration file to describe the actors. The file is
 in the YAML format. The sample config file should show enough syntax to get you started.
 For more information, see the YAML 1.1 spec at \verb+http://www.yaml.org/+.
-
-\paragraph{Controller}
-You need to specify the hostname of the localhost from which you will launch
-SyncDET (the localhost will be the controller):
-\begin{verbatim}
-# the IP address or host name of the controller
-controller_address: 192.168.1.15
-\end{verbatim}
-This is necessary because actors connect back to the controller for certain tasks.
 
 \paragraph{Actors}
 List the hostname or IP address of all systems to be used as actors:

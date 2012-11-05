@@ -1,6 +1,3 @@
-controller_address: # put your IP address or hostname here
-                    # (this should identify the machine from which you're launching tests)
-
 # These are default values. If the actors below do not define some of these fields,
 # those fields will be added to the actors using the values defined here.
 actor_defaults:
