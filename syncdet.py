@@ -126,6 +126,13 @@ def main():
     if not options.verify:
         controller.deployer.deploy(deploy_folders, options.config)
 
+    if options.team_city:
+        with open("teamcity-info.xml", "w") as tci:
+            tci.write("<build>\n")
+            tci.write("<statusInfo>\n")
+            tci.write("</statusInfo>\n")
+            tci.write("</build>")
+
     # launch the global scenario
     controller.scn.execute(scn, '', options.verify, options.verbose, options.team_city)
 

@@ -23,7 +23,7 @@ CASE_HARD_TIMEOUT = 180
 
 # the default timeout for synchronizers. in sec.
 # overwritten by sync()'s timeout parameter
-SYNC_TIMEOUT = CASE_TIMEOUT
+SYNC_TIMEOUT = CASE_HARD_TIMEOUT
 
 # the listening port for the sync service
 SYNC_SERVICE_PORT = 2985

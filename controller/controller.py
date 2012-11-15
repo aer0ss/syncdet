@@ -147,6 +147,11 @@ def execute_case(module, verbose, team_city_output_enabled):
     if team_city_output_enabled:
         if soft_timeout_reached:
             print "##teamcity[message text='soft timeout reached on {0}' status='WARNING']".format(module)
+            with open("teamcity-info.xml", "r+") as tci:
+                lines = tci.readlines()
+                lines.insert(-2, "<text action='append'>soft timeout reached on {0}</text>\n".format(module))
+                tci.seek(0)
+                tci.write("".join(lines))
         if not result:
             print "##teamcity[testFailed name='" + module + "' message='failure' details='see the syncdet log under Artifacts for more information']"
         print "##teamcity[testFinished name='" + module + "']"
