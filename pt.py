@@ -22,7 +22,7 @@ def walk(walk_args):
 
 if __name__ == '__main__':
     usage_str = ('py: SyncDET PowerTools\n'
-                '    {} [option] <tool> [<args>]\n'
+                '    {0} [option] <tool> [<args>]\n'
                 '\n'
                 'TOOLS:\n'
                 '    walk <cmd>: run <cmd> on each actor').format(sys.argv[0])

@@ -104,8 +104,8 @@ def collect_user_data(actor_id):
     """
     actor = actors.actor_list()[actor_id]
     scenario_log_path = controller_scenario_log_folder()
-    actor.copy_from('user_data-{}.tar'.format(actor_id), scenario_log_path)
+    actor.copy_from('user_data-{0}.tar'.format(actor_id), scenario_log_path)
 
 def get_user_data_tar_path(actor_id):
     scenario_log_path = controller_scenario_log_folder()
-    return os.path.join(scenario_log_path, 'user_data-{}.tar'.format(actor_id))
+    return os.path.join(scenario_log_path, 'user_data-{0}.tar'.format(actor_id))
