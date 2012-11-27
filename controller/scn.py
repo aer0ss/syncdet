@@ -102,10 +102,7 @@ def execute_basic_item(scn, bi, verify, show, verbose, team_city_output_enabled,
         if not ret and scn.nofail:
             print ">>>>>> Force to quit because of 'nofail'. It may generate "\
                     "some exceptions. Please ignore."
-            # this will be caught by executeUnit
-            os.kill(os.getpid(), signal.SIGINT)
-            # in case the signal is lost
-            sys.exit(1)
+            raise Exception("nofail situation encountered")
 
 def execute_unit(scn, unit, verify, show, verbose, team_city_output_enabled, ind):
     if unit.action == scncc.SERIAL:
