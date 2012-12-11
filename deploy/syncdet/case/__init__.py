@@ -108,4 +108,4 @@ def fail_test_case(msg = ""):
     to describe the failure. The message will be recorded in the test report.
     """
     print 'CASE_FAILED: {0}'.format(msg)
-    sys.exit()
+    sys.exit(1)

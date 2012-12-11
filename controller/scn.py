@@ -47,7 +47,7 @@ def resolve_reference(scn, item, list = None):
             resolve_reference(scn.parent, item, list)
         else:
             print "error: no group or scenario named '%s' is found" % item
-            sys.exit()
+            sys.exit(1)
 
     return list
 
@@ -179,7 +179,7 @@ def execute(glob, scenario, verify, verbose, team_city_output_enabled):
         scn = glob
     elif scenario not in glob.children.keys():
         print "scenario '%s' not found" % scenario
-        sys.exit()
+        sys.exit(1)
     else:
         scn = glob.children[scenario]
 

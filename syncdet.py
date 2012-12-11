@@ -93,7 +93,7 @@ def main():
     # parse deploy folders
     if len(args) < 1:
         print 'Please specify at least one deployment folder. Use --help for usage.'
-        sys.exit()
+        sys.exit(1)
 
     # add SyncDET's internal deployment folder to the deployment folder list.
     deploy_folders = list(args)
@@ -118,7 +118,7 @@ def main():
     else:
         print "Either a scenario file or a test case must be specified." \
                 " Use --help for usage."
-        sys.exit()
+        sys.exit(1)
 
     # launch the sync service
     controller.sync_service.start_service(options.verbose)

@@ -10,7 +10,7 @@ _LAUNCHER_PY = 'syncdet_case_launcher.py'
 
 def error_analysis(msg):
     print 'Test code error:', msg
-    sys.exit()
+    sys.exit(1)
 
 def analyze(module):
     """

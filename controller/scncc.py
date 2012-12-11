@@ -286,7 +286,7 @@ def compile(file, path):
                words = [':scn', 'global'], isglobal = True, parent = pseudo)
     except CompileError, data:
         print data
-        sys.exit()
+        sys.exit(1)
 
     glob = pseudo.children['global']
     glob.parent = None

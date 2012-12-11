@@ -11,7 +11,7 @@ def preprocess_file(path, tmp, indent, included):
         file = open(path, 'r')
     except Exception, data:
         print data
-        sys.exit()
+        sys.exit(1)
 
     lno = 0
     while 1:

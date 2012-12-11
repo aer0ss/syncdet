@@ -25,7 +25,7 @@ def create_log_folders(verify):
     except OSError:
         if not os.path.exists(scenario_log_path):
             print 'Directory ' + scenario_log_path + ' could not be created';
-            sys.exit();
+            sys.exit(1);
 
     # Create a symlink to the new log folder created above. This is for
     # convenience. The symlink will live in the controller logs folder with

@@ -133,7 +133,7 @@ class Actor:
                         'see http://support.attachmate.com/techdocs/2116.html'
                         ).format(e)
                 print s_warning
-                sys.exit(-1)
+                sys.exit(1)
 
     def _run_local_cmd(self, cmd):
         if self._verbose:
