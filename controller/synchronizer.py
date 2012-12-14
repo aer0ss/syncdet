@@ -1,4 +1,4 @@
-import string, time
+import string, time, socket
 
 from deploy.syncdet import param
 
