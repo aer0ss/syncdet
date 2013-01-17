@@ -93,6 +93,7 @@ def launch_case(module, instId, verbose, team_city_output_enabled):
 
     start = time.time()
     soft_timeout_reached = False
+    hard_timeout = max(timeout, param.CASE_HARD_TIMEOUT)
     while 1:
         # iterate all pids that we're waiting
         for pid in pids.keys():
@@ -105,7 +106,7 @@ def launch_case(module, instId, verbose, team_city_output_enabled):
         if time.time() - start > timeout and not soft_timeout_reached:
             if verbose: print "%s reached soft timeout" % module
             soft_timeout_reached = True
-        if time.time() - start > param.CASE_HARD_TIMEOUT:
+        if time.time() - start > hard_timeout:
             if verbose: print '%s timed out' % module
             break
         time.sleep(1)
