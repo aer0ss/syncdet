@@ -137,7 +137,7 @@ def main():
     return_code = 0
     try:
         controller.scn.execute(scn, '', options.verify, options.verbose, options.team_city)
-    except (Exception e):
+    except Exception as e:
         return_code = 1
     finally:
         if not options.verify and controller.report.report_path():
