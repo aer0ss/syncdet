@@ -134,29 +134,32 @@ def main():
             tci.write("</build>")
 
     # launch the global scenario
-    controller.scn.execute(scn, '', options.verify, options.verbose, options.team_city)
+    return_code = 0
+    try:
+        controller.scn.execute(scn, '', options.verify, options.verbose, options.team_city)
+    except (Exception e):
+        return_code = 1
+    finally:
+        if not options.verify and controller.report.report_path():
+            print 'the report is at', controller.report.report_path()
 
-    if not options.verify and controller.report.report_path():
-        print 'the report is at', controller.report.report_path()
+        # copy daemon logs and publish (don't use team city if specified because this isn't really a test)
+        if options.tar_user_data:
+            tar_user_data_scn = controller.scn.compile_single_case("syncdet.case.tar_user_data")
+            controller.scn.execute(tar_user_data_scn, '', options.verify, options.verbose, False)
 
-    # copy daemon logs and publish (don't use team city if specified because this isn't really a test)
-    if options.tar_user_data:
-        tar_user_data_scn = controller.scn.compile_single_case("syncdet.case.tar_user_data")
-        controller.scn.execute(tar_user_data_scn, '', options.verify, options.verbose, False)
+            for id,actor in enumerate(actors.actor_list()):
+                log.collect_user_data(id)
+                if options.team_city:
+                    print "##teamcity[publishArtifacts '" + log.get_user_data_tar_path(id) + "']"
 
-        for id,actor in enumerate(actors.actor_list()):
-            log.collect_user_data(id)
-            if options.team_city:
-                print "##teamcity[publishArtifacts '" + log.get_user_data_tar_path(id) + "']"
+        if options.team_city:
+            print "##teamcity[publishArtifacts '" + controller.report.report_path() + "']"
 
-    if options.team_city:
-        print "##teamcity[publishArtifacts '" + controller.report.report_path() + "']"
-
-    with open(controller.report.report_path()) as f:
-        if "FAILED" in f.read():
-            return(1)
-        else:
-            return(0)
+        with open(controller.report.report_path()) as f:
+            if "FAILED" in f.read():
+                return_code = 1
+    return(return_code)
 
 if __name__ == '__main__':
     exit(main())
