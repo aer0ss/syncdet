@@ -10,6 +10,7 @@ import os
 import traceback
 
 from syncdet import config, param, case
+from datetime import datetime
 
 __import__(case.module_name())
 
@@ -101,6 +102,8 @@ def main():
     _redirect_stdout_and_stderr()
 
     try:
+        then = datetime.now()
+
         # execute the right entry point
         spec = sys.modules[case.module_name()].spec
         if 'entries' in spec.keys() and case.actor_id() < len(spec['entries']):
@@ -113,6 +116,9 @@ def main():
     except Exception as data:
         traceback.print_exc()
         case.fail_test_case(str(data))
+
+    finally:
+        print 'finished in {0!s}'.format(datetime.now() - then)
 
 if __name__ == '__main__':
     main()
