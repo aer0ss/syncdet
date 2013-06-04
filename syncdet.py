@@ -36,39 +36,39 @@ def main():
     usage = "usage: %prog [options] deployment_folders..."
     parser = optparse.OptionParser(usage)
 
-    parser.add_option("-s", "--scenario", dest = "scnfile",
-                      help = "specify the scenario file. default.scn is the default",
-                      metavar = "FILE")
-    parser.add_option("-c", "--case", dest = "case",
-                      help = "specify a single case, CASE, to run",
-                      metavar = "CASE")
+    parser.add_option("-s", "--scenario", dest="scnfile",
+                      help="specify the scenario file. default.scn is the default",
+                      metavar="FILE")
+    parser.add_option("-c", "--case", dest="case",
+                      help="specify a single case, CASE, to run",
+                      metavar="CASE")
     parser.add_option("--config", dest="config",
-                      help = "the YAML configuration file to use. Defaults to "\
+                      help="the YAML configuration file to use. Defaults to "\
                       "/etc/syncdet/config.yaml",
-                      default = "/etc/syncdet/config.yaml")
+                      default="/etc/syncdet/config.yaml")
 
-    parser.add_option("-m", "--actors", dest = "actors", type = "int", default = "-1",
-                      help = "the max number of actors to use. use all sytems "\
-                      "otherwise", metavar = "N")
-    parser.add_option("-t", "--case-timeout", dest = "casetimeout", type = "int",
-                      help = "the case timeout, overwriting param.CASE_TIMEOUT",
-                      metavar = "TIMEOUT")
-    parser.add_option("-v", "--verbose", dest = "verbose", action = "store_true",
-                      default = False,
-                      help = "verbose mode")
-    parser.add_option("-e", "--verify", dest = "verify", action = "store_true",
-                      default = False,
-                      help = "print but not actually run the cases")
+    parser.add_option("-m", "--actors", dest="actors", type="int", default="-1",
+                      help="the max number of actors to use. use all sytems "\
+                      "otherwise", metavar="N")
+    parser.add_option("-t", "--case-timeout", dest="casetimeout", type="int",
+                      help="the case timeout, overwriting param.CASE_TIMEOUT",
+                      metavar="TIMEOUT")
+    parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
+                      default=False,
+                      help="verbose mode")
+    parser.add_option("-e", "--verify", dest="verify", action="store_true",
+                      default=False,
+                      help="print but not actually run the cases")
 
-    parser.add_option("--clobber", dest = "clobber", action = "store_true",
-                      help = "kill all remaining remote sessions and quit")
-    parser.add_option("--purge-log", dest = "purge", action = "store_true",
-                      default = False,
-                      help = "empty the log directory and then quit")
-    parser.add_option("--team-city", dest = "team_city", action = "store_true",
-                      help = "Enable teamcity output (used to gather statistics)")
-    parser.add_option("--tar-user-data", dest = "tar_user_data", action = "store_true",
-                      help = "capture user_data dir in tar package")
+    parser.add_option("--clobber", dest="clobber", action="store_true",
+                      help="kill all remaining remote sessions and quit")
+    parser.add_option("--purge-log", dest="purge", action="store_true",
+                      default=False,
+                      help="empty the log directory and then quit")
+    parser.add_option("--team-city", dest="team_city", action="store_true",
+                      help="Enable teamcity output (used to gather statistics)")
+    parser.add_option("--tar", dest="tar_dir", action="append", type="string", default=[],
+                      help="paths to capture in a tar package")
 
     options, args = parser.parse_args()
 
@@ -144,9 +144,10 @@ def main():
             print 'the report is at', controller.report.report_path()
 
         # copy daemon logs and publish (don't use team city if specified because this isn't really a test)
-        if options.tar_user_data:
+        if len(options.tar_dir) > 0:
+            print "tarring ", options.tar_dir
             tar_user_data_scn = controller.scn.compile_single_case("syncdet.case.tar_user_data")
-            controller.scn.execute(tar_user_data_scn, '', options.verify, options.verbose, False)
+            controller.scn.execute(tar_user_data_scn, '', options.verify, options.verbose, False, *options.tar_dir)
 
             for id,actor in enumerate(actors.actor_list()):
                 log.collect_user_data(id)

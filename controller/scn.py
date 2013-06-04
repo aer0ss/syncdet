@@ -64,8 +64,9 @@ class ThdExecBasicItem(threading.Thread):
     verbose = None
     ind = None
     index = None
+    args = None
 
-    def __init__(self, scn, item, verify, show, verbose, team_city_output_enabled, ind, index):
+    def __init__(self, scn, item, verify, show, verbose, team_city_output_enabled, ind, index, args):
         threading.Thread.__init__(self)
         self.scn = scn
         self.item = item
@@ -75,36 +76,37 @@ class ThdExecBasicItem(threading.Thread):
         self.team_city_output_enabled = team_city_output_enabled
         self.ind = ind
         self.index = index
+        self.args = args
 
         self.setDaemon(True)
 
     def run(self):
         execute_basic_item(self.scn, self.item, self.verify, self.show,
-                    self.verbose, self.team_city_output_enabled, self.ind, self.index)
+                    self.verbose, self.team_city_output_enabled, self.ind, self.index, *self.args)
 
-def execute_basic_item(scn, bi, verify, show, verbose, team_city_output_enabled, ind, index):
+def execute_basic_item(scn, bi, verify, show, verbose, team_city_output_enabled, ind, index, *args):
     """
     @param bi: type: scncc.Unit. Refers to a basic item.
     """
     ind = ind + INDENT
     if isinstance(bi, scncc.Scenario):
         # it's a scenario
-        execute_unit(bi, bi.unit, verify, show, verbose, team_city_output_enabled, ind)
+        execute_unit(bi, bi.unit, verify, show, verbose, team_city_output_enabled, ind, *args)
     elif isinstance(bi, scncc.Unit):
         # it's a unit
-        execute_unit(scn, bi, verify, show, verbose, team_city_output_enabled, ind)
+        execute_unit(scn, bi, verify, show, verbose, team_city_output_enabled, ind, *args)
     else:
         assert isinstance(bi, scncc.Object)
         # it's a module
         if show: print ind2space(ind) + bi.name + ' %d' % index
         if verify: return
-        ret = controller.execute_case(bi.name, verbose, team_city_output_enabled)
+        ret = controller.execute_case(bi.name, verbose, team_city_output_enabled, *args)
         if not ret and scn.nofail:
             print ">>>>>> Force to quit because of 'nofail'. It may generate "\
                     "some exceptions. Please ignore."
             raise Exception("nofail situation encountered")
 
-def execute_unit(scn, unit, verify, show, verbose, team_city_output_enabled, ind):
+def execute_unit(scn, unit, verify, show, verbose, team_city_output_enabled, ind, *args):
     if unit.action == scncc.SERIAL:
         if show: print ind2space(ind) + 'SERIAL,' + str(unit.count)
         basicItems = items_to_basic_items(scn, unit.children)
@@ -112,11 +114,11 @@ def execute_unit(scn, unit, verify, show, verbose, team_city_output_enabled, ind
             if unit.count == 0:
                 i = 0
                 while 1:
-                    execute_basic_item(scn, bi, verify, show, verbose, team_city_output_enabled, ind, i)
+                    execute_basic_item(scn, bi, verify, show, verbose, team_city_output_enabled, ind, i, *args)
                     i += 1
             else:
                 for i in xrange(unit.count):
-                    execute_basic_item(scn, bi, verify, show, verbose, team_city_output_enabled, ind, i)
+                    execute_basic_item(scn, bi, verify, show, verbose, team_city_output_enabled, ind, i, *args)
 
     elif unit.action == scncc.PARALLEL:
         if show: print ind2space(ind) + 'PARALLEL,' + str(unit.count)
@@ -126,7 +128,7 @@ def execute_unit(scn, unit, verify, show, verbose, team_city_output_enabled, ind
         thds = []
         for bi in basicItems:
             for i in xrange(unit.count):
-                thd = ThdExecBasicItem(scn, bi, verify, show, verbose, team_city_output_enabled, ind, i)
+                thd = ThdExecBasicItem(scn, bi, verify, show, verbose, team_city_output_enabled, ind, i, args)
                 thd.start()
                 thds.append(thd)
                 if param.PARALLEL_DELAY: time.sleep(param.PARALLEL_DELAY)
@@ -155,20 +157,20 @@ def execute_unit(scn, unit, verify, show, verbose, team_city_output_enabled, ind
                 remains.extend(basicItems)
                 refill += 1
             luck = rand.randint(0, len(remains) - 1)
-            execute_basic_item(scn, remains.pop(luck), verify, show, verbose, team_city_output_enabled, ind, refill)
+            execute_basic_item(scn, remains.pop(luck), verify, show, verbose, team_city_output_enabled, ind, refill, *args)
             i += 1
 
 # this's a naive way to prevent reference recursion
 #
-def execute_unit_safe(scn, unit, verify, show, verbose, team_city_output_enabled, ind):
+def execute_unit_safe(scn, unit, verify, show, verbose, team_city_output_enabled, ind, *args):
     try:
-        execute_unit(scn, unit, verify, show, verbose, team_city_output_enabled, ind)
+        execute_unit(scn, unit, verify, show, verbose, team_city_output_enabled, ind, *args)
     except RuntimeError:
         print 'error: recursive referencing exists in the scenario file.'
 
 # scenario: if no scenario then the global scenario will be executed
 #
-def execute(glob, scenario, verify, verbose, team_city_output_enabled):
+def execute(glob, scenario, verify, verbose, team_city_output_enabled, *args):
 
     show = True
 
@@ -190,7 +192,7 @@ def execute(glob, scenario, verify, verbose, team_city_output_enabled):
             ocUnit.children = glob.opening
             oldnf = glob.nofail
             glob.nofail = True
-            execute_unit_safe(glob, ocUnit, verify, show, verbose, team_city_output_enabled, INDENT)
+            execute_unit_safe(glob, ocUnit, verify, show, verbose, team_city_output_enabled, INDENT, *args)
             glob.nofail = oldnf
 
         if scn != glob:
@@ -202,25 +204,25 @@ def execute(glob, scenario, verify, verbose, team_city_output_enabled):
             ocUnit.children = scn.opening
             oldnf = scn.nofail
             scn.nofail = True
-            execute_unit_safe(scn, ocUnit, verify, show, verbose, team_city_output_enabled, INDENT * 2)
+            execute_unit_safe(scn, ocUnit, verify, show, verbose, team_city_output_enabled, INDENT * 2, *args)
             scn.nofail = oldnf
 
         # scenario body
         if scn != glob: ind = INDENT
         else: ind = 0
-        execute_unit_safe(scn, scn.unit, verify, show, verbose, team_city_output_enabled, ind)
+        execute_unit_safe(scn, scn.unit, verify, show, verbose, team_city_output_enabled, ind, *args)
 
         # scneario closing
         if scn != glob and scn.closing:
             if verify or verbose: print ind2space(INDENT) + 'CLOSING'
             ocUnit.children = scn.closing
-            execute_unit_safe(scn, ocUnit, verify, show, verbose, team_city_output_enabled, INDENT * 2)
+            execute_unit_safe(scn, ocUnit, verify, show, verbose, team_city_output_enabled, INDENT * 2, *args)
 
         # global closing
         if glob.closing:
             if verify or verbose: print 'CLOSING'
             ocUnit.children = glob.closing
-            execute_unit_safe(glob, ocUnit, verify, show, verbose, team_city_output_enabled, INDENT)
+            execute_unit_safe(glob, ocUnit, verify, show, verbose, team_city_output_enabled, INDENT, *args)
 
         # even though we collect case-specific log files after each test case,
         # there might be more log files to collect (e.g. the ones generated by

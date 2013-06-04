@@ -45,6 +45,11 @@ def instance_id():
 def scenario_id():
     return sys.argv[3]
 
+# return any extra command line arguments passed to syncdet
+#
+def extra_args():
+    return sys.argv[6:]
+
 def instance_unique_string():
     """
     Return a string unique for every test case instance

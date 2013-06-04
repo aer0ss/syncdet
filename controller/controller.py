@@ -70,7 +70,10 @@ def analyze(module):
             "its '%s' data structure." % (module, _SPEC_NAME)
         return min(n, preferred), timeout
 
-def launch_case(module, instId, verbose, team_city_output_enabled):
+def arg_quote(a):
+    return "\"" + a.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
+def launch_case(module, instId, verbose, team_city_output_enabled, *case_args):
     """
     @return: the number of actors, a list of actors that didn't finish on time,
              and whether or not a soft timeout occurred
@@ -85,8 +88,11 @@ def launch_case(module, instId, verbose, team_city_output_enabled):
         cmd = 'python {0}/deploy/{1} '.format(actor.root, _LAUNCHER_PY)
         # the arguments:
         # module actorId scenarioId instId actorCount
-        cmd += '{0} {1} {2} {3} {4}'.format(
+        cmd += '{0} {1} {2} {3} {4} '.format(
                 module, i, scn.scenario_id(), instId, n)
+
+        # extra args to be passed to case
+        cmd += ' '.join([arg_quote(a) for a in case_args])
 
         # execute the remote command
         pids[actor.exec_remote_cmd_non_blocking(cmd)] = i
@@ -130,7 +136,7 @@ def make_case_instance_id():
     s_lock.release()
     return ret
 
-def execute_case(module, verbose, team_city_output_enabled):
+def execute_case(module, verbose, team_city_output_enabled, *case_args):
     """
     @return: False if the case failed
     """
@@ -139,7 +145,7 @@ def execute_case(module, verbose, team_city_output_enabled):
         print "##teamcity[testStarted name='" + module + "']"
 
     instId = make_case_instance_id()
-    n, unfinished, soft_timeout_reached = launch_case(module, instId, verbose, team_city_output_enabled)
+    n, unfinished, soft_timeout_reached = launch_case(module, instId, verbose, team_city_output_enabled, *case_args)
     for i in range(n):
         log.collect_log(i, module, instId)
         filename = log.controller_scenario_log_file(i, module, instId)
