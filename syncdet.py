@@ -53,6 +53,8 @@ def main():
     parser.add_option("-t", "--case-timeout", dest="casetimeout", type="int",
                       help="the case timeout, overwriting param.CASE_TIMEOUT",
                       metavar="TIMEOUT")
+    parser.add_option("--sync-timeout", dest="synctimeout", type="int",
+                      help="the synchronization timeout, overwriting param.SYNC_TIMEOUT")
     parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
                       default=False,
                       help="verbose mode")
@@ -108,6 +110,10 @@ def main():
     # case timeout?
     if options.casetimeout:
         param.CASE_TIMEOUT = options.casetimeout
+
+    # sync timeout?
+    if options.synctimeout:
+        param.SYNC_TIMEOUT = options.synctimeout
 
     # compile the scenario file
     # is a single case specified?
