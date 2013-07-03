@@ -23,7 +23,7 @@ def analyze(module):
 
     try:
         __import__(module)
-    except ImportError:
+    except (ImportError, SyntaxError):
         traceback.print_exc()
         error_analysis("cannot import module '{0}'. See above for the backtrace."
                 .format(module))
@@ -55,10 +55,7 @@ def analyze(module):
         elif 'default' in spec.keys():
             preferred = -1
 
-        if 'timeout' in spec.keys():
-            timeout = spec['timeout']
-        else:
-            timeout = param.CASE_TIMEOUT
+        timeout = spec.get('timeout', param.CASE_TIMEOUT)
     except Exception:
         error_analysis(module + " has an invalid " + _SPEC_NAME + " structure.")
 
@@ -148,7 +145,6 @@ def execute_case(module, verbose, team_city_output_enabled, *case_args):
     n, unfinished, soft_timeout_reached = launch_case(module, instId, verbose, team_city_output_enabled, *case_args)
     for i in range(n):
         log.collect_log(i, module, instId)
-        filename = log.controller_scenario_log_file(i, module, instId)
 
     result = report.report_case(module, instId, n, unfinished)
     if team_city_output_enabled:
