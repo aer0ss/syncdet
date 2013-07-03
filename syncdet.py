@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, optparse, os, os.path
+import optparse, os, os.path, sys, traceback
 import controller.scn
 import controller.report
 import controller.deployer
@@ -144,6 +144,7 @@ def main():
     try:
         controller.scn.execute(scn, '', options.verify, options.verbose, options.team_city)
     except Exception as e:
+        if options.verbose: traceback.print_exc()
         return_code = 1
     finally:
         if not options.verify and controller.report.report_path():
