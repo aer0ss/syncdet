@@ -1,4 +1,4 @@
-import sys, threading, time, random, os, signal
+import sys, threading, time, random
 from deploy.syncdet import param
 import lib, scncc, scnpp, controller, log
 

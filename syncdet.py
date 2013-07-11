@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-import optparse, os, os.path, sys, traceback
+import optparse
+import os
+import sys
+import traceback
 import controller.scn
 import controller.report
 import controller.deployer
@@ -69,8 +72,8 @@ def main():
                       help="empty the log directory and then quit")
     parser.add_option("--team-city", dest="team_city", action="store_true",
                       help="Enable teamcity output (used to gather statistics)")
-    parser.add_option("--tar", dest="tar_dir", action="append", type="string", default=[],
-                      help="paths to capture in a tar package")
+    parser.add_option("--tar", dest="tar", action="store_true",
+                      help="capture rtroot and root anchor in a tar package")
 
     options, args = parser.parse_args()
 
@@ -151,12 +154,12 @@ def main():
             print 'the report is at', controller.report.report_path()
 
         # copy daemon logs and publish (don't use team city if specified because this isn't really a test)
-        if len(options.tar_dir) > 0:
-            print "tarring ", options.tar_dir
+        if options.tar:
+            print "tarring rtroot and root anchor"
             tar_user_data_scn = controller.scn.compile_single_case("syncdet.case.tar_user_data")
-            controller.scn.execute(tar_user_data_scn, '', options.verify, options.verbose, False, *options.tar_dir)
+            controller.scn.execute(tar_user_data_scn, '', options.verify, options.verbose, False)
 
-            for id,actor in enumerate(actors.actor_list()):
+            for id, actor in enumerate(actors.actor_list()):
                 log.collect_user_data(id)
                 if options.team_city:
                     print "##teamcity[publishArtifacts '" + log.get_user_data_tar_path(id) + "']"
@@ -167,7 +170,7 @@ def main():
         with open(controller.report.report_path()) as f:
             if "FAILED" in f.read():
                 return_code = 1
-    return(return_code)
+    return return_code
 
 if __name__ == '__main__':
     exit(main())
