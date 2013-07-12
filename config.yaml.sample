@@ -21,6 +21,15 @@ actors:
             os: linux32
             distro: Ubuntu 12.04.1 LTS
             java: OpenJDK 1.6.0_24 IcedTea6 1.11.4
+
+# Use rsh_remote_args to specify extra argments for rsh. The following two
+# lines would forward the actor 0's port 5037 to the SyncDET controller's. An
+# example use case is allowing actor 0 to debug an android device attached to
+# the controller over the network.
+#
+#        rsh_remote_args:
+#            - -R5037:localhost:5037
+
 # uncomment (and adapt) the following lines to use S3 client
 #            s3_bucket_id: bucket.test.aerofs
 #            s3_access_key: foo

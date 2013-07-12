@@ -37,6 +37,7 @@ def init(verbose, maxNumActors = None):
 # Class definition of a Actor
 class Actor:
     rsh = ''
+    rsh_remote_args = []
     login = ''
     root = ''
     address = ''
@@ -117,7 +118,8 @@ class Actor:
         cmdLocal = [
                self.rsh,
                self.login + '@' + self.address,
-               "-R{0}:localhost:{0}".format(param.SYNC_SERVICE_PORT),
+               "-R{0}:localhost:{0}".format(param.SYNC_SERVICE_PORT)
+               ] + self.rsh_remote_args + [
                cmd
                ]
         if self._verbose: print cmdLocal
