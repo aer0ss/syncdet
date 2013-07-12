@@ -9,7 +9,7 @@ def tar_user_data():
 
     actor = case.local_actor()
 
-    for attr in ['aero_rt_root', 'aero_root_anchor']:
+    for attr in case.extra_args():
         d = getattr(actor, attr, None)
         if d is None:
             continue

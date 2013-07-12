@@ -72,8 +72,8 @@ def main():
                       help="empty the log directory and then quit")
     parser.add_option("--team-city", dest="team_city", action="store_true",
                       help="Enable teamcity output (used to gather statistics)")
-    parser.add_option("--tar", dest="tar", action="store_true",
-                      help="capture rtroot and root anchor in a tar package")
+    parser.add_option("--tar", dest="tar", action="append", type="string", default=[],
+                      help="actor attributes to capture in tar package")
 
     options, args = parser.parse_args()
 
@@ -155,9 +155,9 @@ def main():
 
         # copy daemon logs and publish (don't use team city if specified because this isn't really a test)
         if options.tar:
-            print "tarring rtroot and root anchor"
+            print "tarring", options.tar
             tar_user_data_scn = controller.scn.compile_single_case("syncdet.case.tar_user_data")
-            controller.scn.execute(tar_user_data_scn, '', options.verify, options.verbose, False)
+            controller.scn.execute(tar_user_data_scn, '', options.verify, options.verbose, False, *options.tar)
 
             for id, actor in enumerate(actors.actor_list()):
                 log.collect_user_data(id)
