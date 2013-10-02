@@ -121,3 +121,7 @@ def _rsync(actor, normalized_deploy_folders, normalized_config_path):
     # separate rsync call with a different destination.
     config_dst_path = os.path.join(dst, param.CONFIG_FILE_NAME)
     actor.rsync([normalized_config_path], config_dst_path)
+
+    # Create the user data folder on the actor
+    user_data_dir = os.path.join(actor.root, param.USER_DATA_DIR)
+    actor.exec_remote_cmd_blocking('mkdir -p {}'.format(user_data_dir))
