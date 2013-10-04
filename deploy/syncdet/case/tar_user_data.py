@@ -13,6 +13,7 @@ def tar_user_data():
         d = getattr(actor, attr, None)
         if d is None:
             continue
+        d = os.path.normpath(d)
         ed = os.path.expanduser(d)
         name = os.path.basename(d) + '-{0}'.format(case.actor_id())
         try:
