@@ -58,22 +58,21 @@ def main():
                       metavar="TIMEOUT")
     parser.add_option("--sync-timeout", dest="synctimeout", type="int",
                       help="the synchronization timeout, overwriting param.SYNC_TIMEOUT")
-    parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
-                      default=False,
+    parser.add_option("-v", "--verbose", dest="verbose", action="store_true", default=False,
                       help="verbose mode")
-    parser.add_option("-e", "--verify", dest="verify", action="store_true",
-                      default=False,
+    parser.add_option("-e", "--verify", dest="verify", action="store_true", default=False,
                       help="print but not actually run the cases")
 
     parser.add_option("--clobber", dest="clobber", action="store_true",
                       help="kill all remaining remote sessions and quit")
-    parser.add_option("--purge-log", dest="purge", action="store_true",
-                      default=False,
+    parser.add_option("--purge-log", dest="purge", action="store_true", default=False,
                       help="empty the log directory and then quit")
     parser.add_option("--team-city", dest="team_city", action="store_true",
                       help="Enable teamcity output (used to gather statistics)")
     parser.add_option("--tar", dest="tar", action="append", type="string", default=[],
                       help="actor attributes to capture in tar package")
+    parser.add_option("--case-arg", dest="case_args", action="append", type="string", default=[],
+                      help="arg passed to all cases, accessible to the actor through case.user_specified_args()")
 
     options, args = parser.parse_args()
 
@@ -145,7 +144,7 @@ def main():
     # launch the global scenario
     return_code = 0
     try:
-        controller.scn.execute(scn, '', options.verify, options.verbose, options.team_city)
+        controller.scn.execute(scn, '', options.verify, options.verbose, options.team_city, *options.case_args)
     except Exception as e:
         if options.verbose: traceback.print_exc()
         return_code = 1

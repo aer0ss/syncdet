@@ -9,7 +9,7 @@ def tar_user_data():
 
     actor = case.local_actor()
 
-    for attr in case.extra_args():
+    for attr in case._extra_args():
         d = getattr(actor, attr, None)
         if d is None:
             continue

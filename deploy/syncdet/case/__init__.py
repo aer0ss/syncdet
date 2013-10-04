@@ -45,9 +45,19 @@ def instance_id():
 def scenario_id():
     return sys.argv[3]
 
-# return any extra command line arguments passed to syncdet
+# return any extra command line arguments passed to scn.execute()
+# this is intended to be used as an internal tool for "under-the-hood" cases
+# such as "tar_user_data"
 #
-def extra_args():
+def _extra_args():
+    return sys.argv[6:]
+
+# return any extra command line arguments passed to scn.execute()
+# this is intended to be used by users in case files to access args that were
+# specified during syncdet invocation:
+#     ./syncdet.py [...] --case-arg=a1 --case-arg=a2 ...
+#
+def user_specified_args():
     return sys.argv[6:]
 
 def instance_unique_string():
