@@ -82,8 +82,6 @@ def deploy(deploy_folders, config_path):
     global _actor_deploy_roots
     _actor_deploy_roots = local_roots
 
-    print "deploying..."
-
     pool = multiprocessing.Pool()
 
     # Verify that the paths to be deployed exist
@@ -110,6 +108,9 @@ def _rsync(actor, normalized_deploy_folders, normalized_config_path):
     @param normalized_deploy_folders list of deployment folders
     @param normalized_config_path a configuration file path
     """
+    actor_index = [a.address for a in actors.actor_list()].index(actor.address)
+    print 'deploying to {}'.format(actor_index)
+
     dst = os.path.join(actor.root, param.DEPLOY_DIR)
 
     # Copy the normalized deploy folders to the destination on the actor
@@ -125,3 +126,5 @@ def _rsync(actor, normalized_deploy_folders, normalized_config_path):
     # Create the user data folder on the actor
     user_data_dir = os.path.join(actor.root, param.USER_DATA_DIR)
     actor.exec_remote_cmd_blocking('mkdir -p {}'.format(user_data_dir))
+
+    print 'deploying to {} done'.format(actor_index)
