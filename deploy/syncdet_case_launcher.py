@@ -8,10 +8,12 @@ modules using 'syncdet.foo.'
 import sys
 import os
 import traceback
+from datetime import datetime
 
 from syncdet import config, param, case
 
 __import__(case.module_name())
+
 
 class _MultipleOutputStreams:
     """
@@ -51,28 +53,29 @@ class _PrefixOutputStream:
 
     def __init__(self, f, prefix):
         self.prefix = prefix
-        self.f = f;
+        self.f = f
 
     def write(self, data):
         end = -1
         while 1:
             if self.newline:
-                self.f.write(self.prefix)
+                self.f.write(self.prefix.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S,%f")[:-3]))
             start = end + 1
             end = data.find('\n', start)
             if end < 0:
-                if (start < len(data)):
+                if start < len(data):
                     self.f.write(data[start:])
                     self.newline = 0
                 return
             else:
-                self.f.write(data[start : end + 1])
+                self.f.write(data[start: end + 1])
                 self.newline = 1
                 # if the '\n' is the last char
                 if end == len(data) - 1: return
 
     def flush(self):
         self.f.flush()
+
 
 def _redirect_stdout_and_stderr():
     streams = []
@@ -82,11 +85,12 @@ def _redirect_stdout_and_stderr():
         streams.append(open(path, 'a'))
 
     if param.CASE_SCREEN_OUTPUT:
-        prefix = param.CASE_OUTPUT_PREFIX.format(case.actor_id())
+        prefix = param.CASE_OUTPUT_PREFIX.format(case.actor_id(), "{0}")
         stream = _PrefixOutputStream(sys.stdout, prefix)
         streams.append(stream)
 
     sys.stdout = sys.stderr = _MultipleOutputStreams(streams)
+
 
 def main():
     # Load the configuration file. Since this script

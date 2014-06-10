@@ -34,8 +34,10 @@ SYNC_SERVICE_ADDRESS = "localhost"
 # the backlog length for the sync service
 SYNC_SERVICE_BACKLOG = 1000
 
-# the prefix for case output. {0} will be replaced by the actor id
-CASE_OUTPUT_PREFIX = '{0}| '
+# the prefix for case output
+# {0} -> actor id
+# {1} -> timestamp on actor
+CASE_OUTPUT_PREFIX = '{0}|{1}| '
 
 # The name of the config file on the actor systems. This is a standard name that
 # all actors will look for.
