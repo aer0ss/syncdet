@@ -2,7 +2,7 @@ import subprocess, os, signal
 from .. import lib, case
 import sys
 
-def start_process(cmd, key = None, env = None):
+def start_process(cmd, key=None, env=None):
     """Run a command in a separate process, which can be terminated by
     stop_process() from a process different from the current one.
 
@@ -18,25 +18,27 @@ def start_process(cmd, key = None, env = None):
     can be found under the same folder of the test case's log.
     """
 
-    if key is None: key = cmd[0]
+    if key is None:
+        key = cmd[0]
 
     path_pid = _get_pid_file_path(key)
     if os.path.exists(path_pid):
         pid = _read_pid_file(path_pid)
         print('WARNING: a background process "{0}" launched previously'
-                ' might not have been properly stopped. PID: {1}'
-                .format(key, pid))
+              ' might not have been properly stopped. PID: {1}'
+              .format(key, pid))
 
     # launch the process
     with open(case.log_file_path(key), 'a') as f:
-        p = subprocess.Popen(cmd, 0, None, f, f, env=env)
+        p = subprocess.Popen(cmd, bufsize=0, stdin=None, stdout=f, stderr=subprocess.STDOUT, env=env)
 
     # write the pid file
-    with open(path_pid, 'w') as f: f.write(str(p.pid))
+    with open(path_pid, 'w') as f:
+        f.write(str(p.pid))
 
     return p
 
-def stop_process(key, ignore_kill_error = False):
+def stop_process(key, ignore_kill_error=False):
     """
     Stop a background process specified by the key. The process must be
     launched by start_process(). The method sends SIGKILL to the
@@ -48,7 +50,8 @@ def stop_process(key, ignore_kill_error = False):
     try:
         os.kill(pid, signal.SIGKILL)
     except:
-        if not ignore_kill_error: raise sys.exc_info()[1]
+        if not ignore_kill_error:
+            raise sys.exc_info()[1]
     os.remove(path_pid)
 
 def _read_pid_file(path_pid):
@@ -66,5 +69,6 @@ def _get_pid_file_path(key):
     """
     path = lib.background_pid_file(case.root_path(), key)
     parent = os.path.dirname(path)
-    if not os.path.exists(parent): os.makedirs(parent)
+    if not os.path.exists(parent):
+        os.makedirs(parent)
     return path
