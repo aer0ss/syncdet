@@ -75,14 +75,18 @@ def launch_case(module, instId, verbose, team_city_output_enabled, *case_args):
     @return: the number of actors, a list of actors that didn't finish on time,
              and whether or not a soft timeout occurred
     """
-
     n, timeout = analyze(module)
 
     pids = {}    # { pid: actorId }
     for i in range(n):
         actor = actors.actor(i)
         # the command
-        cmd = 'python {0}/deploy/{1} '.format(actor.root, _LAUNCHER_PY)
+        # Invoke win python on windows.
+        if 'windows' in actor.os.lower():
+            syncdet_path = 'C:\\cygwin\\home\\{0}\\syncdet'.format(actor.login)
+            cmd = '/cygdrive/c/Python27/python.exe \'{0}\\deploy\\{1}\' '.format(syncdet_path, _LAUNCHER_PY)
+        else:
+            cmd = 'python {0}/deploy/{1} '.format(actor.root, _LAUNCHER_PY)
         # the arguments:
         # module actorId scenarioId instId actorCount
         cmd += '{0} {1} {2} {3} {4} '.format(
@@ -90,7 +94,6 @@ def launch_case(module, instId, verbose, team_city_output_enabled, *case_args):
 
         # extra args to be passed to case
         cmd += ' '.join([arg_quote(a) for a in case_args])
-
         # execute the remote command
         pids[actor.exec_remote_cmd_non_blocking(cmd)] = i
 

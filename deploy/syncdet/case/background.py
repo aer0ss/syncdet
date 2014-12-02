@@ -30,8 +30,10 @@ def start_process(cmd, key=None, env=None):
 
     # launch the process
     with open(case.log_file_path(key), 'a') as f:
-        p = subprocess.Popen(cmd, bufsize=0, stdin=None, stdout=f, stderr=subprocess.STDOUT, env=env)
-
+        if 'win32' in sys.platform:
+            p = subprocess.Popen(cmd, bufsize=0, close_fds=True, env=env, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        else:
+            p = subprocess.Popen(cmd, bufsize=0, stdin=None, stdout=f, stderr=subprocess.STDOUT, env=env)
     # write the pid file
     with open(path_pid, 'w') as f:
         f.write(str(p.pid))

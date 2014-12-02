@@ -41,6 +41,7 @@ class Actor:
     login = ''
     root = ''
     address = ''
+    os = ''
     _copy_from = ['scp', '-r', '%login@%host:%src', '%dst']
     _copy_to = ['scp', '-r', '%src', '%login@%host:%dst']
     _verbose = False # Verbose output?
