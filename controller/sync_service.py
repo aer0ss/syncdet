@@ -39,6 +39,20 @@
 #
 
 #
+# sync-ng: more flexible sync primitive
+#
+# len G module.sig.syncId actorId
+# -> reply: <int32:len> (<int16:actorId> <int16:vote>)*
+#
+# len P module.sig.syncId actorId vote
+# -> reply: <int16:code>
+#       - 0: OK
+#       - 1: BAD_ARGS, i.e. invalid actorId or vote value
+#       - 2: CONFLICT, i.e. actor has already voted for thi syncId
+#
+
+
+#
 # the only two functions the controller can call is startService() and
 # cancel() as the sync service runs in another thread
 #
@@ -47,6 +61,7 @@ import socket, select, threading, string
 from deploy.syncdet import param, config
 
 from synchronizer import process_timeout, process_request
+
 
 def start_service(verbose):
     sListen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,6 +75,7 @@ def start_service(verbose):
     svc = ThdSyncService(sListen, verbose)
     svc.start()
 
+
 class ThdSyncService(threading.Thread):
     _listen = None
     _verbose = None
@@ -67,7 +83,7 @@ class ThdSyncService(threading.Thread):
     def __init__(self, listen, verbose):
         threading.Thread.__init__(self)
         self._listen = listen
-        self._verbose = verbose;
+        self._verbose = verbose
 
         self.setDaemon(True)
 
@@ -98,6 +114,7 @@ class ThdSyncService(threading.Thread):
 # stores data buffers that are incomplete. indexed by sockets
 s_pendings = {}
 
+
 def parse_packet(socket, data, verbose):
     global s_pendings
     # complete the buffer if we have data previously received
@@ -118,17 +135,19 @@ def parse_packet(socket, data, verbose):
     if len(data) > length:
         s_pendings[socket] = data[length:]
         fields = string.split(data[:length])
-    if verbose: print 'sync request:', fields
+    if verbose:
+        print 'sync request:', fields
     process_request(socket, fields)
+
 
 def fini_socket(socket):
     global s_pendings
     if socket in s_pendings: del s_pendings[socket]
 
-def cancel_synchronizers(signature = 'all'):
+
+def cancel_synchronizers(signature='all'):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((param.SYNC_SERVICE_ADDRESS, param.SYNC_SERVICE_PORT))
 
     data = " C %s" % signature
     s.send("%d%s" % (len(data), data))
-

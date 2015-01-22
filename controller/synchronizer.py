@@ -1,4 +1,7 @@
-import string, time, socket
+import string
+import socket
+import struct
+import time
 
 from deploy.syncdet import param
 
@@ -7,70 +10,127 @@ from deploy.syncdet import param
 
 s_syncs = {}    # all pending synchronizers. { id: Synchronizer }
 
-#
-# fields[0]: length
-# fields[1]: S or C
-# fields[2]: module.sig.syncId or sig
-# fields[3]: the actorId
-# fields[4]: vote
-# fields[5]: timeout
-# fields[6]: actorId1,actorId2...actorIdN
-#
-def process_request(socket, fields):
-    # identifier or sig
-    id = fields[2]
 
-    # type
-    type = fields[1]
-    assert type == 'S' or type == 'C'
-    if type == 'C':
-        process_cancel_request(id)
-    else:
-        # actorId
-        actorId = int(fields[3])
-        # determin the vote
-        if fields[4] == 'y': vote = 1
-        else: vote = 0
-        # timeout
-        timeout = int(fields[5])
-        # build the wait list
-        fieldsWait = string.split(fields[6], ',')
-        waits = []
-        for wait in fieldsWait: waits.append(int(wait))
-        process_sync_request(socket, id, actorId, vote, timeout, waits)
-
-def process_cancel_request(id):
+def _handle_cancel(socket, id):
     global s_syncs
     if id == 'all':
         s_syncs = {}
     else:
-        for syncId in s_syncs.keys():
+        for syncId in s_syncs:
             if syncId.find(id) >= 0: del s_syncs[syncId]
 
-def process_sync_request(socket, id, actorId, vote, timeout, waits):
+
+def _handle_sync(socket, id, actor, vote, timeout, waits):
     global s_syncs
+
+    actor = int(actor)
+    vote = 1 if vote == 'y' else 0
+    timeout = int(timeout)
+    waits = map(lambda s: int(s), string.split(waits, ','))
+
     # create the synchronizer if not exists
-    if id not in s_syncs.keys():
+    if id not in s_syncs:
         s_syncs[id] = Synchronizer(id)
 
-    s_syncs[id].add_participant(socket, actorId, vote, timeout, waits)
-    if s_syncs[id].is_done(): del s_syncs[id]
+    s_syncs[id].add_participant(socket, actor, vote, timeout, waits)
+    if s_syncs[id].is_done():
+        del s_syncs[id]
+
 
 def process_timeout():
     global s_syncs
     now = time.time()
-    for id in s_syncs.keys():
+    for id in s_syncs:
         s_syncs[id].check_timeout(now)
         if s_syncs[id].is_done(): del s_syncs[id]
+
+
+# TODO: avoid globals
+s_sync_ng = {}
+
+_VOTE_FMT = "<HH"
+_VOTE_SIZE = struct.calcsize(_VOTE_FMT)
+
+OK = 0
+BAD_ARGS = 1
+CONFLICT = 2
+
+
+def _handle_get(socket, id):
+    global s_sync_ng
+
+    votes = s_sync_ng.get(id, {})
+    data = struct.pack("<I", len(votes) * _VOTE_SIZE)
+
+    for actor, vote in votes.iteritems():
+        data += struct.pack(_VOTE_FMT, actor, vote)
+
+    socket.send(data)
+
+
+def _handle_post(socket, id, actor, vote):
+    global s_sync_ng
+
+    #print "recvd vote {0} {1} {2}".format(id, actor, vote)
+    actor = int(actor)
+    vote = int(vote)
+
+    if not (0 <= actor <= 65535 and 0 <= vote <= 65535):
+        _send_code(socket, BAD_ARGS)
+        return
+
+    if id not in s_sync_ng:
+        s_sync_ng[id] = {}
+
+    votes = s_sync_ng[id]
+
+    if actor in votes:
+        _send_code(socket, CONFLICT)
+        return
+
+    votes[actor] = vote
+    _send_code(socket, OK)
+
+
+def _send_code(socket, code):
+    socket.send(struct.pack("<H", code))
+
+
+req_handlers = {
+    'C': _handle_cancel,
+    'S': _handle_sync,
+    'G': _handle_get,
+    'P': _handle_post
+}
+
+
+# fields[0]: length
+# fields[1]: S or C
+def process_request(socket, fields):
+    type = fields[1]
+
+    try:
+        h = req_handlers[type]
+    except KeyError:
+        print "invalid sync request: %s" % type
+        return
+
+    h(socket, *fields[2:])
+
 
 class Synchronizer:
 
     @staticmethod
-    def OK(): return
+    def OK():
+        return
+
     @staticmethod
-    def DENIED(): return
+    def DENIED():
+        return
+
     @staticmethod
-    def TIMEOUT(): return
+    def TIMEOUT():
+        return
 
     part = {}    # current participants: { actorId : socket }
     expect = []  # expected participants: [ actorId ]
