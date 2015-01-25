@@ -22,6 +22,8 @@ def tar_user_data():
         except OSError as e:
             if e.errno == errno.ENOENT:
                 print "failed to tar {0} (not found)".format(ed)
+            else:
+                raise
 
     tf.close()
 
