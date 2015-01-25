@@ -15,6 +15,8 @@ def tar_user_data():
             continue
         d = os.path.normpath(d)
         ed = os.path.expanduser(d)
+        if 'win32' in sys.platform:
+            ed = u"\\\\?\\" + ed
         name = os.path.basename(d) + '-{0}'.format(case.actor_id())
         try:
             tf.add(ed, arcname=name)
