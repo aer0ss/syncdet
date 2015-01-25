@@ -1,5 +1,6 @@
 import tarfile
 import os
+import sys
 import errno
 from syncdet import case
 
