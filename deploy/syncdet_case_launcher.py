@@ -91,6 +91,8 @@ def _redirect_stdout_and_stderr():
 
     sys.stdout = sys.stderr = _MultipleOutputStreams(streams)
 
+def _msec(delta):
+    return delta.seconds * 1000 + delta.microseconds / 1000;
 
 def main():
     # Load the configuration file. Since this script
@@ -106,13 +108,15 @@ def main():
 
     try:
         # execute the right entry point
+        start = datetime.utcnow()
         spec = sys.modules[case.module_name()].spec
         if 'entries' in spec.keys() and case.actor_id() < len(spec['entries']):
             ret = spec['entries'][case.actor_id()]()
         else:
             ret = spec['default']()
-        if ret: print 'CASE_OK:', str(ret)
-        else:   print 'CASE_OK'
+        end = datetime.utcnow()
+        if ret: print 'CASE_OK: {} [{}ms]'.format(ret, _msec(end - start))
+        else:   print 'CASE_OK [{}ms]'.format(_msec(end - start))
 
     except Exception as data:
         traceback.print_exc()
