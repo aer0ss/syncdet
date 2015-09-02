@@ -66,7 +66,7 @@ def main():
     parser.add_option("--clobber", dest="clobber", action="store_true",
                       help="kill all remaining remote sessions and quit")
     parser.add_option("--purge-log", dest="purge", action="store_true", default=False,
-                      help="empty the log directory and then quit")
+                      help="empty the log directory")
     parser.add_option("--team-city", dest="team_city", action="store_true",
                       help="Enable teamcity output (used to gather statistics)")
     parser.add_option("--tar", dest="tar", action="append", type="string", default=[],
@@ -84,16 +84,6 @@ def main():
         print e
         sys.exit(1)
 
-    # purge?
-    if options.purge:
-        controller.purge_log_files()
-        sys.exit()
-
-    # clobber?
-    if options.clobber:
-        controller.kill_all_remote_instances(options.verbose)
-        sys.exit()
-
     # parse deploy folders
     if len(args) < 1:
         print 'Please specify at least one deployment folder. Use --help for usage.'
@@ -108,6 +98,15 @@ def main():
         actors.init(options.verbose, options.actors)
     else:
         actors.init(options.verbose)
+
+    # purge?
+    if options.purge:
+        controller.purge_log_files()
+
+    # clobber?
+    if options.clobber:
+        controller.kill_all_remote_instances(options.verbose)
+        sys.exit()
 
     # case timeout?
     if options.casetimeout:

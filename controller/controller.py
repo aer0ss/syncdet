@@ -1,4 +1,4 @@
-import time, signal, sys, threading, os, traceback
+import time, signal, sys, threading, os, shutil, traceback
 
 from deploy.syncdet import param, actors
 
@@ -185,4 +185,7 @@ def kill_all_remote_instances(verbose):
     for s in actors.actor_list(): s.exec_remote_cmd_non_blocking(cmd)
 
 def purge_log_files():
-    os.system('rm -rf {0}/{1}/*'.format(lib.root_path(), param.LOG_DIR))
+    print "purging logs"
+    shutil.rmtree(os.path.join(lib.root_path(), param.LOG_DIR), ignore_errors=True)
+    for s in actors.actor_list():
+        s.exec_remote_cmd_blocking("rm -rf ~/syncdet/logs/*")
